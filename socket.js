@@ -235,7 +235,7 @@ module.exports = (httpServer, router) => {
       
             case 'produce':
               {
-                console.log(rooms[roomId]);
+                // console.log(rooms[roomId]);
                 const { kind, rtpParameters, appData, allProduce } = data;
                 const transport = rooms[roomId].users[userId].producerTransport;
                 const producer = await transport.produce({ kind, rtpParameters });
@@ -244,7 +244,7 @@ module.exports = (httpServer, router) => {
                 }
                 rooms[roomId].producers[userId][kind] = producer;
       
-                console.log("ROOM after produce", rooms[roomId]);
+                // console.log("ROOM after produce", rooms[roomId]);
       
       
                 ws.send(JSON.stringify({ action: 'produced', id: producer.id }));
@@ -260,7 +260,7 @@ module.exports = (httpServer, router) => {
                     }));
                   }
                 }
-                console.log("ALL PRODUCE:", allProduce);
+                // console.log("ALL PRODUCE:", allProduce);
                 // khi ca audio va video dc gui thanh cong -> moi tien hanh tao cac consumer transport -> gui toi client moi join
                 if(allProduce){
                   let users = [];
@@ -268,13 +268,13 @@ module.exports = (httpServer, router) => {
                 usersObject.forEach(user => {
                   users.push({ id: user.id, name: user.name });
                 });
-                console.log(users);
+                // console.log(users);
                 //Create consumers for the new user for all existing producers
                 users.forEach(async user => {
                   if(user.id != userId){
                     // console.log("USERID:", user.id);
                     let producer = rooms[roomId].producers[user.id];
-                    console.log("PRODUCERS:", producer)
+                    // console.log("PRODUCERS:", producer)
                     
                     if(!rooms[roomId].consumers[userId][producer.id]){
                       //tao consumer transport//
@@ -291,7 +291,7 @@ module.exports = (httpServer, router) => {
                         producerUserId: user.id,
                         producerStatus: producer["video"].status
                       }));
-                      console.log(producer["video"].status);
+                      // console.log(producer["video"].status);
                       ws.send(JSON.stringify({
                         action: 'consumerTransportCreated',
                         id: transport.id,
@@ -343,7 +343,7 @@ module.exports = (httpServer, router) => {
               {
                 const { dtlsParameters, producerId, producerUserId } = data;
                 const transport = rooms[roomId].users[userId].consumerTransports[producerUserId];
-                console.log("transport.dtlsState: ", transport.dtlsState)
+                // console.log("transport.dtlsState: ", transport.dtlsState)
                 if(transport.dtlsState === 'new'){
                   await rooms[roomId].users[userId].consumerTransports[producerUserId].connect({ dtlsParameters }).then(() => {
                     console.log('Consumer transport connected');
@@ -397,7 +397,7 @@ module.exports = (httpServer, router) => {
               break;
             case 'consumer-resume':
               {
-                console.log(rooms[roomId]);
+                // console.log(rooms[roomId]);
                 
                 let consumer = rooms[roomId].consumers[userId][data.id]
                 // console.log("Consumer for consume:", consumer)
@@ -409,7 +409,7 @@ module.exports = (httpServer, router) => {
               break;
               case 'message':
                 {
-                  console.log(rooms[roomId]);
+                  // console.log(rooms[roomId]);
                   const sendUser = rooms[roomId].users[data.userId];
                   data.from = sendUser.name;
                   sendBroadcast(data.roomId, data, data.userId);
