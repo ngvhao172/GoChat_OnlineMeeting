@@ -1,0 +1,32 @@
+{
+  "name": "src1",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon app.js",
+    "watch": "watchify public/javascripts/index.js public/javascripts/client.js -p esmify -o public/javascripts/bundle.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "dotenv": "^16.4.5",
+    "esmify": "^2.1.1",
+    "express": "^4.19.2",
+    "express-flash": "^0.0.2",
+    "express-handlebars": "^7.1.2",
+    "express-session": "^1.18.0",
+    "firebase": "^10.12.2",
+    "firebase-admin": "^12.1.1",
+    "hbs": "4.2.0",
+    "http-errors": "~1.6.3",
+    "mediasoup": "^3.14.7",
+    "mediasoup-client": "^3.7.10",
+    "morgan": "~1.9.1",
+    "nodemon": "^3.1.4",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "watchify": "^4.0.0",
+    "ws": "^8.17.1"
+  }
+}

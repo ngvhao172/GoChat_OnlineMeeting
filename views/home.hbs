@@ -1,0 +1,61 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web RTC Meeting App</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <h1>{{user.fullName}}</h1>
+    <form action="/logout" method="get">
+        <button type="submit">Logout</button>
+    </form>
+    <form action="createMeeting" method="post">
+        <button type="submit">Create</button>
+    </form>
+
+    <form action="" method="get" id="join-meeting">
+        <input type="text" name="" id="meeting-id">
+        <button type="button" onclick=joinMeeting(event)>Join a meeting</button>
+    </form>
+</body>
+<script>
+    const socket = new WebSocket('ws://localhost:3000'); 
+    //const socket = new WebSocket('wss://videochatapp.online');
+    socket.onmessage = async (message) => {
+        const data = JSON.parse(message.data);
+        console.log('Received:', data);
+        console.log(data.exists);
+        switch (data.type) {
+            case 'check':
+                if (data.data.exists) {
+                    $("#join-meeting").submit();
+                }
+                else {
+                    alert("Room not found");
+                }
+                break;
+            default:
+                console.error('Unknown message type:', data.type);
+        }
+    };
+
+    function joinMeeting(e) {
+        e.preventDefault();
+        let meetingId = $("#meeting-id").val();
+        if (meetingId !== "") {
+            $("#join-meeting").attr("action", meetingId);
+            socket.send(JSON.stringify({ type: 'checkRoomExists', roomId: meetingId.trim() }));
+            $("#join-meeting").submit();
+        } else {
+            alert("Please enter a valid meeting ID.");
+        }
+    }
+</script>
+
+</html>

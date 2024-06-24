@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC - Meeting App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+
+    {{!-- <link rel="stylesheet" href="/stylesheets/style.css"> --}}
+    {{!-- <script>
+        // Embed server-side data into a global JavaScript variable
+        window.serverData = {{{ json user }}};
+    </script> --}}
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+        }
+        .overlay {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 20%;
+            pointer-events: none;
+        }
+
+        .overlay.top {
+            top: 0;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+        }
+
+        .overlay.bottom {
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+            z-index: 1;
+        }
+        .buttons:hover {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background-color: #dfdcdc;
+        }
+        .buttons {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background-color: transparent;
+            border: 1px solid white;
+        }
+        .device-options{
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis; 
+            background-color: transparent;
+            border: 1px solid transparent;
+            transition: background-color 0.3s, border 0.3s;
+        }
+        .device-options:hover{
+            background-color: #dff3ff;
+            border: 1px solid rgb(201, 201, 201)
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid vh-100 d-flex flex-column pt-2 m-0">
+        <div class="header row d-flex justify-content-between align-items-center p-0 m-0">
+            <div class="col-6 h-100">
+                <img src="/images/GoChatNBg.png" alt="" srcset="" style="height: 100px; width: 100px">
+            </div>
+            <div class="col-6 text-end h-100 pt-2">
+                <div class="row me-3">
+                    <div class="col-12 col-sm-11 text-end">
+                        <p class="d-sm-block p-0 m-0 fw-semibold">Nguyen Van Hao</p>
+                        <p class="d-sm-block p-0 m-0">ngvhao172@gmail.com</p>
+                    </div>
+                    <div class="col-sm-1 d-none d-sm-block text-end">
+                        <img class="rounded-circle" src="/images/minji.jpg" alt="" style="height: 50px; width: 50px">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="main container my-auto">
+            <div class="row">
+                <div class="col-12 col-sm-9 justify-content-center">
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-lg-8">
+                            <div class="card rounded-1 p-0" style="width: 100%">
+                            <div class="card-body d-flex flex-column p-0 position-relative">
+                                <h5 class="card-title text-white z-3 position-absolute ps-5 pt-5">Nguyen Van Hao</h5>
+                                <h5 id="camera-off-text" class="text-white z-3 position-absolute top-50 start-50 translate-middle d-none">Camera is being off</h5>
+                                <div class="flex-grow-1 d-flex">
+                                    <video id="videoPreview" autoplay disablePictureInPicture style="width: 100%"></video>
+                                    <div class="overlay top"></div>
+                                    <div class="overlay bottom"></div>
+                                </div>
+                                <div class="d-flex justify-content-center align-items-center z-3 position-absolute bottom-0 start-50 translate-middle">
+                                    {{!-- <button id="joinButton" class="btn btn-primary btn-block mt-3 me-3" style="width: 50px, height:50px">
+
+                                    </button>
+                                    <button id="joinButton" class="btn btn-primary btn-block mt-3 ms-3">
+
+                                    </button> --}}
+                                    <button id="micButton" class="buttons ms-3">
+                                        <i id="micIcon" class="bi bi-mic text-white fs-5"></i>
+                                    </button>
+                                    <button id="webcamButton" class="buttons ms-3">
+                                        <i id="webcamIcon" class="bi bi-camera-video text-white fs-5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="row row-cols-1 row-cols-sm-3 row-cols-lg-5 d-flex pt-2 justify-content-center ms-2 me-2">
+                        <div class="col text-start me-2">
+                            <button id="chatButton" class="device-options d-flex rounded-pill align-items-center" style="width: 150px;">
+                                <i class="bi bi-mic fs-5 pe-2"></i> 
+                                <p class="device-options p-0 m-0 text-center border-0">Microphone 1231232132112</p>
+                            </button> 
+                        </div>
+                        <div class="col text-start me-2">
+                            <button id="chatButton" class="device-options d-flex rounded-pill align-items-center" style="width: 150px;">
+                                <i class="bi bi-volume-up fs-5 pe-2"></i> 
+                                <p class="device-options p-0 m-0 text-center border-0">Speaker 12321312312312</p>
+                            </button> 
+                        </div>
+                        <div class="col text-start me-2">
+                            <button id="chatButton" class="device-options d-flex rounded-pill align-items-center" style="width: 150px;">
+                                <i class="bi bi-camera-video fs-5 pe-2"></i> 
+                                <p class="device-options p-0 m-0 text-center border-0">Camera 12321311</p>
+                            </button> 
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-3 justify-content-center p-3">
+                    <div class="row mb-1">
+                        <div class="col">
+                            <p class="fs-2 p-0 m-0">Ready to join?</p>
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col">
+                            <p class="fs-5 p-0 m-0">There are 2 people on this room.</p>
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col">
+                            <form action="" method="post">
+                                <input type="text" hidden name="join" value="true">
+                                <button type="submit" class="button bg-primary text-white border border-1 rounded-pill p-3" style="width: 300px;">JOIN</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const videoPreview = document.getElementById('videoPreview');
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                .then(function(stream) {
+                    videoPreview.srcObject = stream;
+                    videoPreview.play();
+                })
+                .catch(function(error) {
+                    console.error("Error accessing camera: ", error);
+                });
+            } else {
+                alert('Sorry, your browser does not support getUserMedia');
+            }
+
+            const webcamButton = $('#webcamButton');
+            const micButton = $('#micButton');
+
+
+            webcamButton.on("click", () => {
+                let stream = videoPreview.captureStream();
+                let track  = stream.getTracks().find(track => track.kind === "video");
+                console.log("click")
+                if(webcamButton.hasClass("bg-danger")){
+                    track.enabled = true;
+                    webcamButton.removeClass("bg-danger");
+                    $("#webcamIcon").removeClass("bi-camera-video-off");
+                    $("#webcamIcon").addClass("bi-camera-video");
+                    $("#camera-off-text").addClass("d-none");
+                }
+                else{
+                    track.enabled = false;
+                    $("#camera-off-text").removeClass("d-none");
+                    webcamButton.addClass("bg-danger");
+                    $("#webcamIcon").removeClass("bi-camera-video");
+                    $("#webcamIcon").addClass("bi-camera-video-off");
+                }
+            })
+            micButton.on("click", () => {
+                let stream = videoPreview.captureStream();
+                let track  = stream.getTracks().find(track => track.kind === "audio");
+                console.log("click")
+                if(micButton.hasClass("bg-danger")){
+                    track.enabled = true;
+                    micButton.removeClass("bg-danger");
+                    $("#micIcon").removeClass("bi-mic-mute");
+                    $("#micIcon").addClass("bi-mic");
+                }
+                else{
+                    track.enabled = false;
+                    micButton.addClass("bg-danger");
+                    $("#micIcon").removeClass("bi-mic");
+                    $("#micIcon").addClass("bi-mic-mute");
+                }
+            })
+        });
+    </script>
+</body>
+
+</html>

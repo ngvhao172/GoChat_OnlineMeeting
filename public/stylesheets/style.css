@@ -1,0 +1,253 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background-color: #202124;
+}
+
+.body-container{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100dvh;
+}
+
+.main-container {
+  display: flex;
+  height: 85vh;
+  width: 100%;
+}
+
+.grid-container {
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  grid-template-rows: repeat(1, 1fr);
+  grid-gap: 10px;
+  flex-grow: 1;
+  transition: 300ms;
+}
+
+.grid-item {
+  background-color: #e2e2e2;
+  cursor: pointer;
+  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.grid-item:hover {
+  background-color: #cccccc;
+  transition: 0.5s;
+}
+
+.grid-item video {
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.buttons {
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  background-color: #3c4043;
+  border: none;
+}
+
+.buttons:hover {
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  background-color: #414446;
+}
+
+.buttonsClose:hover {
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  background-color: #d5d7d8;
+}
+
+.buttonsClose,
+.buttonsAction {
+  background-color: transparent;
+}
+
+#hangupButton {
+  background-color: red;
+}
+
+.grid-container.reduced {
+  width: calc(100% - 400px);
+  transition: width 0.3s;
+}
+
+.action-container {
+  padding: 10px;
+  height: 100%;
+  display: none;
+  width: 400px;
+  transition: transform 0.3s;
+  transform: translateX(100%);
+}
+
+.action-container.open {
+  transform: translateX(0);
+}
+
+.bottom-container {
+  height: 15vh;
+}
+
+.chat-container,
+.people-container {
+  display: none;
+  padding: 10px;
+  border-radius: 8px;
+  height: 100%;
+  width: 100%;
+  background-color: #f9f9f9;
+  border-left: 1px solid #ddd;
+}
+
+.chat-header,
+.people-header {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.chat-body, .people-in-meeting{
+  overflow-y: auto;
+}
+.people-in-meeting{
+  overflow-x:hidden;
+
+}
+
+.chat-footer {
+  padding: 10px;
+}
+
+.input-container {
+  background-color: #f1f3f4;
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 25px;
+  overflow: hidden;
+}
+
+.input-container input[type="text"] {
+  flex: 1;
+  background-color: #f1f3f4;
+  padding: 10px;
+  border: none;
+  outline: none;
+  width: 100%;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+.send-button {
+  color: grey;
+  border: none;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+p {
+  padding: 0;
+  margin: 0;
+}
+
+.chat-content p {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.add-people-button {
+  background-color: #c3e8fe;
+}
+
+.add-people-button:hover {
+  box-shadow: 0 4px 15px 0 rgba(49, 196, 190, 0.75)
+}
+
+.wrapper{
+  border: #cccccc 1px solid;
+}
+.wrapper .search-people:focus {
+  outline: none; 
+}
+
+.wrapper .search-people:focus ~ .bi,
+.wrapper:focus-within, .wrapper:active {
+  border: #007BFF 1px solid;
+}
+
+.user-avatar{
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background-repeat: no-repeat;
+  background-size: cover;
+  object-fit: cover;
+  object-position: center; 
+}
+.muted-mic{
+  width: 40px;
+  height: 40px;
+}
+
+.user-avatar-display{
+  width: 150px;
+  height: 150px;
+  border-radius: 75px;
+  background-repeat: no-repeat;
+  background-size: cover;
+  object-fit: cover;
+  object-position: center;
+}
+
+.contributor:hover{
+  background-color: #d5d7d8;
+  cursor: pointer;
+}
+.video-container {
+position: relative;
+}
+
+.name-display {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  color: white; 
+  padding: 10px;
+}
+
+
+.overlay {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: url('overlay-image.jpg') no-repeat center center;
+  background-size: cover;
+}

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC - Meeting App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <script>
+        // Embed server-side data into a global JavaScript variable
+        window.serverData = {{{ json user }}};
+    </script>
+</head>
+
+<body>
+    <div class="container-fluid body-container">
+        <div class="row">
+            <div class="main-container container-fluid">
+                <div class="grid-container">
+                    <!-- Video grid items will be dynamically added here -->
+                    {{!-- <div id="divVideolocalUser" class="video-container grid-item">
+                        <video id="localUser" autoplay playsinline></video>
+                        <div class="name-display">name</div>
+                        <div class="mutedMicLocalUser d-none position-absolute top-0 end-0 muted-mic mt-2 me-2 text-white fs-5 bg-dark rounded-circle d-flex align-items-center justify-content-center">
+                            <i class="bi bi-mic-mute p-0"></i>
+                        </div>
+                    </div>
+                    <div id="divAlterLocalUser" class="d-none bg-secondary grid-item video-container-altenative position-relative">
+                        <img src="https://assets.puzzlefactory.com/puzzle/566/423/original.jpg" class="user-avatar-display position-absolute top-50 start-50 translate-middle">
+                        <div class="name-display">name</div>
+                        <div class="mutedMicLocalUser d-none position-absolute top-0 end-0 muted-mic mt-2 me-2 text-white fs-5 bg-dark rounded-circle d-flex align-items-center justify-content-center">
+                            <i class="bi bi-mic-mute p-0"></i>
+                        </div>
+                    </div> --}}
+                </div>
+                <div id="actionContainer" class="action-container">
+                    <div id="chatContainer" class="chat-container bg-red flex-column mb-3">
+                        <div class="chat-header d-flex justify-content-between align-items-center">
+                            <p class="fs-5 m-0">In-call messsages</p>
+                            <button id="closeChatButton" class="buttons buttonsClose border-0"><i
+                                    class="bi bi-x-lg fw-bold"></i></button>
+                        </div>
+                        <div class="chat-body ps-2 pe-2" id="chatBody">
+                            {{!-- <div class="chat-message mt-3">
+                                <div class="chat-author d-flex">
+                                    <div class="fw-bold">Nguyen Van Hao &ensp;</div>
+                                    <div class="timer text-grey">22:16</div>
+                                </div> 
+                            --}}
+                        </div>
+                        <div class="chat-footer mt-auto mb-3">
+                            <div class="input-container">
+                                <input type="text" id="messageContent" placeholder="Send a message...">
+                                <button class="send-button" id="sendButton">
+                                    <i class="bi bi-telegram fs-5"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {{!-- PEOPLE CONTAINER --}}
+                    <div id="peopleContainer" class="people-container bg-red flex-column mb-3">
+                        <div class="people-header d-flex justify-content-between align-items-center">
+                            <p class="fs-5 m-0">People</p>
+                            <button id="closePeopleButton" class="buttons buttonsClose border-0"><i
+                                    class="bi bi-x-lg fw-bold"></i></button>
+                        </div>
+                        <div>
+                            <button class="mt-2 border-0 rounded-pill p-2 d-flex align-items-center add-people-button">
+                                <i class="bi bi-person-add fs-5"></i>
+                                &ensp; Add more people
+                            </button>
+                        </div>
+                        <div class="d-flex justify-content-start  p-2 mt-2 rounded-1 wrapper">
+                            <i class="bi bi-search-heart fs-5 me-3 ms-2"></i>
+                            <input type="text" placeholder="Search for people"
+                                class="border-0 bg-transparent flex-fill search-people">
+                        </div>
+
+                        <div class="mt-2 ps-3">IN MEETING</div>
+
+                        <div class="container-fluid mt-2 p-0 border border-1 rounded-top-2 ps-2 pe-2 contributor">
+                            <div class="row d-flex align-items-center pt-2 pb-2">
+                                <div class="col-8 pe-0 ps-3">Contributors</div>
+                                <div class="col-2 text-center pe-lg-2 pe-xl-3 pe-xxl-4" id="contributors-number">2</div>
+                                <div class="col-2 text-center pe-lg-2 pe-xl-3 pe-xxl-5"><i
+                                        class="bi bi-caret-down fs-5 rotate"></i></div>
+                            </div>
+                        </div>
+                        <div
+                            class="container-fluid p-0 border border-1 rounded-bottom-2 border-top-0 ps-2 pe-2 people-in-meeting">
+                            <div class="container-fluid p-0" id="userslist">
+                                {{!-- <div class="row d-flex align-items-center pt-2 pb-2">
+                                    <div class="col-2 avatar ps-3"><img class="user-avatar"
+                                            src="https://th.bing.com/th/id/OIP.KTSVEqImOpx4gXTshphsnwHaHa?rs=1&pid=ImgDetMain"
+                                            alt="" srcset=""></div>
+                                    <div class="col-6 p-0 ps-3 ps-sm-1">Hao Nguyen Van (You)</div>
+                                    <div class="col-2 text-center"><i class="bi bi-mic-mute"></i></div>
+                                    <div class="col-2 p-0">
+                                        <button class="buttons buttonsClose">
+                                            <i class="bi bi-three-dots-vertical fs-5"></i>
+                                        </button>
+                                    </div>
+                                </div> --}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{!-- <div class="toast-container position-fixed bottom-20 start-0">
+            <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive"
+                    aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body" id="toast-body">
+                            Hello, world! This is a toast message.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> --}}
+        <div class="bottom-container row position-relative d-flex align-items-center mb-5">
+            <div class="col-sm-3 position-absolute bottom-0 start-0 d-none d-sm-inline h-100">
+                <div class="d-flex justify-content-start align-items-center text-white fs-5 flex-nowrap h-100">
+                    <div class="d-none d-lg-block" id="time">2:10 PM </div>
+                    <div class="d-none d-lg-inline">&ensp; | &ensp;</div>
+                    <div class="d-none d-lg-inline" id="roomId"></div>
+                </div>
+            </div>
+            <div class="col-10 col-sm-6 position-absolute bottom-0 start-50 translate-middle-x h-100">
+                <div class="row d-flex justify-content-center align-items-center flex-nowrap h-100">
+                    <button id="micButton" class="buttons me-4"><i class="bi bi-mic text-white fs-5"></i></button>
+                    <button id="webcamButton" class=" buttons me-4"><i
+                            class="bi bi-camera-video text-white fs-5"></i></button>
+                    <button id="emojiButton" class="buttons me-4 d-none d-sm-inline"><i
+                            class="bi bi-emoji-smile text-white"></i></button>
+                    <button id="shareButton" class="buttons me-4 d-none d-sm-inline"><i
+                            class="bi bi-file-play text-white fs-5"></i></button>
+                    <button id="raiseHandButton" class="buttons me-4 d-none d-sm-inline"><i
+                            class="bi bi-person-raised-hand text-white fs-5 fs-5"></i></button>
+                    <button id="hangupButton" type="button" class="buttons btn btn-danger"><i
+                            class="bi bi-telephone-x text-white fs-5 fs-5"></i></button>
+                </div>
+            </div>
+            <div class="col-lg-4 position-absolute bottom-0 end-0 h-100 d-none d-lg-inline">
+                <div class="row d-flex justify-content-end align-items-center h-100">
+                    <button id="peopleButton" class="peopleButton buttons buttonsAction border-0"><i
+                            class="bi bi-people text-white fs-5"></i></button>
+                    <button id="chatButton" class="buttons buttonsAction border-0 me-4"><i
+                            class="bi bi-chat-left-dots text-white fs-5"></i></button>
+                </div>
+            </div>
+
+            <div class="col-2 position-absolute bottom-0 end-0 h-100 d-inline d-lg-none">
+                <div class="dropup-center dropup d-flex align-items-center justify-content-end h-100">
+                    <button type="button" class="buttons buttonsAction" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-arrow-up-circle text-white fs-5"></i>
+                    </button>
+                    <ul class="dropdown-menu bg-dark" style="min-width: 20px">
+                        <li>
+                            <button id="peopleButtonOnMobile" class="dropdown-item buttons buttonsAction border-0"><i
+                                    class="bi bi-people text-white fs-5"></i></button>
+                        </li>
+                        <li>
+                            <button id="chatButtonOnMobile" class="dropdown-item buttons buttonsAction border-0"><i
+                                    class="bi bi-chat-left-dots text-white fs-5"></i></button>
+                        </li>
+                        <li>
+                            <button id="emojiButton" class="dropdown-item buttons buttonsAction border-0"><i
+                                    class="bi bi-emoji-smile text-white"></i></button>
+                        </li>
+                        <li>
+                            <button id="shareButton" class="dropdown-item buttons buttonsAction border-0"><i
+                                    class="bi bi-file-play text-white fs-5"></i></button>
+                        </li>
+                        <li>
+                            <button id="raiseHandButton" class="dropdown-item buttons buttonsAction border-0"><i
+                                    class="bi bi-person-raised-hand text-white fs-5 fs-5"></i></button>
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="toast-container position-fixed bottom-0 start-0 pb-5 ps-3 mb-5 z-3">
+            <div id="liveToast" class="toast text-bg-secondary" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-body" id="toast-body">
+                    User left!
+                </div>
+            </div>
+        </div>
+        <div class="toast-container position-fixed bottom-0 end-0 pb-5 ps-3 mb-5 z-3">
+            <div id="liveToast2" class="toast text-bg-secondary" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-body" id="toast-body2">
+                    User join!
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="/javascripts/bundle.js" type="module"></script>
+    {{!-- <script src="/javascripts/client.js" type="module"></script> --}}
+
+
+</body>
+
+</html>
