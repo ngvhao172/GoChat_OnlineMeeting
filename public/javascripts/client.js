@@ -313,7 +313,9 @@ function notifyUserJoin(username) {
 // }
 const mediasoupClient = require('mediasoup-client')
 
-const ws = new WebSocket('ws://localhost:3000');
+// const ws = new WebSocket('ws://localhost:3000');
+
+const ws = new WebSocket('wss://webrtc-onlinemeeting-sfu-mediasoup.onrender.com');
 
 let device
 let rtpCapabilities
