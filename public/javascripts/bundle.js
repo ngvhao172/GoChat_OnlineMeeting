@@ -491,7 +491,7 @@ formatters.j = function (v) {
 };
 
 }).call(this)}).call(this,require('_process'))
-},{"./common":4,"_process":51}],4:[function(require,module,exports){
+},{"./common":4,"_process":49}],4:[function(require,module,exports){
 
 /**
  * This is the common logic for both the Node.js and web browser
@@ -767,171 +767,7 @@ function setup(env) {
 
 module.exports = setup;
 
-},{"ms":5}],5:[function(require,module,exports){
-/**
- * Helpers.
- */
-
-var s = 1000;
-var m = s * 60;
-var h = m * 60;
-var d = h * 24;
-var w = d * 7;
-var y = d * 365.25;
-
-/**
- * Parse or format the given `val`.
- *
- * Options:
- *
- *  - `long` verbose formatting [false]
- *
- * @param {String|Number} val
- * @param {Object} [options]
- * @throws {Error} throw an error if val is not a non-empty string or a number
- * @return {String|Number}
- * @api public
- */
-
-module.exports = function(val, options) {
-  options = options || {};
-  var type = typeof val;
-  if (type === 'string' && val.length > 0) {
-    return parse(val);
-  } else if (type === 'number' && isFinite(val)) {
-    return options.long ? fmtLong(val) : fmtShort(val);
-  }
-  throw new Error(
-    'val is not a non-empty string or a valid number. val=' +
-      JSON.stringify(val)
-  );
-};
-
-/**
- * Parse the given `str` and return milliseconds.
- *
- * @param {String} str
- * @return {Number}
- * @api private
- */
-
-function parse(str) {
-  str = String(str);
-  if (str.length > 100) {
-    return;
-  }
-  var match = /^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i.exec(
-    str
-  );
-  if (!match) {
-    return;
-  }
-  var n = parseFloat(match[1]);
-  var type = (match[2] || 'ms').toLowerCase();
-  switch (type) {
-    case 'years':
-    case 'year':
-    case 'yrs':
-    case 'yr':
-    case 'y':
-      return n * y;
-    case 'weeks':
-    case 'week':
-    case 'w':
-      return n * w;
-    case 'days':
-    case 'day':
-    case 'd':
-      return n * d;
-    case 'hours':
-    case 'hour':
-    case 'hrs':
-    case 'hr':
-    case 'h':
-      return n * h;
-    case 'minutes':
-    case 'minute':
-    case 'mins':
-    case 'min':
-    case 'm':
-      return n * m;
-    case 'seconds':
-    case 'second':
-    case 'secs':
-    case 'sec':
-    case 's':
-      return n * s;
-    case 'milliseconds':
-    case 'millisecond':
-    case 'msecs':
-    case 'msec':
-    case 'ms':
-      return n;
-    default:
-      return undefined;
-  }
-}
-
-/**
- * Short format for `ms`.
- *
- * @param {Number} ms
- * @return {String}
- * @api private
- */
-
-function fmtShort(ms) {
-  var msAbs = Math.abs(ms);
-  if (msAbs >= d) {
-    return Math.round(ms / d) + 'd';
-  }
-  if (msAbs >= h) {
-    return Math.round(ms / h) + 'h';
-  }
-  if (msAbs >= m) {
-    return Math.round(ms / m) + 'm';
-  }
-  if (msAbs >= s) {
-    return Math.round(ms / s) + 's';
-  }
-  return ms + 'ms';
-}
-
-/**
- * Long format for `ms`.
- *
- * @param {Number} ms
- * @return {String}
- * @api private
- */
-
-function fmtLong(ms) {
-  var msAbs = Math.abs(ms);
-  if (msAbs >= d) {
-    return plural(ms, msAbs, d, 'day');
-  }
-  if (msAbs >= h) {
-    return plural(ms, msAbs, h, 'hour');
-  }
-  if (msAbs >= m) {
-    return plural(ms, msAbs, m, 'minute');
-  }
-  if (msAbs >= s) {
-    return plural(ms, msAbs, s, 'second');
-  }
-  return ms + ' ms';
-}
-
-/**
- * Pluralization helper.
- */
-
-function plural(ms, msAbs, n, name) {
-  var isPlural = msAbs >= n * 1.5;
-  return Math.round(ms / n) + ' ' + name + (isPlural ? 's' : '');
-}
-
-},{}],6:[function(require,module,exports){
+},{"ms":47}],5:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -970,7 +806,7 @@ class Logger {
 }
 exports.Logger = Logger;
 
-},{"debug":8}],7:[function(require,module,exports){
+},{"debug":7}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateProfileLevelIdStringForAnswer = exports.isSameProfile = exports.parseSdpProfileLevelId = exports.levelToString = exports.profileToString = exports.profileLevelIdToString = exports.parseProfileLevelId = exports.ProfileLevelId = exports.Level = exports.Profile = void 0;
@@ -1446,13 +1282,11 @@ function isLevelAsymmetryAllowed(params = {}) {
         level_asymmetry_allowed === '1');
 }
 
-},{"./Logger":6}],8:[function(require,module,exports){
+},{"./Logger":5}],7:[function(require,module,exports){
 arguments[4][3][0].apply(exports,arguments)
-},{"./common":9,"_process":51,"dup":3}],9:[function(require,module,exports){
+},{"./common":8,"_process":49,"dup":3}],8:[function(require,module,exports){
 arguments[4][4][0].apply(exports,arguments)
-},{"dup":4,"ms":10}],10:[function(require,module,exports){
-arguments[4][5][0].apply(exports,arguments)
-},{"dup":5}],11:[function(require,module,exports){
+},{"dup":4,"ms":47}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Consumer = void 0;
@@ -1644,7 +1478,7 @@ class Consumer extends EnhancedEventEmitter_1.EnhancedEventEmitter {
 }
 exports.Consumer = Consumer;
 
-},{"./EnhancedEventEmitter":15,"./Logger":16,"./errors":21}],12:[function(require,module,exports){
+},{"./EnhancedEventEmitter":13,"./Logger":14,"./errors":19}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DataConsumer = void 0;
@@ -1808,7 +1642,7 @@ class DataConsumer extends EnhancedEventEmitter_1.EnhancedEventEmitter {
 }
 exports.DataConsumer = DataConsumer;
 
-},{"./EnhancedEventEmitter":15,"./Logger":16}],13:[function(require,module,exports){
+},{"./EnhancedEventEmitter":13,"./Logger":14}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DataProducer = void 0;
@@ -1990,7 +1824,7 @@ class DataProducer extends EnhancedEventEmitter_1.EnhancedEventEmitter {
 }
 exports.DataProducer = DataProducer;
 
-},{"./EnhancedEventEmitter":15,"./Logger":16,"./errors":21}],14:[function(require,module,exports){
+},{"./EnhancedEventEmitter":13,"./Logger":14,"./errors":19}],12:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -2016,7 +1850,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Device = exports.detectDevice = void 0;
+exports.Device = void 0;
+exports.detectDevice = detectDevice;
 const ua_parser_js_1 = require("ua-parser-js");
 const Logger_1 = require("./Logger");
 const EnhancedEventEmitter_1 = require("./EnhancedEventEmitter");
@@ -2172,7 +2007,6 @@ function detectDevice() {
         return undefined;
     }
 }
-exports.detectDevice = detectDevice;
 class Device {
     /**
      * Create a new Device to connect to mediasoup server.
@@ -2471,7 +2305,7 @@ class Device {
 }
 exports.Device = Device;
 
-},{"./EnhancedEventEmitter":15,"./Logger":16,"./Transport":20,"./errors":21,"./handlers/Chrome111":22,"./handlers/Chrome55":23,"./handlers/Chrome67":24,"./handlers/Chrome70":25,"./handlers/Chrome74":26,"./handlers/Edge11":27,"./handlers/Firefox120":28,"./handlers/Firefox60":29,"./handlers/ReactNative":31,"./handlers/ReactNativeUnifiedPlan":32,"./handlers/Safari11":33,"./handlers/Safari12":34,"./ortc":43,"./utils":46,"ua-parser-js":57}],15:[function(require,module,exports){
+},{"./EnhancedEventEmitter":13,"./Logger":14,"./Transport":18,"./errors":19,"./handlers/Chrome111":20,"./handlers/Chrome55":21,"./handlers/Chrome67":22,"./handlers/Chrome70":23,"./handlers/Chrome74":24,"./handlers/Edge11":25,"./handlers/Firefox120":26,"./handlers/Firefox60":27,"./handlers/ReactNative":29,"./handlers/ReactNativeUnifiedPlan":30,"./handlers/Safari11":31,"./handlers/Safari12":32,"./ortc":41,"./utils":44,"ua-parser-js":55}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EnhancedEventEmitter = void 0;
@@ -2543,7 +2377,7 @@ class EnhancedEventEmitter extends npm_events_package_1.EventEmitter {
 }
 exports.EnhancedEventEmitter = EnhancedEventEmitter;
 
-},{"./Logger":16,"npm-events-package":50}],16:[function(require,module,exports){
+},{"./Logger":14,"npm-events-package":48}],14:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2582,7 +2416,7 @@ class Logger {
 }
 exports.Logger = Logger;
 
-},{"debug":47}],17:[function(require,module,exports){
+},{"debug":45}],15:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Producer = void 0;
@@ -2871,7 +2705,7 @@ class Producer extends EnhancedEventEmitter_1.EnhancedEventEmitter {
 }
 exports.Producer = Producer;
 
-},{"./EnhancedEventEmitter":15,"./Logger":16,"./errors":21}],18:[function(require,module,exports){
+},{"./EnhancedEventEmitter":13,"./Logger":14,"./errors":19}],16:[function(require,module,exports){
 "use strict";
 /**
  * The RTP capabilities define what mediasoup or an endpoint can receive at
@@ -2879,11 +2713,11 @@ exports.Producer = Producer;
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],19:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],20:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -3753,7 +3587,7 @@ class Transport extends EnhancedEventEmitter_1.EnhancedEventEmitter {
 }
 exports.Transport = Transport;
 
-},{"./Consumer":11,"./DataConsumer":12,"./DataProducer":13,"./EnhancedEventEmitter":15,"./Logger":16,"./Producer":17,"./errors":21,"./ortc":43,"./utils":46,"awaitqueue":2,"queue-microtask":52}],21:[function(require,module,exports){
+},{"./Consumer":9,"./DataConsumer":10,"./DataProducer":11,"./EnhancedEventEmitter":13,"./Logger":14,"./Producer":15,"./errors":19,"./ortc":41,"./utils":44,"awaitqueue":2,"queue-microtask":50}],19:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InvalidStateError = exports.UnsupportedError = void 0;
@@ -3794,7 +3628,7 @@ class InvalidStateError extends Error {
 }
 exports.InvalidStateError = InvalidStateError;
 
-},{}],22:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -4507,7 +4341,7 @@ class Chrome111 extends HandlerInterface_1.HandlerInterface {
 }
 exports.Chrome111 = Chrome111;
 
-},{"../Logger":16,"../errors":21,"../ortc":43,"../scalabilityModes":44,"../utils":46,"./HandlerInterface":30,"./ortc/utils":36,"./sdp/RemoteSdp":38,"./sdp/commonUtils":39,"./sdp/unifiedPlanUtils":41,"sdp-transform":54}],23:[function(require,module,exports){
+},{"../Logger":14,"../errors":19,"../ortc":41,"../scalabilityModes":42,"../utils":44,"./HandlerInterface":28,"./ortc/utils":34,"./sdp/RemoteSdp":36,"./sdp/commonUtils":37,"./sdp/unifiedPlanUtils":39,"sdp-transform":52}],21:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -5063,7 +4897,7 @@ class Chrome55 extends HandlerInterface_1.HandlerInterface {
 }
 exports.Chrome55 = Chrome55;
 
-},{"../Logger":16,"../errors":21,"../ortc":43,"../utils":46,"./HandlerInterface":30,"./sdp/RemoteSdp":38,"./sdp/commonUtils":39,"./sdp/planBUtils":40,"sdp-transform":54}],24:[function(require,module,exports){
+},{"../Logger":14,"../errors":19,"../ortc":41,"../utils":44,"./HandlerInterface":28,"./sdp/RemoteSdp":36,"./sdp/commonUtils":37,"./sdp/planBUtils":38,"sdp-transform":52}],22:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -5674,7 +5508,7 @@ class Chrome67 extends HandlerInterface_1.HandlerInterface {
 }
 exports.Chrome67 = Chrome67;
 
-},{"../Logger":16,"../ortc":43,"../utils":46,"./HandlerInterface":30,"./sdp/RemoteSdp":38,"./sdp/commonUtils":39,"./sdp/planBUtils":40,"sdp-transform":54}],25:[function(require,module,exports){
+},{"../Logger":14,"../ortc":41,"../utils":44,"./HandlerInterface":28,"./sdp/RemoteSdp":36,"./sdp/commonUtils":37,"./sdp/planBUtils":38,"sdp-transform":52}],23:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -6310,7 +6144,7 @@ class Chrome70 extends HandlerInterface_1.HandlerInterface {
 }
 exports.Chrome70 = Chrome70;
 
-},{"../Logger":16,"../ortc":43,"../scalabilityModes":44,"../utils":46,"./HandlerInterface":30,"./sdp/RemoteSdp":38,"./sdp/commonUtils":39,"./sdp/unifiedPlanUtils":41,"sdp-transform":54}],26:[function(require,module,exports){
+},{"../Logger":14,"../ortc":41,"../scalabilityModes":42,"../utils":44,"./HandlerInterface":28,"./sdp/RemoteSdp":36,"./sdp/commonUtils":37,"./sdp/unifiedPlanUtils":39,"sdp-transform":52}],24:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -7027,7 +6861,7 @@ class Chrome74 extends HandlerInterface_1.HandlerInterface {
 }
 exports.Chrome74 = Chrome74;
 
-},{"../Logger":16,"../errors":21,"../ortc":43,"../scalabilityModes":44,"../utils":46,"./HandlerInterface":30,"./ortc/utils":36,"./sdp/RemoteSdp":38,"./sdp/commonUtils":39,"./sdp/unifiedPlanUtils":41,"sdp-transform":54}],27:[function(require,module,exports){
+},{"../Logger":14,"../errors":19,"../ortc":41,"../scalabilityModes":42,"../utils":44,"./HandlerInterface":28,"./ortc/utils":34,"./sdp/RemoteSdp":36,"./sdp/commonUtils":37,"./sdp/unifiedPlanUtils":39,"sdp-transform":52}],25:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -7482,7 +7316,7 @@ class Edge11 extends HandlerInterface_1.HandlerInterface {
 }
 exports.Edge11 = Edge11;
 
-},{"../Logger":16,"../errors":21,"../ortc":43,"../utils":46,"./HandlerInterface":30,"./ortc/edgeUtils":35}],28:[function(require,module,exports){
+},{"../Logger":14,"../errors":19,"../ortc":41,"../utils":44,"./HandlerInterface":28,"./ortc/edgeUtils":33}],26:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -8213,7 +8047,7 @@ class Firefox120 extends HandlerInterface_1.HandlerInterface {
 }
 exports.Firefox120 = Firefox120;
 
-},{"../Logger":16,"../errors":21,"../ortc":43,"../scalabilityModes":44,"../utils":46,"./HandlerInterface":30,"./sdp/RemoteSdp":38,"./sdp/commonUtils":39,"./sdp/unifiedPlanUtils":41,"sdp-transform":54}],29:[function(require,module,exports){
+},{"../Logger":14,"../errors":19,"../ortc":41,"../scalabilityModes":42,"../utils":44,"./HandlerInterface":28,"./sdp/RemoteSdp":36,"./sdp/commonUtils":37,"./sdp/unifiedPlanUtils":39,"sdp-transform":52}],27:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -8946,7 +8780,7 @@ class Firefox60 extends HandlerInterface_1.HandlerInterface {
 }
 exports.Firefox60 = Firefox60;
 
-},{"../Logger":16,"../errors":21,"../ortc":43,"../scalabilityModes":44,"../utils":46,"./HandlerInterface":30,"./sdp/RemoteSdp":38,"./sdp/commonUtils":39,"./sdp/unifiedPlanUtils":41,"sdp-transform":54}],30:[function(require,module,exports){
+},{"../Logger":14,"../errors":19,"../ortc":41,"../scalabilityModes":42,"../utils":44,"./HandlerInterface":28,"./sdp/RemoteSdp":36,"./sdp/commonUtils":37,"./sdp/unifiedPlanUtils":39,"sdp-transform":52}],28:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HandlerInterface = void 0;
@@ -8958,7 +8792,7 @@ class HandlerInterface extends EnhancedEventEmitter_1.EnhancedEventEmitter {
 }
 exports.HandlerInterface = HandlerInterface;
 
-},{"../EnhancedEventEmitter":15}],31:[function(require,module,exports){
+},{"../EnhancedEventEmitter":13}],29:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -9529,7 +9363,7 @@ class ReactNative extends HandlerInterface_1.HandlerInterface {
 }
 exports.ReactNative = ReactNative;
 
-},{"../Logger":16,"../errors":21,"../ortc":43,"../utils":46,"./HandlerInterface":30,"./sdp/RemoteSdp":38,"./sdp/commonUtils":39,"./sdp/planBUtils":40,"sdp-transform":54}],32:[function(require,module,exports){
+},{"../Logger":14,"../errors":19,"../ortc":41,"../utils":44,"./HandlerInterface":28,"./sdp/RemoteSdp":36,"./sdp/commonUtils":37,"./sdp/planBUtils":38,"sdp-transform":52}],30:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -10285,7 +10119,7 @@ class ReactNativeUnifiedPlan extends HandlerInterface_1.HandlerInterface {
 }
 exports.ReactNativeUnifiedPlan = ReactNativeUnifiedPlan;
 
-},{"../Logger":16,"../errors":21,"../ortc":43,"../scalabilityModes":44,"../utils":46,"./HandlerInterface":30,"./ortc/utils":36,"./sdp/RemoteSdp":38,"./sdp/commonUtils":39,"./sdp/unifiedPlanUtils":41,"sdp-transform":54}],33:[function(require,module,exports){
+},{"../Logger":14,"../errors":19,"../ortc":41,"../scalabilityModes":42,"../utils":44,"./HandlerInterface":28,"./ortc/utils":34,"./sdp/RemoteSdp":36,"./sdp/commonUtils":37,"./sdp/unifiedPlanUtils":39,"sdp-transform":52}],31:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -10891,7 +10725,7 @@ class Safari11 extends HandlerInterface_1.HandlerInterface {
 }
 exports.Safari11 = Safari11;
 
-},{"../Logger":16,"../ortc":43,"../utils":46,"./HandlerInterface":30,"./sdp/RemoteSdp":38,"./sdp/commonUtils":39,"./sdp/planBUtils":40,"sdp-transform":54}],34:[function(require,module,exports){
+},{"../Logger":14,"../ortc":41,"../utils":44,"./HandlerInterface":28,"./sdp/RemoteSdp":36,"./sdp/commonUtils":37,"./sdp/planBUtils":38,"sdp-transform":52}],32:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -11599,7 +11433,7 @@ class Safari12 extends HandlerInterface_1.HandlerInterface {
 }
 exports.Safari12 = Safari12;
 
-},{"../Logger":16,"../errors":21,"../ortc":43,"../scalabilityModes":44,"../utils":46,"./HandlerInterface":30,"./ortc/utils":36,"./sdp/RemoteSdp":38,"./sdp/commonUtils":39,"./sdp/unifiedPlanUtils":41,"sdp-transform":54}],35:[function(require,module,exports){
+},{"../Logger":14,"../errors":19,"../ortc":41,"../scalabilityModes":42,"../utils":44,"./HandlerInterface":28,"./ortc/utils":34,"./sdp/RemoteSdp":36,"./sdp/commonUtils":37,"./sdp/unifiedPlanUtils":39,"sdp-transform":52}],33:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -11625,7 +11459,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mangleRtpParameters = exports.getCapabilities = void 0;
+exports.getCapabilities = getCapabilities;
+exports.mangleRtpParameters = mangleRtpParameters;
 const utils = __importStar(require("../../utils"));
 /**
  * Normalize ORTC based Edge's RTCRtpReceiver.getCapabilities() to produce a full
@@ -11662,7 +11497,6 @@ function getCapabilities() {
     }
     return caps;
 }
-exports.getCapabilities = getCapabilities;
 /**
  * Generate RTCRtpParameters as ORTC based Edge likes.
  */
@@ -11693,12 +11527,11 @@ function mangleRtpParameters(rtpParameters) {
     }
     return params;
 }
-exports.mangleRtpParameters = mangleRtpParameters;
 
-},{"../../utils":46}],36:[function(require,module,exports){
+},{"../../utils":44}],34:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addNackSuppportForOpus = void 0;
+exports.addNackSuppportForOpus = addNackSuppportForOpus;
 /**
  * This function adds RTCP NACK support for OPUS codec in given capabilities.
  */
@@ -11714,9 +11547,8 @@ function addNackSuppportForOpus(rtpCapabilities) {
         }
     }
 }
-exports.addNackSuppportForOpus = addNackSuppportForOpus;
 
-},{}],37:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -12290,7 +12122,7 @@ function getCodecName(codec) {
     return mimeTypeMatch[2];
 }
 
-},{"../../utils":46,"sdp-transform":54}],38:[function(require,module,exports){
+},{"../../utils":44,"sdp-transform":52}],36:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -12593,7 +12425,7 @@ class RemoteSdp {
 }
 exports.RemoteSdp = RemoteSdp;
 
-},{"../../Logger":16,"./MediaSection":37,"sdp-transform":54}],39:[function(require,module,exports){
+},{"../../Logger":14,"./MediaSection":35,"sdp-transform":52}],37:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -12619,7 +12451,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.applyCodecParameters = exports.getCname = exports.extractDtlsParameters = exports.extractRtpCapabilities = void 0;
+exports.extractRtpCapabilities = extractRtpCapabilities;
+exports.extractDtlsParameters = extractDtlsParameters;
+exports.getCname = getCname;
+exports.applyCodecParameters = applyCodecParameters;
 const sdpTransform = __importStar(require("sdp-transform"));
 /**
  * This function must be called with an SDP with 1 m=audio and 1 m=video
@@ -12728,7 +12563,6 @@ function extractRtpCapabilities({ sdpObject, }) {
     };
     return rtpCapabilities;
 }
-exports.extractRtpCapabilities = extractRtpCapabilities;
 function extractDtlsParameters({ sdpObject, }) {
     let setup = sdpObject.setup;
     let fingerprint = sdpObject.fingerprint;
@@ -12771,7 +12605,6 @@ function extractDtlsParameters({ sdpObject, }) {
     };
     return dtlsParameters;
 }
-exports.extractDtlsParameters = extractDtlsParameters;
 function getCname({ offerMediaObject, }) {
     const ssrcCnameLine = (offerMediaObject.ssrcs || []).find((line) => line.attribute === 'cname');
     if (!ssrcCnameLine) {
@@ -12779,7 +12612,6 @@ function getCname({ offerMediaObject, }) {
     }
     return ssrcCnameLine.value;
 }
-exports.getCname = getCname;
 /**
  * Apply codec parameters in the given SDP m= section answer based on the
  * given RTP parameters of an offer.
@@ -12822,12 +12654,12 @@ function applyCodecParameters({ offerRtpParameters, answerMediaObject, }) {
         }
     }
 }
-exports.applyCodecParameters = applyCodecParameters;
 
-},{"sdp-transform":54}],40:[function(require,module,exports){
+},{"sdp-transform":52}],38:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addLegacySimulcast = exports.getRtpEncodings = void 0;
+exports.getRtpEncodings = getRtpEncodings;
+exports.addLegacySimulcast = addLegacySimulcast;
 function getRtpEncodings({ offerMediaObject, track, }) {
     // First media SSRC (or the only one).
     let firstSsrc;
@@ -12882,7 +12714,6 @@ function getRtpEncodings({ offerMediaObject, track, }) {
     }
     return encodings;
 }
-exports.getRtpEncodings = getRtpEncodings;
 /**
  * Adds multi-ssrc based simulcast into the given SDP media section offer.
  */
@@ -12976,12 +12807,12 @@ function addLegacySimulcast({ offerMediaObject, track, numStreams, }) {
         });
     }
 }
-exports.addLegacySimulcast = addLegacySimulcast;
 
-},{}],41:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addLegacySimulcast = exports.getRtpEncodings = void 0;
+exports.getRtpEncodings = getRtpEncodings;
+exports.addLegacySimulcast = addLegacySimulcast;
 function getRtpEncodings({ offerMediaObject, }) {
     const ssrcs = new Set();
     for (const line of offerMediaObject.ssrcs || []) {
@@ -13025,7 +12856,6 @@ function getRtpEncodings({ offerMediaObject, }) {
     }
     return encodings;
 }
-exports.getRtpEncodings = getRtpEncodings;
 /**
  * Adds multi-ssrc based simulcast into the given SDP media section offer.
  */
@@ -13106,9 +12936,8 @@ function addLegacySimulcast({ offerMediaObject, numStreams, }) {
         });
     }
 }
-exports.addLegacySimulcast = addLegacySimulcast;
 
-},{}],42:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -13148,14 +12977,14 @@ exports.types = types;
 /**
  * Expose mediasoup-client version.
  */
-exports.version = '3.7.10';
+exports.version = '3.7.12';
 /**
  * Expose parseScalabilityMode() function.
  */
 var scalabilityModes_1 = require("./scalabilityModes");
 Object.defineProperty(exports, "parseScalabilityMode", { enumerable: true, get: function () { return scalabilityModes_1.parse; } });
 
-},{"./Device":14,"./scalabilityModes":44,"./types":45,"debug":47}],43:[function(require,module,exports){
+},{"./Device":12,"./scalabilityModes":42,"./types":43,"debug":45}],41:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -13181,7 +13010,18 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.canReceive = exports.canSend = exports.generateProbatorRtpParameters = exports.reduceCodecs = exports.getSendingRemoteRtpParameters = exports.getSendingRtpParameters = exports.getRecvRtpCapabilities = exports.getExtendedRtpCapabilities = exports.validateSctpCapabilities = exports.validateSctpStreamParameters = exports.validateRtpParameters = exports.validateRtpCapabilities = void 0;
+exports.validateRtpCapabilities = validateRtpCapabilities;
+exports.validateRtpParameters = validateRtpParameters;
+exports.validateSctpStreamParameters = validateSctpStreamParameters;
+exports.validateSctpCapabilities = validateSctpCapabilities;
+exports.getExtendedRtpCapabilities = getExtendedRtpCapabilities;
+exports.getRecvRtpCapabilities = getRecvRtpCapabilities;
+exports.getSendingRtpParameters = getSendingRtpParameters;
+exports.getSendingRemoteRtpParameters = getSendingRemoteRtpParameters;
+exports.reduceCodecs = reduceCodecs;
+exports.generateProbatorRtpParameters = generateProbatorRtpParameters;
+exports.canSend = canSend;
+exports.canReceive = canReceive;
 const h264 = __importStar(require("h264-profile-level-id"));
 const utils = __importStar(require("./utils"));
 const RTP_PROBATOR_MID = 'probator';
@@ -13217,7 +13057,6 @@ function validateRtpCapabilities(caps) {
         validateRtpHeaderExtension(ext);
     }
 }
-exports.validateRtpCapabilities = validateRtpCapabilities;
 /**
  * Validates RtpParameters. It may modify given data by adding missing
  * fields with default values.
@@ -13267,7 +13106,6 @@ function validateRtpParameters(params) {
     }
     validateRtcpParameters(params.rtcp);
 }
-exports.validateRtpParameters = validateRtpParameters;
 /**
  * Validates SctpStreamParameters. It may modify given data by adding missing
  * fields with default values.
@@ -13319,7 +13157,6 @@ function validateSctpStreamParameters(params) {
         throw new TypeError('invalid params.protocol');
     }
 }
-exports.validateSctpStreamParameters = validateSctpStreamParameters;
 /**
  * Validates SctpCapabilities. It may modify given data by adding missing
  * fields with default values.
@@ -13335,7 +13172,6 @@ function validateSctpCapabilities(caps) {
     }
     validateNumSctpStreams(caps.numStreams);
 }
-exports.validateSctpCapabilities = validateSctpCapabilities;
 /**
  * Generate extended RTP capabilities for sending and receiving.
  */
@@ -13417,7 +13253,6 @@ function getExtendedRtpCapabilities(localCaps, remoteCaps) {
     }
     return extendedRtpCapabilities;
 }
-exports.getExtendedRtpCapabilities = getExtendedRtpCapabilities;
 /**
  * Generate RTP capabilities for receiving media based on the given extended
  * RTP capabilities.
@@ -13472,7 +13307,6 @@ function getRecvRtpCapabilities(extendedRtpCapabilities) {
     }
     return rtpCapabilities;
 }
-exports.getRecvRtpCapabilities = getRecvRtpCapabilities;
 /**
  * Generate RTP parameters of the given kind for sending media.
  * NOTE: mid, encodings and rtcp fields are left empty.
@@ -13529,7 +13363,6 @@ function getSendingRtpParameters(kind, extendedRtpCapabilities) {
     }
     return rtpParameters;
 }
-exports.getSendingRtpParameters = getSendingRtpParameters;
 /**
  * Generate RTP parameters of the given kind suitable for the remote SDP answer.
  */
@@ -13602,7 +13435,6 @@ function getSendingRemoteRtpParameters(kind, extendedRtpCapabilities) {
     }
     return rtpParameters;
 }
-exports.getSendingRemoteRtpParameters = getSendingRemoteRtpParameters;
 /**
  * Reduce given codecs by returning an array of codecs "compatible" with the
  * given capability codec. If no capability codec is given, take the first
@@ -13639,7 +13471,6 @@ function reduceCodecs(codecs, capCodec) {
     }
     return filteredCodecs;
 }
-exports.reduceCodecs = reduceCodecs;
 /**
  * Create RTP parameters for a Consumer for the RTP probator.
  */
@@ -13660,14 +13491,12 @@ function generateProbatorRtpParameters(videoRtpParameters) {
     rtpParameters.headerExtensions = videoRtpParameters.headerExtensions;
     return rtpParameters;
 }
-exports.generateProbatorRtpParameters = generateProbatorRtpParameters;
 /**
  * Whether media can be sent based on the given RTP capabilities.
  */
 function canSend(kind, extendedRtpCapabilities) {
     return extendedRtpCapabilities.codecs.some((codec) => codec.kind === kind);
 }
-exports.canSend = canSend;
 /**
  * Whether the given RTP parameters can be received with the given RTP
  * capabilities.
@@ -13681,7 +13510,6 @@ function canReceive(rtpParameters, extendedRtpCapabilities) {
     const firstMediaCodec = rtpParameters.codecs[0];
     return extendedRtpCapabilities.codecs.some((codec) => codec.remotePayloadType === firstMediaCodec.payloadType);
 }
-exports.canReceive = canReceive;
 /**
  * Validates RtpCodecCapability. It may modify given data by adding missing
  * fields with default values.
@@ -14062,10 +13890,10 @@ function reduceRtcpFeedback(codecA, codecB) {
     return reducedRtcpFeedback;
 }
 
-},{"./utils":46,"h264-profile-level-id":7}],44:[function(require,module,exports){
+},{"./utils":44,"h264-profile-level-id":6}],42:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.parse = void 0;
+exports.parse = parse;
 const ScalabilityModeRegex = new RegExp('^[LS]([1-9]\\d{0,1})T([1-9]\\d{0,1})');
 function parse(scalabilityMode) {
     const match = ScalabilityModeRegex.exec(scalabilityMode || '');
@@ -14082,9 +13910,8 @@ function parse(scalabilityMode) {
         };
     }
 }
-exports.parse = parse;
 
-},{}],45:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -14112,10 +13939,12 @@ __exportStar(require("./SctpParameters"), exports);
 __exportStar(require("./handlers/HandlerInterface"), exports);
 __exportStar(require("./errors"), exports);
 
-},{"./Consumer":11,"./DataConsumer":12,"./DataProducer":13,"./Device":14,"./Producer":17,"./RtpParameters":18,"./SctpParameters":19,"./Transport":20,"./errors":21,"./handlers/HandlerInterface":30}],46:[function(require,module,exports){
+},{"./Consumer":9,"./DataConsumer":10,"./DataProducer":11,"./Device":12,"./Producer":15,"./RtpParameters":16,"./SctpParameters":17,"./Transport":18,"./errors":19,"./handlers/HandlerInterface":28}],44:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deepFreeze = exports.generateRandomNumber = exports.clone = void 0;
+exports.clone = clone;
+exports.generateRandomNumber = generateRandomNumber;
+exports.deepFreeze = deepFreeze;
 /**
  * Clones the given value.
  */
@@ -14134,14 +13963,12 @@ function clone(value) {
         return JSON.parse(JSON.stringify(value));
     }
 }
-exports.clone = clone;
 /**
  * Generates a random positive integer.
  */
 function generateRandomNumber() {
     return Math.round(Math.random() * 10000000);
 }
-exports.generateRandomNumber = generateRandomNumber;
 /**
  * Make an object or array recursively immutable.
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze.
@@ -14158,15 +13985,176 @@ function deepFreeze(object) {
     }
     return Object.freeze(object);
 }
-exports.deepFreeze = deepFreeze;
 
-},{}],47:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 arguments[4][3][0].apply(exports,arguments)
-},{"./common":48,"_process":51,"dup":3}],48:[function(require,module,exports){
+},{"./common":46,"_process":49,"dup":3}],46:[function(require,module,exports){
 arguments[4][4][0].apply(exports,arguments)
-},{"dup":4,"ms":49}],49:[function(require,module,exports){
-arguments[4][5][0].apply(exports,arguments)
-},{"dup":5}],50:[function(require,module,exports){
+},{"dup":4,"ms":47}],47:[function(require,module,exports){
+/**
+ * Helpers.
+ */
+
+var s = 1000;
+var m = s * 60;
+var h = m * 60;
+var d = h * 24;
+var w = d * 7;
+var y = d * 365.25;
+
+/**
+ * Parse or format the given `val`.
+ *
+ * Options:
+ *
+ *  - `long` verbose formatting [false]
+ *
+ * @param {String|Number} val
+ * @param {Object} [options]
+ * @throws {Error} throw an error if val is not a non-empty string or a number
+ * @return {String|Number}
+ * @api public
+ */
+
+module.exports = function(val, options) {
+  options = options || {};
+  var type = typeof val;
+  if (type === 'string' && val.length > 0) {
+    return parse(val);
+  } else if (type === 'number' && isFinite(val)) {
+    return options.long ? fmtLong(val) : fmtShort(val);
+  }
+  throw new Error(
+    'val is not a non-empty string or a valid number. val=' +
+      JSON.stringify(val)
+  );
+};
+
+/**
+ * Parse the given `str` and return milliseconds.
+ *
+ * @param {String} str
+ * @return {Number}
+ * @api private
+ */
+
+function parse(str) {
+  str = String(str);
+  if (str.length > 100) {
+    return;
+  }
+  var match = /^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i.exec(
+    str
+  );
+  if (!match) {
+    return;
+  }
+  var n = parseFloat(match[1]);
+  var type = (match[2] || 'ms').toLowerCase();
+  switch (type) {
+    case 'years':
+    case 'year':
+    case 'yrs':
+    case 'yr':
+    case 'y':
+      return n * y;
+    case 'weeks':
+    case 'week':
+    case 'w':
+      return n * w;
+    case 'days':
+    case 'day':
+    case 'd':
+      return n * d;
+    case 'hours':
+    case 'hour':
+    case 'hrs':
+    case 'hr':
+    case 'h':
+      return n * h;
+    case 'minutes':
+    case 'minute':
+    case 'mins':
+    case 'min':
+    case 'm':
+      return n * m;
+    case 'seconds':
+    case 'second':
+    case 'secs':
+    case 'sec':
+    case 's':
+      return n * s;
+    case 'milliseconds':
+    case 'millisecond':
+    case 'msecs':
+    case 'msec':
+    case 'ms':
+      return n;
+    default:
+      return undefined;
+  }
+}
+
+/**
+ * Short format for `ms`.
+ *
+ * @param {Number} ms
+ * @return {String}
+ * @api private
+ */
+
+function fmtShort(ms) {
+  var msAbs = Math.abs(ms);
+  if (msAbs >= d) {
+    return Math.round(ms / d) + 'd';
+  }
+  if (msAbs >= h) {
+    return Math.round(ms / h) + 'h';
+  }
+  if (msAbs >= m) {
+    return Math.round(ms / m) + 'm';
+  }
+  if (msAbs >= s) {
+    return Math.round(ms / s) + 's';
+  }
+  return ms + 'ms';
+}
+
+/**
+ * Long format for `ms`.
+ *
+ * @param {Number} ms
+ * @return {String}
+ * @api private
+ */
+
+function fmtLong(ms) {
+  var msAbs = Math.abs(ms);
+  if (msAbs >= d) {
+    return plural(ms, msAbs, d, 'day');
+  }
+  if (msAbs >= h) {
+    return plural(ms, msAbs, h, 'hour');
+  }
+  if (msAbs >= m) {
+    return plural(ms, msAbs, m, 'minute');
+  }
+  if (msAbs >= s) {
+    return plural(ms, msAbs, s, 'second');
+  }
+  return ms + ' ms';
+}
+
+/**
+ * Pluralization helper.
+ */
+
+function plural(ms, msAbs, n, name) {
+  var isPlural = msAbs >= n * 1.5;
+  return Math.round(ms / n) + ' ' + name + (isPlural ? 's' : '');
+}
+
+},{}],48:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -14665,7 +14653,7 @@ function eventTargetAgnosticAddListener(emitter, name, listener, flags) {
   }
 }
 
-},{}],51:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -14851,7 +14839,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],52:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 (function (global){(function (){
 /*! queue-microtask. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
 let promise
@@ -14864,7 +14852,7 @@ module.exports = typeof queueMicrotask === 'function'
     .catch(err => setTimeout(() => { throw err }, 0))
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],53:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 var grammar = module.exports = {
   v: [{
     name: 'version',
@@ -15360,7 +15348,7 @@ Object.keys(grammar).forEach(function (key) {
   });
 });
 
-},{}],54:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 var parser = require('./parser');
 var writer = require('./writer');
 
@@ -15373,7 +15361,7 @@ exports.parseRemoteCandidates = parser.parseRemoteCandidates;
 exports.parseImageAttributes = parser.parseImageAttributes;
 exports.parseSimulcastStreamList = parser.parseSimulcastStreamList;
 
-},{"./parser":55,"./writer":56}],55:[function(require,module,exports){
+},{"./parser":53,"./writer":54}],53:[function(require,module,exports){
 var toIntIfInt = function (v) {
   return String(Number(v)) === v ? Number(v) : v;
 };
@@ -15499,7 +15487,7 @@ exports.parseSimulcastStreamList = function (str) {
   });
 };
 
-},{"./grammar":53}],56:[function(require,module,exports){
+},{"./grammar":51}],54:[function(require,module,exports){
 var grammar = require('./grammar');
 
 // customized util.format - discards excess arguments and can void middle ones
@@ -15615,7 +15603,7 @@ module.exports = function (session, opts) {
   return sdp.join('\r\n') + '\r\n';
 };
 
-},{"./grammar":53}],57:[function(require,module,exports){
+},{"./grammar":51}],55:[function(require,module,exports){
 /////////////////////////////////////////////////////////////////////////////////
 /* UAParser.js v1.0.38
    Copyright © 2012-2021 Faisal Salman <f@faisalman.com>
@@ -16570,7 +16558,7 @@ module.exports = function (session, opts) {
 
 })(typeof window === 'object' ? window : this);
 
-},{}],58:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 "use strict";
 
 var _index = require("./index.js");
@@ -16688,191 +16676,12 @@ function notifyUserJoin(username) {
   toastBody.text(username + " joined");
   $('#liveToast2').toast("show");
 }
-// const socket = new WebSocket('ws://localhost:3000');
-// const socket = new WebSocket('wss://videochatapp.online');
-
-// socket.onmessage = async (message) => {
-//     const data = JSON.parse(message.data);
-//     console.log('Received:', data);
-//     switch (data.type) {
-//         case 'user-list':
-//             updateUserList(data.users, id);
-//             console.log(data.users.length);
-//             if (data.users.length == 2) {
-//                 const videoElement = document.getElementById('remoteUser');
-//                 if (data.newUser.id != user.id) {
-//                     notifyUserJoin(data.newUser.name);
-//                 }
-//                 if (!videoElement) {
-//                     //chủ room => call
-//                     console.log(id == data.ownerId)
-//                     if (id != data.ownerId) {
-//                         await addItem("remoteUser", data.users[0].name, data.users[0].id);
-//                         targetId = data.users[0].id
-//                     }
-//                     else {
-//                         await addItem("remoteUser", data.users[1].name, data.users[1].id);
-//                         // alert("create remote user")
-//                         targetId = data.users[1].id
-//                         await startCall();
-//                     }
-//                 }
-//             }
-//             break;
-//         case 'offer':
-//             console.log("OFFER: ", data);
-//             handleOffer(data.data, data.id);
-//             break;
-//         case 'answer':
-//             console.log("ANSWER: ", data);
-//             handleAnswer(data.data);
-//             break;
-//         case 'candidate':
-//             console.log("CANDIDATE: ", data);
-//             handleCandidate(data.data);
-//             break;
-//         case 'leave':
-//             console.log("LEAVE: ", data);
-//             updateUserList(data.users);
-
-//             updateUIVideo(data.userLeftId, data.username);
-
-//             break;
-//         case 'onCamera':
-//             console.log("ONCAMERA: ", data);
-//             enabledVideo(true, data.userId);
-//             break;
-//         case 'offCamera':
-//             console.log("OFFCAMERA: ", data);
-//             enabledVideo(false, data.userId);
-//             break;
-//         case 'muted':
-//             enabledMic(false, data.userId);
-//             break;
-//         case 'unmuted':
-//             enabledMic(true, data.userId);
-//             break;
-//         case 'message':
-//             console.log("MESSAGE: ", data);
-//             displayMessage(data.from, data.data, data.userId);
-//             lastMessageId = data.userId;
-//             break;
-//         default:
-//             console.error('Unknown message type:', data.type);
-//     }
-// };
-
-// socket.onopen = () => {
-//     console.log("socket.onopen");
-//     socket.send(JSON.stringify({ type: 'join', roomId: roomId, userId: id, name: username }));
-// };
-
-// socket.onerror = (error) => {
-//     console.error("WebSocket error: ", error);
-// };
-
-// async function startCall() {
-//     localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-
-//     console.log(localStream);
-
-//     let track  = localStream.getTracks().find(track => track.kind === "audio")
-//     let track2  = localStream.getTracks().find(track => track.kind === "video")
-//     console.log(track);
-//     console.log(track2);
-
-//     peerConnection = createPeerConnection();
-//     localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-
-//     const offer = await peerConnection.createOffer();
-//     await peerConnection.setLocalDescription(offer);
-
-//     console.log('Offer created and set as local description:', peerConnection.signalingState);
-
-//     sendMessage('offer', offer);
-// }
-
-// function createPeerConnection() {
-//     const pc = new RTCPeerConnection(servers);
-
-//     pc.onicecandidate = (event) => {
-//         if (event.candidate) {
-//             if(pc.remoteDescription){
-//                 sendMessage('candidate', event.candidate);
-//             }
-//         }
-//     };
-
-//     pc.ontrack = (event) => {
-//         if (!remoteStream) {
-//             remoteStream = new MediaStream();
-//         }
-//         event.streams[0].getTracks().forEach((track) => {
-//             remoteStream.addTrack(track);
-//         });
-//         // remoteStream.addTrack(event.track);
-//         document.getElementById('remoteUser').srcObject = remoteStream;
-//     };
-
-//     pc.onsignalingstatechange = () => {
-//         console.log('Signaling state change:', pc.signalingState);
-//     };
-
-//     return pc;
-// }
-
-// function sendMessage(type, data) {
-//     socket.send(JSON.stringify({
-//         type: type,
-//         roomId: roomId,
-//         userId: id,
-//         data: data
-//     }));
-// }
-
-// async function handleOffer(offer, from) {
-//     // targetId = from;
-//     let localUser = document.getElementById('localUser');
-//     console.log(peerConnection);
-//     if (!peerConnection) {
-//         localUser.srcObject = localStream;
-
-//         peerConnection = createPeerConnection();
-
-//         if(!localStream){
-//             localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-//         }
-//         localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-//     }
-
-//     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-//     console.log('Remote description set with offer:', peerConnection.signalingState);
-
-//     const answer = await peerConnection.createAnswer();
-//     await peerConnection.setLocalDescription(answer);
-
-//     console.log('Answer created and set as local description:', peerConnection.signalingState);
-
-//     sendMessage('answer', answer);
-// }
-
-// async function handleAnswer(answer) {
-
-//     await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-//     console.log('Remote description set with answer:', peerConnection.signalingState);
-// }
-
-// async function handleCandidate(candidate) {
-//     if (peerConnection) {
-//         await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-//         console.log('ICE candidate added:', candidate);
-//     }
-// }
 const mediasoupClient = require('mediasoup-client');
 
 // const ws = new WebSocket('ws://localhost:3000');
 
-const ws = new WebSocket('wss://webrtc-onlinemeeting-sfu-mediasoup.onrender.com');
+// const ws = new WebSocket('wss://webrtc-onlinemeeting-sfu-mediasoup.onrender.com');
+const ws = new WebSocket('wss://videochatapp.online');
 let device;
 let rtpCapabilities;
 let producerTransport;
@@ -16884,22 +16693,39 @@ let audioProducer;
 let videoProducer;
 let params = {
   // mediasoup params
+  // encodings: [
+  //     {
+  //         rid: 'r0',
+  //         maxBitrate: 100000,
+  //         scalabilityMode: 'S1T3',
+  //     },
+  //     {
+  //         rid: 'r1',
+  //         maxBitrate: 300000,
+  //         scalabilityMode: 'S1T3',
+  //     },
+  //     {
+  //         rid: 'r2',
+  //         maxBitrate: 900000,
+  //         scalabilityMode: 'S1T3',
+  //     },
+  // ],
   encodings: [{
     rid: 'r0',
-    maxBitrate: 100000,
+    maxBitrate: 50000,
     scalabilityMode: 'S1T3'
   }, {
     rid: 'r1',
-    maxBitrate: 300000,
+    maxBitrate: 150000,
     scalabilityMode: 'S1T3'
   }, {
     rid: 'r2',
-    maxBitrate: 900000,
+    maxBitrate: 300000,
     scalabilityMode: 'S1T3'
   }],
   // https://mediasoup.org/documentation/v3/mediasoup-client/api/#ProducerCodecOptions
   codecOptions: {
-    videoGoogleStartBitrate: 1000
+    videoGoogleStartBitrate: 500
   }
 };
 let audioParams;
@@ -17592,7 +17418,7 @@ function toggleButton(type, button) {
   // }
 }
 
-},{"./index.js":59,"mediasoup-client":42}],59:[function(require,module,exports){
+},{"./index.js":57,"mediasoup-client":40}],57:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17890,4 +17716,4 @@ document.querySelector('.contributor').addEventListener('click', function () {
 });
 window.addEventListener('resize', resizeVideo);
 
-},{}]},{},[59,58]);
+},{}]},{},[57,56]);

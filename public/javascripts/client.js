@@ -126,196 +126,13 @@ function notifyUserJoin(username) {
     toastBody.text(username + " joined");
     $('#liveToast2').toast("show");
 }
-// const socket = new WebSocket('ws://localhost:3000');
-// const socket = new WebSocket('wss://videochatapp.online');
 
-
-// socket.onmessage = async (message) => {
-//     const data = JSON.parse(message.data);
-//     console.log('Received:', data);
-//     switch (data.type) {
-//         case 'user-list':
-//             updateUserList(data.users, id);
-//             console.log(data.users.length);
-//             if (data.users.length == 2) {
-//                 const videoElement = document.getElementById('remoteUser');
-//                 if (data.newUser.id != user.id) {
-//                     notifyUserJoin(data.newUser.name);
-//                 }
-//                 if (!videoElement) {
-//                     //chủ room => call
-//                     console.log(id == data.ownerId)
-//                     if (id != data.ownerId) {
-//                         await addItem("remoteUser", data.users[0].name, data.users[0].id);
-//                         targetId = data.users[0].id
-//                     }
-//                     else {
-//                         await addItem("remoteUser", data.users[1].name, data.users[1].id);
-//                         // alert("create remote user")
-//                         targetId = data.users[1].id
-//                         await startCall();
-//                     }
-//                 }
-//             }
-//             break;
-//         case 'offer':
-//             console.log("OFFER: ", data);
-//             handleOffer(data.data, data.id);
-//             break;
-//         case 'answer':
-//             console.log("ANSWER: ", data);
-//             handleAnswer(data.data);
-//             break;
-//         case 'candidate':
-//             console.log("CANDIDATE: ", data);
-//             handleCandidate(data.data);
-//             break;
-//         case 'leave':
-//             console.log("LEAVE: ", data);
-//             updateUserList(data.users);
-
-//             updateUIVideo(data.userLeftId, data.username);
-
-//             break;
-//         case 'onCamera':
-//             console.log("ONCAMERA: ", data);
-//             enabledVideo(true, data.userId);
-//             break;
-//         case 'offCamera':
-//             console.log("OFFCAMERA: ", data);
-//             enabledVideo(false, data.userId);
-//             break;
-//         case 'muted':
-//             enabledMic(false, data.userId);
-//             break;
-//         case 'unmuted':
-//             enabledMic(true, data.userId);
-//             break;
-//         case 'message':
-//             console.log("MESSAGE: ", data);
-//             displayMessage(data.from, data.data, data.userId);
-//             lastMessageId = data.userId;
-//             break;
-//         default:
-//             console.error('Unknown message type:', data.type);
-//     }
-// };
-
-// socket.onopen = () => {
-//     console.log("socket.onopen");
-//     socket.send(JSON.stringify({ type: 'join', roomId: roomId, userId: id, name: username }));
-// };
-
-
-
-// socket.onerror = (error) => {
-//     console.error("WebSocket error: ", error);
-// };
-
-
-
-// async function startCall() {
-//     localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-
-//     console.log(localStream);
-
-//     let track  = localStream.getTracks().find(track => track.kind === "audio")
-//     let track2  = localStream.getTracks().find(track => track.kind === "video")
-//     console.log(track);
-//     console.log(track2);
-
-//     peerConnection = createPeerConnection();
-//     localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-
-//     const offer = await peerConnection.createOffer();
-//     await peerConnection.setLocalDescription(offer);
-
-//     console.log('Offer created and set as local description:', peerConnection.signalingState);
-
-//     sendMessage('offer', offer);
-// }
-
-// function createPeerConnection() {
-//     const pc = new RTCPeerConnection(servers);
-
-//     pc.onicecandidate = (event) => {
-//         if (event.candidate) {
-//             if(pc.remoteDescription){
-//                 sendMessage('candidate', event.candidate);
-//             }
-//         }
-//     };
-
-//     pc.ontrack = (event) => {
-//         if (!remoteStream) {
-//             remoteStream = new MediaStream();
-//         }
-//         event.streams[0].getTracks().forEach((track) => {
-//             remoteStream.addTrack(track);
-//         });
-//         // remoteStream.addTrack(event.track);
-//         document.getElementById('remoteUser').srcObject = remoteStream;
-//     };
-
-//     pc.onsignalingstatechange = () => {
-//         console.log('Signaling state change:', pc.signalingState);
-//     };
-
-//     return pc;
-// }
-
-// function sendMessage(type, data) {
-//     socket.send(JSON.stringify({
-//         type: type,
-//         roomId: roomId,
-//         userId: id,
-//         data: data
-//     }));
-// }
-
-// async function handleOffer(offer, from) {
-//     // targetId = from;
-//     let localUser = document.getElementById('localUser');
-//     console.log(peerConnection);
-//     if (!peerConnection) {
-//         localUser.srcObject = localStream;
-
-//         peerConnection = createPeerConnection();
-
-//         if(!localStream){
-//             localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-//         }
-//         localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-//     }
-
-//     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-//     console.log('Remote description set with offer:', peerConnection.signalingState);
-
-//     const answer = await peerConnection.createAnswer();
-//     await peerConnection.setLocalDescription(answer);
-
-//     console.log('Answer created and set as local description:', peerConnection.signalingState);
-
-//     sendMessage('answer', answer);
-// }
-
-// async function handleAnswer(answer) {
-
-//     await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-//     console.log('Remote description set with answer:', peerConnection.signalingState);
-// }
-
-// async function handleCandidate(candidate) {
-//     if (peerConnection) {
-//         await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-//         console.log('ICE candidate added:', candidate);
-//     }
-// }
 const mediasoupClient = require('mediasoup-client')
 
 // const ws = new WebSocket('ws://localhost:3000');
 
-const ws = new WebSocket('wss://webrtc-onlinemeeting-sfu-mediasoup.onrender.com');
+// const ws = new WebSocket('wss://webrtc-onlinemeeting-sfu-mediasoup.onrender.com');
+const ws = new WebSocket('wss://videochatapp.online');
 
 let device
 let rtpCapabilities
@@ -329,26 +146,44 @@ let videoProducer;
 
 let params = {
     // mediasoup params
+    // encodings: [
+    //     {
+    //         rid: 'r0',
+    //         maxBitrate: 100000,
+    //         scalabilityMode: 'S1T3',
+    //     },
+    //     {
+    //         rid: 'r1',
+    //         maxBitrate: 300000,
+    //         scalabilityMode: 'S1T3',
+    //     },
+    //     {
+    //         rid: 'r2',
+    //         maxBitrate: 900000,
+    //         scalabilityMode: 'S1T3',
+    //     },
+    // ],
     encodings: [
         {
             rid: 'r0',
-            maxBitrate: 100000,
+            maxBitrate: 50000,
             scalabilityMode: 'S1T3',
         },
         {
             rid: 'r1',
-            maxBitrate: 300000,
+            maxBitrate: 150000,
             scalabilityMode: 'S1T3',
         },
         {
             rid: 'r2',
-            maxBitrate: 900000,
+            maxBitrate: 300000,
             scalabilityMode: 'S1T3',
         },
     ],
+    
     // https://mediasoup.org/documentation/v3/mediasoup-client/api/#ProducerCodecOptions
     codecOptions: {
-        videoGoogleStartBitrate: 1000
+        videoGoogleStartBitrate: 500
     }
 }
 
