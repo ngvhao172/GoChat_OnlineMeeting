@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "nodemon app.js",
-    "watch": "watchify public/javascripts/index.js public/javascripts/client.js -p esmify -o public/javascripts/bundle.js"
+    "build": "watchify public/javascripts/index.js public/javascripts/client.js -p esmify -o public/javascripts/bundle.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
