@@ -8,6 +8,7 @@ const flash = require('express-flash');
 require('dotenv').config({ path: './config/.env' });
 const initializePassport = require('./config/passport-config');
 const mediasoup = require('mediasoup');
+const cookieParser = require('cookie-parser');
 
 //local passport config
 initializePassport(passport);
