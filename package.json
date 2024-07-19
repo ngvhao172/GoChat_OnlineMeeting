@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "start": "nodemon app.js",
-    "build": "watchify public/javascripts/index.js public/javascripts/client.js -p esmify -o public/javascripts/bundle.js"
+    "watch": "watchify public/javascripts/index.js public/javascripts/client.js -p esmify -o public/javascripts/bundle.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
     "debug": "~2.6.9",
     "dotenv": "^16.4.5",
     "esmify": "^2.1.1",
@@ -18,8 +19,11 @@
     "express-session": "^1.18.0",
     "firebase": "^10.12.2",
     "firebase-admin": "^12.1.1",
+    "fs": "^0.0.1-security",
+    "hark": "^1.2.3",
     "hbs": "4.2.0",
     "http-errors": "~1.6.3",
+    "https": "^1.0.0",
     "mediasoup": "^3.14.7",
     "mediasoup-client": "^3.7.10",
     "morgan": "~1.9.1",

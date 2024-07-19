@@ -1,6 +1,8 @@
 var express = require('express');
 var path = require('path');
+// const https = require("https");
 const http = require("http");
+const fs = require('fs');
 const hbs = require('express-handlebars').engine;
 const passport = require('passport');
 const session = require('express-session');
@@ -8,17 +10,21 @@ const flash = require('express-flash');
 require('dotenv').config({ path: './config/.env' });
 const initializePassport = require('./config/passport-config');
 const mediasoup = require('mediasoup');
-const cookieParser = require('cookie-parser');
+const cors = require('cors');
 
 //local passport config
 initializePassport(passport);
 
 const port = process.env.PORT;
+const ws_url = process.env.WS_URL;
+const domain = process.env.DOMAIN;
 
 var indexRouter = require('./routes/index');
 var accessRouter = require('./routes/access');
 
 var app = express();
+
+const customHelpers = require('./utils/customHelpers');
 
 app.engine('hbs', hbs({
   defaultLayout: null,
@@ -26,7 +32,8 @@ app.engine('hbs', hbs({
   helpers: {
     json: function (context) {
       return JSON.stringify(context);
-    }
+    },
+    ...customHelpers.helpers
   }
 }))
 
@@ -35,9 +42,10 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
 // app.use(logger('dev'));
+app.use(cors());
+
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 
@@ -61,6 +69,8 @@ app.use(function (req, res, next) {
   // console.log(req.isAuthenticated());
   if (req.isAuthenticated()) {
     res.locals.user = req.user;
+    res.locals.ws_url = ws_url;
+    res.locals.domain = domain;
     return next();
   }
   else {
@@ -135,7 +145,10 @@ const runMediasoup = async () => {
   await createRouter();
 };
 
-
+// const options = {
+//   key: fs.readFileSync('./config/ssl-domain/key.pem', 'utf-8'),
+//   cert: fs.readFileSync('./config/ssl-domain/cert.pem', 'utf-8')
+// }
 const server = http.createServer(app);
 
 server.listen(port, async () => {

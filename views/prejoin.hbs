@@ -10,10 +10,12 @@
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
 
-    {{!-- <link rel="stylesheet" href="/stylesheets/style.css"> --}}
-    {{!-- <script>
+    {{!--
+    <link rel="stylesheet" href="/stylesheets/style.css"> --}}
+    {{!--
+    <script>
         // Embed server-side data into a global JavaScript variable
-        window.serverData = {{{ json user }}};
+        window.serverData = {{ { json user } }};
     </script> --}}
     <style>
         * {
@@ -26,7 +28,13 @@
             padding: 0;
             height: 100%;
             width: 100%;
+
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
+
         .overlay {
             position: absolute;
             left: 0;
@@ -45,12 +53,14 @@
             background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
             z-index: 1;
         }
+
         .buttons:hover {
             width: 50px;
             height: 50px;
             border-radius: 25px;
             background-color: #dfdcdc;
         }
+
         .buttons {
             width: 50px;
             height: 50px;
@@ -58,15 +68,17 @@
             background-color: transparent;
             border: 1px solid white;
         }
-        .device-options{
+
+        .device-options {
             white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis; 
+            text-overflow: ellipsis;
             background-color: transparent;
             border: 1px solid transparent;
             transition: background-color 0.3s, border 0.3s;
         }
-        .device-options:hover{
+
+        .device-options:hover {
             background-color: #dff3ff;
             border: 1px solid rgb(201, 201, 201)
         }
@@ -82,86 +94,133 @@
             <div class="col-6 text-end h-100 pt-2">
                 <div class="row me-3">
                     <div class="col-12 col-sm-11 text-end">
-                        <p class="d-sm-block p-0 m-0 fw-semibold">Nguyen Van Hao</p>
-                        <p class="d-sm-block p-0 m-0">ngvhao172@gmail.com</p>
+                        <p class="d-sm-block p-0 m-0 fw-semibold">{{user.fullName}}</p>
+                        <p class="d-sm-block p-0 m-0">{{user.userEmail}}</p>
                     </div>
                     <div class="col-sm-1 d-none d-sm-block text-end">
-                        <img class="rounded-circle" src="/images/minji.jpg" alt="" style="height: 50px; width: 50px">
+                        {{#if user.avatar}}
+                        <img class="rounded-circle" src="{{user.avatar}}" alt="" style="height: 50px; width: 50px">
+                        {{else}}
+                        <img class="rounded-circle" src="/images/GoLogoNBg.png" alt=""
+                            style="height: 50px; width: 50px">
+                        {{/if}}
                     </div>
                 </div>
             </div>
         </div>
         <div class="main container my-auto">
             <div class="row">
-                <div class="col-12 col-sm-9 justify-content-center">
+                <div class="col-12 col-sm-8 justify-content-center">
                     <div class="row justify-content-center">
                         <div class="col-12 col-lg-8">
-                            <div class="card rounded-1 p-0" style="width: 100%">
-                            <div class="card-body d-flex flex-column p-0 position-relative">
-                                <h5 class="card-title text-white z-3 position-absolute ps-5 pt-5">Nguyen Van Hao</h5>
-                                <h5 id="camera-off-text" class="text-white z-3 position-absolute top-50 start-50 translate-middle d-none">Camera is being off</h5>
-                                <div class="flex-grow-1 d-flex">
-                                    <video id="videoPreview" autoplay disablePictureInPicture style="width: 100%"></video>
-                                    <div class="overlay top"></div>
-                                    <div class="overlay bottom"></div>
-                                </div>
-                                <div class="d-flex justify-content-center align-items-center z-3 position-absolute bottom-0 start-50 translate-middle">
-                                    {{!-- <button id="joinButton" class="btn btn-primary btn-block mt-3 me-3" style="width: 50px, height:50px">
+                            <div class="card p-0" style="width: 100%; max-width: 700px; border-radius: 25px;">
+                                <div class="card-body d-flex flex-column p-0 position-relative">
+                                    <h5 class="card-title text-white z-3 position-absolute ps-5 pt-5">{{user.fullName}}
+                                    </h5>
+                                    <h5 id="camera-off-text"
+                                        class="text-white z-3 position-absolute top-50 start-50 translate-middle d-none">
+                                        Camera is being off</h5>
+                                    <div class="flex-grow-1 d-flex">
+                                        <video id="videoPreview" autoplay disablePictureInPicture height="320"
+                                            style="width:100%; border-radius: 25px;"></video>
+                                        <div class="overlay top"
+                                            style="border-top-left-radius: 25px; border-top-right-radius: 25px;"></div>
+                                        <div class="overlay bottom"
+                                            style="border-bottom-left-radius: 25px; border-bottom-right-radius: 25px;">
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="d-flex justify-content-center align-items-center z-3 position-absolute bottom-0 start-50 translate-middle">
+                                        {{!-- <button id="joinButton" class="btn btn-primary btn-block mt-3 me-3"
+                                            style="width: 50px, height:50px">
 
-                                    </button>
-                                    <button id="joinButton" class="btn btn-primary btn-block mt-3 ms-3">
+                                        </button>
+                                        <button id="joinButton" class="btn btn-primary btn-block mt-3 ms-3">
 
-                                    </button> --}}
-                                    <button id="micButton" class="buttons ms-3">
-                                        <i id="micIcon" class="bi bi-mic text-white fs-5"></i>
-                                    </button>
-                                    <button id="webcamButton" class="buttons ms-3">
-                                        <i id="webcamIcon" class="bi bi-camera-video text-white fs-5"></i>
-                                    </button>
+                                        </button> --}}
+                                        <button id="micButton" class="buttons ms-3">
+                                            <i id="micIcon" class="bi bi-mic text-white fs-5"></i>
+                                        </button>
+                                        <button id="webcamButton" class="buttons ms-3">
+                                            <i id="webcamIcon" class="bi bi-camera-video text-white fs-5"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    </div>
-                    <div class="row row-cols-1 row-cols-sm-3 row-cols-lg-5 d-flex pt-2 justify-content-center ms-2 me-2">
-                        <div class="col text-start me-2">
-                            <button id="chatButton" class="device-options d-flex rounded-pill align-items-center" style="width: 150px;">
-                                <i class="bi bi-mic fs-5 pe-2"></i> 
-                                <p class="device-options p-0 m-0 text-center border-0">Microphone 1231232132112</p>
-                            </button> 
+                    <div class="row row-cols-1 row-cols-sm-4 row-cols-lg-5 d-flex pt-2 justify-content-center me-2">
+                        <div class="col text-start me-2 btn-group dropup">
+                            <button id="micButtonDropdown"
+                                class="device-options d-flex rounded-pill align-items-center dropdown-toggle"
+                                data-bs-toggle="dropdown" aria-expanded="false" style="width: 150px;">
+                                <i class="bi bi-mic fs-5 pe-2"></i>
+                                <p class="device-options p-0 m-0 text-center border-0" id="microphoneCurrent">Microphone
+                                </p>
+                            </button>
+                            <ul class="dropdown-menu" id="micDropdownMenu"></ul>
                         </div>
-                        <div class="col text-start me-2">
-                            <button id="chatButton" class="device-options d-flex rounded-pill align-items-center" style="width: 150px;">
-                                <i class="bi bi-volume-up fs-5 pe-2"></i> 
-                                <p class="device-options p-0 m-0 text-center border-0">Speaker 12321312312312</p>
-                            </button> 
+
+                        {{!-- <div class="col text-start me-2 btn-group dropup">
+                            <button id="speakerButtonDropdown"
+                                class="device-options d-flex rounded-pill align-items-center dropdown-toggle"
+                                data-bs-toggle="dropdown" aria-expanded="false" style="width: 150px;">
+                                <i class="bi bi-volume-up fs-5 pe-2"></i>
+                                <p class="device-options p-0 m-0 text-center border-0">Speaker</p>
+                            </button>
+                            <ul class="dropdown-menu" id="speakerDropdownMenu"></ul>
+                        </div> --}}
+
+                        <div class="col text-start me-2 btn-group dropup">
+                            <button id="cameraButtonDropdown"
+                                class="device-options d-flex rounded-pill align-items-center dropdown-toggle"
+                                data-bs-toggle="dropdown" aria-expanded="false" style="width: 150px;">
+                                <i class="bi bi-camera-video fs-5 pe-2"></i>
+                                <p class="device-options p-0 m-0 text-center border-0" id="cameraCurrent">Camera</p>
+                            </button>
+                            <ul class="dropdown-menu" id="cameraDropdownMenu"></ul>
                         </div>
-                        <div class="col text-start me-2">
-                            <button id="chatButton" class="device-options d-flex rounded-pill align-items-center" style="width: 150px;">
-                                <i class="bi bi-camera-video fs-5 pe-2"></i> 
-                                <p class="device-options p-0 m-0 text-center border-0">Camera 12321311</p>
-                            </button> 
-                        </div>
+
                     </div>
                 </div>
                 <div class="col-12 col-sm-3 justify-content-center p-3">
-                    <div class="row mb-1">
-                        <div class="col">
-                            <p class="fs-2 p-0 m-0">Ready to join?</p>
+                    <div id="actionContainer">
+                        <div class="row mb-1">
+                            <div class="col">
+                                <p class="fs-2 p-0 m-0">Ready to join?</p>
+                            </div>
+                        </div>
+                        <div class="row mb-1">
+                            <div class="col">
+                                <p class="fs-5 p-0 m-0">There are {{usersNumber}} people on this room.</p>
+                            </div>
+                        </div>
+                        <div class="row mb-1">
+                            <div class="col">
+                                <form action="" method="post" id="requestForm">
+                                    <input type="hidden" name="roomId" value="{{roomId}}">
+                                    <input type="hidden" id="isApprovedInput" name="isApproved" value="false">
+                                </form>
+                                <button type="button" id="joinButton"
+                                    class="btn btn-primary text-white border border-1 rounded-pill p-3"
+                                    style="width: 300px; height:70px">
+                                    <span id="joinText" class="fw-bold fs-6">
+                                        {{#ifEqual isApproved true}}
+                                        JOIN
+                                        {{else}}
+                                        REQUEST
+                                        {{/ifEqual}}
+                                    </span>
+                                    <div class="spinner-border text-light d-none" role="status" id="loadingJoin">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div class="row mb-1">
-                        <div class="col">
-                            <p class="fs-5 p-0 m-0">There are 2 people on this room.</p>
-                        </div>
-                    </div>
-                    <div class="row mb-1">
-                        <div class="col">
-                            <form action="" method="post">
-                                <input type="text" hidden name="join" value="true">
-                                <button type="submit" class="button bg-primary text-white border border-1 rounded-pill p-3" style="width: 300px;">JOIN</button>
-                            </form>
-                        </div>
+                     <div id="declineContainer" class="d-none">
+                        <p class="fs-6 fw-bold">Someone had declined your request.</p>
+                        <button type="button" class="btn btn-primary" onclick=returnToHome()>Return to home page</button>
                     </div>
                 </div>
             </div>
@@ -175,19 +234,284 @@
 
 
     <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
+        
+        function returnToHome(){
+            window.location.href = "/";
+        }
+        $(document).ready( function (){
+            const ws_url = "{{ws_url}}";
+            const ws = new WebSocket(ws_url);
+            ws.onmessage = async (message) => {
+                const data = JSON.parse(message.data);
+                console.log('Received:', data);
+                // console.log(data.exists);
+                switch (data.action) {
+                    case 'requestResponse':
+                        if (data.isApproved) {
+                            //return res.redirect('/' + roomId.trim());
+                            $("#isApprovedInput").val(data.isApproved);
+                            $("#requestForm").submit();
+                        }
+                        else {
+                            $("#actionContainer").addClass("d-none");
+                            $("#declineContainer").removeClass("d-none");
+                            // console.log("Room not found");
+                            //return res.redirect('/');
+                        }
+                        break;
+                    default:
+                        console.error('Unknown message action:', data.action);
+                }
+            }; 
+            $("#joinButton").on("click", function (){
+                $("#joinButton").prop("disabled", true);
+                $("#joinText").addClass("d-none");
+                $("#loadingJoin").removeClass("d-none");
+                ws.send(JSON.stringify({ action: 'requestJoin', roomId: "{{roomId}}", userId: "{{user.id}}", name: "{{user.fullName}}" }));
+            });
+        })
+        document.addEventListener('DOMContentLoaded', async (event) => {
+
+            localStorage.setItem("cameraEnabled", true);
+            localStorage.setItem("micEnabled", true);
             const videoPreview = document.getElementById('videoPreview');
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-                .then(function(stream) {
-                    videoPreview.srcObject = stream;
-                    videoPreview.play();
-                })
-                .catch(function(error) {
-                    console.error("Error accessing camera: ", error);
-                });
+            let audioConstraints = localStorage.getItem("audioConstraints");
+            let videoConstraints = localStorage.getItem("videoConstraints");
+            console.log(audioConstraints, videoConstraints)
+            let constraints = { video: true, audio: true };
+            if (audioConstraints) {
+                constraints.audio = JSON.parse(audioConstraints)
+            }
+            if(videoConstraints){
+                constraints.video = JSON.parse(videoConstraints)
+            }
+            console.log(constraints)
+            //const devices = await navigator.mediaDevices.enumerateDevices();
+            checkDeviceConstraints(audioConstraints, videoConstraints).then(result => {
+                console.log('Audio device exists:', result.audioDeviceExists);
+                console.log('Video device exists:', result.videoDeviceExists);
+                if(!result.audioDeviceExists){
+                    constraints.audio =  true;
+                }
+                if(!result.videoDeviceExists){
+                    constraints.video =  true;
+                }
+                console.log(constraints)
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.getUserMedia(constraints)
+                    .then(async function (stream) {
+
+                        window.stream = stream;
+                        videoPreview.srcObject = stream;
+                        videoPreview.play();
+                        //const devices = await navigator.mediaDevices.enumerateDevices();
+              
+
+                        const videoTrack = stream.getVideoTracks()[0];
+                        const audioTrack = stream.getAudioTracks()[0];
+
+                        if (videoTrack) {
+                            console.log('Video Track Device ID:', videoTrack.label);
+
+                            $("#cameraCurrent").text(videoTrack.label);
+
+                            let dropdownMenu = document.getElementById("cameraDropdownMenu");
+
+                            const items = dropdownMenu.querySelectorAll('.dropdown-item');
+                            items.forEach(item => {
+                                console.log(item.textContent)
+                                if (item.textContent.trim() === videoTrack.label) {
+                                    item.classList.add('active');
+                                }
+                            });
+
+                        }
+                        if (audioTrack) {
+                            console.log('Audio Track Device ID:', audioTrack.label);
+
+                            $("#microphoneCurrent").text(audioTrack.label);
+
+                            let dropdownMenu = document.getElementById("micDropdownMenu");
+
+                            const items = dropdownMenu.querySelectorAll('.dropdown-item');
+                            items.forEach(item => {
+                                if (item.textContent.trim() === audioTrack.label) {
+                                    item.classList.add('active');
+                                }
+                            });
+                        }
+                    })
+                    .catch(function (error) {
+
+                        console.error('Error when accessing devices:', error);
+                        //constraints = {video: true, audio: true};
+
+                    });
             } else {
                 alert('Sorry, your browser does not support getUserMedia');
+            }
+            });
+            async function checkDeviceConstraints(audioConstraints, videoConstraints) {
+                try {
+                    const devices = await navigator.mediaDevices.enumerateDevices();
+
+                    const audioInputs = devices.filter(device => device.kind === 'audioinput');
+                    //const audioOutputs = devices.filter(device => device.kind === 'audiooutput');
+                    const videoInputs = devices.filter(device => device.kind === 'videoinput');
+
+                    populateDropdown('micDropdownMenu', audioInputs, 'micButtonDropdown');
+                    //populateDropdown('speakerDropdownMenu', audioOutputs, 'speakerButtonDropdown');
+                    populateDropdown('cameraDropdownMenu', videoInputs, 'cameraButtonDropdown');
+
+                    console.log(JSON.parse(videoConstraints), JSON.parse(audioConstraints))
+                    videoConstraints = JSON.parse(videoConstraints);
+                    audioConstraints = JSON.parse(audioConstraints);
+                    let audioDeviceExists;
+                    if(audioConstraints.deviceId){
+                        audioDeviceExists = devices.some(device => 
+                            device.kind === 'audioinput' && device.deviceId === audioConstraints.deviceId.exact
+                        );
+                    }
+                    else{
+                        audioDeviceExists = false;
+                    }
+                    
+                    let videoDeviceExists
+                    if(videoConstraints.deviceId){
+                        videoDeviceExists = devices.some(device => 
+                        device.kind === 'videoinput' && device.deviceId === videoConstraints.deviceId.exact
+                    )}
+                    else{
+                        videoDeviceExists = false;
+                    }
+                    
+                    return { audioDeviceExists, videoDeviceExists };
+                } catch (error) {
+                    console.error("Error checking device constraints:", error);
+                    return { audioDeviceExists: false, videoDeviceExists: false };
+                }
+            }
+            async function changeMediaDevice(type, deviceId) {
+                try {
+                    const videoElement = document.getElementById('videoPreview');
+                    if (!window.stream) {
+                        let stream = await getUserMediaWithConstraints(true, true);
+                        window.stream = stream
+                        videoElement.srcObject = stream;
+                    }
+                    let stream = videoElement.srcObject;
+
+                    let audioConstraints = null;
+                    let videoConstraints = null;
+                    if (type === 'audioinput') {
+                        audioConstraints = { deviceId: { exact: deviceId } };
+
+                        let audioStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints })
+
+                        if(!stream){
+                            /*let stream = await getUserMediaWithConstraints(true, true);
+                            let videoTrack = stream.getVideoTracks()[0];
+                            let videoSettings = videoTrack.getSettings();
+                            const videoDeviceId = videoSettings.deviceId;
+
+                            let videoConstraints = { deviceId: { exact: videoDeviceId } };*/
+                            videoElement.srcObject = audioStream;
+                            //videoElement.srcObject.addTrack(audioStream.getVideoTracks()[0]);
+                            localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
+                        }
+                        else{
+                            const audioTracks = stream.getAudioTracks();
+                            console.log(audioTracks)
+                            if (audioTracks.length > 0) {
+                                stream.removeTrack(audioTracks[0]);
+                                stream.addTrack(audioStream.getAudioTracks()[0])
+                                localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
+                            }
+                            else{
+                                stream.addTrack(audioStream.getAudioTracks()[0])
+                                localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
+                            }
+                        }
+                    } else if (type === 'videoinput') {
+                        videoConstraints = { deviceId: { exact: deviceId } };
+
+                        console.log(videoConstraints)
+                        let videoStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints })
+                        if(!stream){
+                            /*let stream = await getUserMediaWithConstraints(true, true);
+                            let videoTrack = stream.getVideoTracks()[0];
+                            let videoSettings = videoTrack.getSettings();
+                            const videoDeviceId = videoSettings.deviceId;
+
+                            let videoConstraints = { deviceId: { exact: videoDeviceId } };*/
+                            videoElement.srcObject = videoStream;
+                            localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
+                        }
+                        else{
+                            const videoTracks = stream.getVideoTracks();
+                            if (videoTracks.length > 0) {
+                                stream.removeTrack(videoTracks[0]);
+                                stream.addTrack(videoStream.getVideoTracks()[0]);
+                                console.log(videoStream.getVideoTracks()[0])
+                                console.log("REPLACE VIDEO TRACK")
+                                localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
+                            }
+                            else{
+                                stream.addTrack(videoStream.getVideoTracks()[0]);
+                                console.log(videoStream.getVideoTracks()[0])
+                                console.log("REPLACE VIDEO TRACK")
+                                localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi thay đổi thiết bị media:', error);
+                }
+            }
+            async function getUserMediaWithConstraints(audioConstraints, videoConstraints) {
+                try {
+                    const constraints = {};
+                    if (audioConstraints) {
+                        constraints.audio = audioConstraints;
+                    }
+                    if (videoConstraints) {
+                        constraints.video = videoConstraints;
+                    }
+                    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    return stream;
+                } catch (error) {
+                    console.error('Lỗi khi lấy media stream:', error);
+                }
+            }
+            async function populateDropdown(dropdownId, devices, buttonId) {
+                const dropdownMenu = document.getElementById(dropdownId);
+                dropdownMenu.innerHTML = '';
+
+                devices.forEach(device => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.className = 'dropdown-item';
+                    a.href = '#';
+                    a.textContent = device.label || `Thiết bị không có tên (${device.deviceId})`;
+                    a.dataset.deviceId = device.deviceId;
+
+                    a.addEventListener('click', async function (event) {
+                        event.preventDefault();
+
+                        const button = document.getElementById(buttonId);
+                        const buttonLabel = button.querySelector('p');
+                        buttonLabel.textContent = this.textContent;
+
+                        const items = dropdownMenu.querySelectorAll('.dropdown-item');
+                        items.forEach(item => item.classList.remove('active'));
+                        this.classList.add('active');
+
+                        await changeMediaDevice(devices[0].kind, this.dataset.deviceId);
+                    });
+
+                    li.appendChild(a);
+                    dropdownMenu.appendChild(li);
+                });
             }
 
             const webcamButton = $('#webcamButton');
@@ -196,40 +520,65 @@
 
             webcamButton.on("click", () => {
                 let stream = videoPreview.captureStream();
-                let track  = stream.getTracks().find(track => track.kind === "video");
+                let track = stream.getTracks().find(track => track.kind === "video");
                 console.log("click")
-                if(webcamButton.hasClass("bg-danger")){
+                if (webcamButton.hasClass("bg-danger")) {
                     track.enabled = true;
                     webcamButton.removeClass("bg-danger");
                     $("#webcamIcon").removeClass("bi-camera-video-off");
                     $("#webcamIcon").addClass("bi-camera-video");
                     $("#camera-off-text").addClass("d-none");
+                    localStorage.setItem("cameraEnabled", true);
                 }
-                else{
+                else {
                     track.enabled = false;
                     $("#camera-off-text").removeClass("d-none");
                     webcamButton.addClass("bg-danger");
                     $("#webcamIcon").removeClass("bi-camera-video");
                     $("#webcamIcon").addClass("bi-camera-video-off");
+                    localStorage.setItem("cameraEnabled", false);
                 }
             })
             micButton.on("click", () => {
                 let stream = videoPreview.captureStream();
-                let track  = stream.getTracks().find(track => track.kind === "audio");
+                let track = stream.getTracks().find(track => track.kind === "audio");
                 console.log("click")
-                if(micButton.hasClass("bg-danger")){
+                if (micButton.hasClass("bg-danger")) {
                     track.enabled = true;
                     micButton.removeClass("bg-danger");
                     $("#micIcon").removeClass("bi-mic-mute");
                     $("#micIcon").addClass("bi-mic");
+                    localStorage.setItem("micEnabled", true);
                 }
-                else{
+                else {
                     track.enabled = false;
                     micButton.addClass("bg-danger");
                     $("#micIcon").removeClass("bi-mic");
                     $("#micIcon").addClass("bi-mic-mute");
+                    localStorage.setItem("micEnabled", false);
                 }
             })
+
+
+
+
+            if ('sinkId' in HTMLMediaElement.prototype) {
+                console.log('Hỗ trợ chức năng chuyển đổi audio output.');
+            } else {
+                console.warn('Trình duyệt không hỗ trợ chức năng chuyển đổi audio output.');
+            }
+            async function changeAudioDestination(mediaElement, deviceId) {
+                try {
+                    await mediaElement.setSinkId(deviceId);
+                    console.log(`Chuyển đổi thành công sang thiết bị âm thanh: ${deviceId}`);
+                } catch (error) {
+                    let errorMessage = error;
+                    if (error.name === 'SecurityError') {
+                        errorMessage = `Bạn cần sử dụng HTTPS để chọn thiết bị âm thanh: ${error}`;
+                    }
+                    console.error('Lỗi khi chuyển đổi audio output:', errorMessage);
+                }
+            }
         });
     </script>
 </body>

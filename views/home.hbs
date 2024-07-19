@@ -22,18 +22,40 @@
     <form action="" method="get" id="join-meeting">
         <input type="text" name="" id="meeting-id">
         <button type="button" onclick=joinMeeting(event)>Join a meeting</button>
+        <button type="button" onclick=createAccount()>TẠO ACCOUNT HÀNG LOẠT</button>
     </form>
 </body>
 <script>
-    const socket = new WebSocket('ws://localhost:3000'); 
+    function createAccount(){
+        for (var i = 31; i <= 50; i++) {
+            $.ajax({
+                url: 'http://localhost:3000/signup',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    fullname: `Nguyen Van Hao ${i}`,
+                    email: `user${i}@gmail.com`,
+                    password: "$2b$10$zUgT3d3b0xZRZOypaBM8KegTZVT6Fgr8e9GBLlwrMUn7rHqOrasBS",
+                    cfpassword: "$2b$10$zUgT3d3b0xZRZOypaBM8KegTZVT6Fgr8e9GBLlwrMUn7rHqOrasBS"
+                }),
+                success: function(response) {
+                    console.log('Signup success:', response);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Signup error:', xhr.responseText);
+                }
+            });
+        }
+    }
+    const socket = new WebSocket("{{ws_url}}"); 
     //const socket = new WebSocket('wss://videochatapp.online');
     socket.onmessage = async (message) => {
         const data = JSON.parse(message.data);
         console.log('Received:', data);
-        console.log(data.exists);
-        switch (data.type) {
-            case 'check':
-                if (data.data.exists) {
+        console.log(data.data.exists);
+        switch (data.action) {
+            case 'checked-result':
+                if (data.data.existed) {
                     $("#join-meeting").submit();
                 }
                 else {
@@ -50,8 +72,8 @@
         let meetingId = $("#meeting-id").val();
         if (meetingId !== "") {
             $("#join-meeting").attr("action", meetingId);
-            socket.send(JSON.stringify({ type: 'checkRoomExists', roomId: meetingId.trim() }));
-            $("#join-meeting").submit();
+            socket.send(JSON.stringify({ action: 'check-room-existed', roomId: meetingId.trim() }));
+            //$("#join-meeting").submit();
         } else {
             alert("Please enter a valid meeting ID.");
         }

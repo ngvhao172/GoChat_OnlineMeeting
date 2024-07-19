@@ -11,32 +11,55 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
 
     <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/switch.css">
     <script>
         // Embed server-side data into a global JavaScript variable
-        window.serverData = {{{ json user }}};
+        window.serverData = {
+            user: {{{ json user }}},
+            ws_url: "{{ws_url}}",
+            roomId: "{{roomId}}"
+        };
     </script>
+
+    <style>
+        .device-options {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            background-color: transparent;
+            border: 1px solid black;
+            transition: background-color 0.3s, border 0.3s;
+        }
+    </style>
 </head>
 
 <body>
     <div class="container-fluid body-container">
         <div class="row">
             <div class="main-container container-fluid">
-                <div class="grid-container">
-                    <!-- Video grid items will be dynamically added here -->
-                    {{!-- <div id="divVideolocalUser" class="video-container grid-item">
-                        <video id="localUser" autoplay playsinline></video>
-                        <div class="name-display">name</div>
-                        <div class="mutedMicLocalUser d-none position-absolute top-0 end-0 muted-mic mt-2 me-2 text-white fs-5 bg-dark rounded-circle d-flex align-items-center justify-content-center">
-                            <i class="bi bi-mic-mute p-0"></i>
+                <div class="container-grid">
+                    <div class="sharing-container d-none flex-grow-1" style="padding: 10px;"></div>
+                    <div class="grid-container">
+                        <!-- Video grid items will be dynamically added here -->
+                        {{!-- <div id="divVideolocalUser" class="video-container grid-item">
+                            <video id="localUser" autoplay playsinline></video>
+                            <div class="name-display">name</div>
+                            <div
+                                class="mutedMicLocalUser d-none position-absolute top-0 end-0 muted-mic mt-2 me-2 text-white fs-5 bg-dark rounded-circle d-flex align-items-center justify-content-center">
+                                <i class="bi bi-mic-mute p-0"></i>
+                            </div>
                         </div>
+                        <div id="divAlterLocalUser"
+                            class="d-none bg-secondary grid-item video-container-altenative position-relative">
+                            <img src="https://assets.puzzlefactory.com/puzzle/566/423/original.jpg"
+                                class="user-avatar-display position-absolute top-50 start-50 translate-middle">
+                            <div class="name-display">name</div>
+                            <div
+                                class="mutedMicLocalUser d-none position-absolute top-0 end-0 muted-mic mt-2 me-2 text-white fs-5 bg-dark rounded-circle d-flex align-items-center justify-content-center">
+                                <i class="bi bi-mic-mute p-0"></i>
+                            </div>
+                        </div> --}}
                     </div>
-                    <div id="divAlterLocalUser" class="d-none bg-secondary grid-item video-container-altenative position-relative">
-                        <img src="https://assets.puzzlefactory.com/puzzle/566/423/original.jpg" class="user-avatar-display position-absolute top-50 start-50 translate-middle">
-                        <div class="name-display">name</div>
-                        <div class="mutedMicLocalUser d-none position-absolute top-0 end-0 muted-mic mt-2 me-2 text-white fs-5 bg-dark rounded-circle d-flex align-items-center justify-content-center">
-                            <i class="bi bi-mic-mute p-0"></i>
-                        </div>
-                    </div> --}}
                 </div>
                 <div id="actionContainer" class="action-container">
                     <div id="chatContainer" class="chat-container bg-red flex-column mb-3">
@@ -47,11 +70,12 @@
                         </div>
                         <div class="chat-body ps-2 pe-2" id="chatBody">
                             {{!-- <div class="chat-message mt-3">
-                                <div class="chat-author d-flex">
-                                    <div class="fw-bold">Nguyen Van Hao &ensp;</div>
-                                    <div class="timer text-grey">22:16</div>
-                                </div> 
-                            --}}
+                                    <div class="chat-author d-flex">
+                                        <div class="fw-bold">Nguyen Van Hao &ensp;</div>
+                                        <div class="timer text-grey">22:16</div>
+                                    </div>
+                                </div>
+                                --}}
                         </div>
                         <div class="chat-footer mt-auto mb-3">
                             <div class="input-container">
@@ -78,139 +102,371 @@
                         <div class="d-flex justify-content-start  p-2 mt-2 rounded-1 wrapper">
                             <i class="bi bi-search-heart fs-5 me-3 ms-2"></i>
                             <input type="text" placeholder="Search for people"
-                                class="border-0 bg-transparent flex-fill search-people">
+                                class="border-0 bg-transparent flex-fill search-people" id="searchPeopleInput">
                         </div>
 
                         <div class="mt-2 ps-3">IN MEETING</div>
 
-                        <div class="container-fluid mt-2 p-0 border border-1 rounded-top-2 ps-2 pe-2 contributor">
-                            <div class="row d-flex align-items-center pt-2 pb-2">
-                                <div class="col-8 pe-0 ps-3">Contributors</div>
-                                <div class="col-2 text-center pe-lg-2 pe-xl-3 pe-xxl-4" id="contributors-number">2</div>
-                                <div class="col-2 text-center pe-lg-2 pe-xl-3 pe-xxl-5"><i
-                                        class="bi bi-caret-down fs-5 rotate"></i></div>
+                        {{#ifEqual isOwner true}} 
+                            <div class="container-fluid mt-2 p-0 border border-1 rounded-top-2 ps-2 requestorsContainer d-none">
+                                <div class="row d-flex align-items-center pt-2 pb-2">
+                                    <div class="col-4 pe-0 ps-3">Requestors</div>
+                                    <button class="col-4 p-0 text-primary border-0 bg-transparent text-decoration-underline" id="acceptAllButton">Accept all</button>
+                                    <button class="col-4 p-0 text-start text-danger border-0 bg-transparent text-decoration-underline" id="declineAllButton">Decline all</button>
+                                </div>
                             </div>
-                        </div>
-                        <div
-                            class="container-fluid p-0 border border-1 rounded-bottom-2 border-top-0 ps-2 pe-2 people-in-meeting">
-                            <div class="container-fluid p-0" id="userslist">
-                                {{!-- <div class="row d-flex align-items-center pt-2 pb-2">
-                                    <div class="col-2 avatar ps-3"><img class="user-avatar"
-                                            src="https://th.bing.com/th/id/OIP.KTSVEqImOpx4gXTshphsnwHaHa?rs=1&pid=ImgDetMain"
-                                            alt="" srcset=""></div>
-                                    <div class="col-6 p-0 ps-3 ps-sm-1">Hao Nguyen Van (You)</div>
-                                    <div class="col-2 text-center"><i class="bi bi-mic-mute"></i></div>
-                                    <div class="col-2 p-0">
-                                        <button class="buttons buttonsClose">
-                                            <i class="bi bi-three-dots-vertical fs-5"></i>
-                                        </button>
+                            <div class="container-fluid p-0 border border-1 rounded-bottom-2 border-top-0 ps-2 pe-2 requestorsContainer d-none requestors-in-meeting">
+                                <div class="container-fluid p-0" id="requestorsList">
+
+                                </div>
+                                {{!-- <div class="container-fluid p-0">
+                                    <div class="row d-flex align-items-center pt-2 pb-2">
+                                        <div class="col-2 avatar"><img class="user-avatar"
+                                                src="https://th.bing.com/th/id/OIP.KTSVEqImOpx4gXTshphsnwHaHa?rs=1&pid=ImgDetMain"
+                                                alt="" srcset=""></div>
+                                        <div class="col-6 p-0 fs-6 ps-2">Hao Nguyen Van</div>
+                                        <button class="col-2 p-0 text-primary border-0 bg-transparent text-decoration-underline" style="font-size: 12px;">Accept</button>
+                                        <button class="col-2 p-0 text-start text-danger border-0 bg-transparent text-decoration-underline" style="font-size: 12px;">Decline</button>
+                                    </div>
+                                </div>
+                                <div class="container-fluid p-0">
+                                    <div class="row d-flex align-items-center pt-2 pb-2">
+                                        <div class="col-2 avatar"><img class="user-avatar"
+                                                src="https://th.bing.com/th/id/OIP.KTSVEqImOpx4gXTshphsnwHaHa?rs=1&pid=ImgDetMain"
+                                                alt="" srcset=""></div>
+                                        <div class="col-6 p-0 fs-6 ps-2">Hao Nguyen Van</div>
+                                        <button class="col-2 p-0 text-primary border-0 bg-transparent text-decoration-underline" style="font-size: 12px;">Accept</button>
+                                        <button class="col-2 p-0 text-start text-danger border-0 bg-transparent text-decoration-underline" style="font-size: 12px;">Decline</button>
+                                    </div>
+                                </div>
+                                <div class="container-fluid p-0">
+                                    <div class="row d-flex align-items-center pt-2 pb-2">
+                                        <div class="col-2 avatar"><img class="user-avatar"
+                                                src="https://th.bing.com/th/id/OIP.KTSVEqImOpx4gXTshphsnwHaHa?rs=1&pid=ImgDetMain"
+                                                alt="" srcset=""></div>
+                                        <div class="col-6 p-0 fs-6 ps-2">Hao Nguyen Van</div>
+                                        <button class="col-2 p-0 text-primary border-0 bg-transparent text-decoration-underline" style="font-size: 12px;">Accept</button>
+                                        <button class="col-2 p-0 text-start text-danger border-0 bg-transparent text-decoration-underline" style="font-size: 12px;">Decline</button>
                                     </div>
                                 </div> --}}
                             </div>
+                          
+                        {{/ifEqual}}
+
+                        <div class="container-fluid mt-2 p-0 border border-1 rounded-top-2 ps-2 pe-2 contributor">
+                            <div class="row d-flex align-items-center pt-2 pb-2">
+                                <div class="col-8 pe-0 ps-3">Contributors</div>
+                                <div class="col-2 text-center " id="contributors-number">0</div>
+                                <div class="col-2 text-center "><i class="bi bi-caret-down fs-5 rotate"></i></div>
+                            </div>
+                        </div>
+                        <div class="container-fluid p-0 border border-1 rounded-bottom-2 border-top-0 ps-2 pe-2 people-in-meeting">
+                            <div class="container-fluid p-0" id="userslist">
+                                
+                            </div>
+                        </div>
+                    </div>
+                    {{!-- OWNER CONTROL --}}
+                    {{#ifEqual isOwner true}}   
+                        <div id="controlContainer" class="control-container bg-red flex-column mb-3">
+                            <div class="people-header d-flex justify-content-between align-items-center">
+                                <p class="fs-5 m-0">Meeting Access Controls</p>
+                                <button id="closeControlButton" class="buttons buttonsClose border-0"><i
+                                        class="bi bi-x-lg fw-bold"></i></button>
+                            </div>
+                            <div class="container-fluid mt-2 p-0 border border-1 rounded-top-2 ps-2 pe-2">
+                                <div class="row">
+                                    <div class="col-8">
+                                        <p class="fw-bold">Private meeting</p>
+                                        <p class="fst-italic fs-6" id="meetingAccessDes">This meeting is public</p>
+                                    </div>
+                                    <div class="col-4 d-flex align-items-center">
+                                        <div class="button r" id="button-1">
+                                            <input type="checkbox" class="checkbox" id="toggleSwitch" />
+                                            <div class="knobs"></div>
+                                            <div class="layer"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {{/ifEqual}}
+                </div>
+            </div>
+            <div class="bottom-container row position-relative d-flex align-items-center mb-5">
+                <div class="col-sm-3 position-absolute bottom-0 start-0 d-none d-sm-inline h-100">
+                    <div class="d-flex justify-content-start align-items-center text-white fs-5 flex-nowrap h-100"
+                        style="padding-left: 20px;">
+                        <div class="d-none d-lg-block" id="time">2:10 PM </div>
+                        <div class="d-none d-lg-inline">&ensp; | &ensp;</div>
+                        <div class="d-none d-lg-inline" id="roomId"></div>
+                    </div>
+                </div>
+                <div class="col-10 col-sm-6 position-absolute bottom-0 start-50 translate-middle-x h-100 z-3">
+                    <div class="row d-flex justify-content-center align-items-center flex-nowrap h-100">
+                        <button id="micButton" class="buttons me-4" data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="Microphone"><i id="micIcon" class="bi bi-mic text-white fs-5"></i></button>
+                        <button id="webcamButton" class=" buttons me-4" data-bs-toggle="tooltip"
+                            data-bs-placement="top" title="Camera"><i id="webcamIcon"
+                                class="bi bi-camera-video text-white fs-5"></i></button>
+                        {{!-- <button id="emojiButton" class="buttons me-4 d-none d-sm-inline"><i
+                                class="bi bi-emoji-smile text-white"></i></button> --}}
+                        <button id="shareButton" class="buttons me-4 d-none d-sm-inline" data-bs-toggle="tooltip"
+                            data-bs-placement="top" title="Share your screen"><i
+                                class="bi bi-file-play text-white fs-5"></i></button>
+                        {{!-- <button id="raiseHandButton" class="buttons me-4 d-none d-sm-inline"><i
+                                class="bi bi-person-raised-hand text-white fs-5 fs-5"></i></button> --}}
+                        <button id="hangupButton" type="button" class="buttons btn btn-danger"
+                            data-bs-toggle="tooltip" data-bs-placement="top" title="Hang up"><i
+                                class="bi bi-telephone-x text-white fs-5 fs-5"></i></button>
+                        <div class="dropup-center dropup d-flex align-items-center h-100" style="width: max-content"
+                            data-bs-toggle="tooltip" data-bs-placement="right" title="More">
+                            <button type="button" class="buttons buttonsAction" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                <i class="bi bi-three-dots-vertical text-white fs-5"></i>
+                            </button>
+                            <ul class="dropdown-menu bg-dark" style="width: max-content" id="optionsDiv">
+                                <li class="d-flex align-items-center" id="settingLi">
+                                    <button id="settingButton"
+                                        class="dropdown-item buttons buttonsAction border-0 text-white"
+                                        data-bs-toggle="modal" data-bs-target="#settingModal">
+                                        <i class="bi bi-gear text-white fs-5"> </i>
+                                    </button>
+                                    <span class="text-white text-center h-100 d-inline align-middle">Settings</span>
+                                </li>
+                                <li class="d-flex align-items-center" id="recordLi">
+                                    <button id="recordButton"
+                                        class="dropdown-item buttons buttonsAction border-0 text-white">
+                                        <i class="bi bi-record-circle text-white fs-5"> </i>
+                                    </button>
+                                    <span class="text-white text-center h-100 d-inline align-middle">Start
+                                        record</span>
+                                </li>
+                                <li class="d-flex align-items-center d-none" id="pauseLi">
+                                    <button id="pauseButton"
+                                        class="dropdown-item buttons buttonsAction border-0 text-white">
+                                        <i class="bi bi-pause-circle text-white fs-5"></i>
+                                    </button>
+                                    <span class="text-white text-center h-100 d-inline align-middle">Pause
+                                        record</span>
+                                </li>
+                                <li class="d-flex align-items-center d-none" id="resumeLi">
+                                    <button id="resumeButton" class="dropdown-item buttons buttonsAction border-0">
+                                        <i class="bi bi-play-circle text-white fs-5"></i>
+                                    </button>
+                                    <span class="text-white text-center h-100 d-inline align-middle">Resume
+                                        record</span>
+                                </li>
+                                <li class="d-flex align-items-center d-none" id="stopLi">
+                                    <button id="stopButton"
+                                        class="dropdown-item buttons buttonsAction border-0 text-white">
+                                        <i class="bi bi-stop-circle text-white fs-5"> </i>
+                                    </button>
+                                    <span class="text-white text-center h-100 d-inline align-middle">Stop
+                                        record</span>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        {{!-- <div class="toast-container position-fixed bottom-20 start-0">
-            <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive"
-                    aria-atomic="true">
-                    <div class="d-flex">
-                        <div class="toast-body" id="toast-body">
-                            Hello, world! This is a toast message.
-                        </div>
+                <div class="col-lg-4 position-absolute bottom-0 end-0 h-100 d-none d-lg-inline">
+                    <div class="row d-flex justify-content-end align-items-center h-100">
+                        <button id="peopleButton"
+                            class="peopleButton buttons buttonsAction border-0 position-relative"
+                            data-bs-toggle="tooltip" data-bs-placement="top" title="Contributors">
+                            <i class="bi bi-people text-white fs-5"></i>
+                            <span class="position-absolute top-0 righ-0 text-white fw-bold"
+                                style="font-size: smaller;" id="contributors-text-show">1</span>
+                        </button>
+                        <button id="chatButton" class="buttons buttonsAction border-0" data-bs-toggle="tooltip"
+                            data-bs-placement="top" title="Chat"><i
+                                class="bi bi-chat-left-dots text-white fs-5"></i></button>
+
+                        {{#ifEqual isOwner true}}  
+                            <button id="controlButton" class="buttons buttonsAction border-0 me-4" data-bs-toggle="tooltip"
+                                data-bs-placement="top" title="Controls"><i
+                                class="bi bi-shield text-white fs-5"></i></button>
+                        {{/ifEqual}}
                     </div>
                 </div>
-            </div>
-        </div> --}}
-        <div class="bottom-container row position-relative d-flex align-items-center mb-5">
-            <div class="col-sm-3 position-absolute bottom-0 start-0 d-none d-sm-inline h-100">
-                <div class="d-flex justify-content-start align-items-center text-white fs-5 flex-nowrap h-100">
-                    <div class="d-none d-lg-block" id="time">2:10 PM </div>
-                    <div class="d-none d-lg-inline">&ensp; | &ensp;</div>
-                    <div class="d-none d-lg-inline" id="roomId"></div>
-                </div>
-            </div>
-            <div class="col-10 col-sm-6 position-absolute bottom-0 start-50 translate-middle-x h-100 z-3">
-                <div class="row d-flex justify-content-center align-items-center flex-nowrap h-100">
-                    <button id="micButton" class="buttons me-4"><i class="bi bi-mic text-white fs-5"></i></button>
-                    <button id="webcamButton" class=" buttons me-4"><i
-                            class="bi bi-camera-video text-white fs-5"></i></button>
-                    <button id="emojiButton" class="buttons me-4 d-none d-sm-inline"><i
-                            class="bi bi-emoji-smile text-white"></i></button>
-                    <button id="shareButton" class="buttons me-4 d-none d-sm-inline"><i
-                            class="bi bi-file-play text-white fs-5"></i></button>
-                    <button id="raiseHandButton" class="buttons me-4 d-none d-sm-inline"><i
-                            class="bi bi-person-raised-hand text-white fs-5 fs-5"></i></button>
-                    <button id="hangupButton" type="button" class="buttons btn btn-danger"><i
-                            class="bi bi-telephone-x text-white fs-5 fs-5"></i></button>
-                </div>
-            </div>
-            <div class="col-lg-4 position-absolute bottom-0 end-0 h-100 d-none d-lg-inline">
-                <div class="row d-flex justify-content-end align-items-center h-100">
-                    <button id="peopleButton" class="peopleButton buttons buttonsAction border-0"><i
-                            class="bi bi-people text-white fs-5"></i></button>
-                    <button id="chatButton" class="buttons buttonsAction border-0 me-4"><i
-                            class="bi bi-chat-left-dots text-white fs-5"></i></button>
-                </div>
-            </div>
 
-            <div class="col-2 position-absolute bottom-0 end-0 h-100 d-inline d-lg-none">
-                <div class="dropup-center dropup d-flex align-items-center justify-content-end h-100">
-                    <button type="button" class="buttons buttonsAction" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-arrow-up-circle text-white fs-5"></i>
-                    </button>
-                    <ul class="dropdown-menu bg-dark" style="min-width: 20px">
-                        <li>
-                            <button id="peopleButtonOnMobile" class="dropdown-item buttons buttonsAction border-0"><i
-                                    class="bi bi-people text-white fs-5"></i></button>
-                        </li>
-                        <li>
-                            <button id="chatButtonOnMobile" class="dropdown-item buttons buttonsAction border-0"><i
-                                    class="bi bi-chat-left-dots text-white fs-5"></i></button>
-                        </li>
-                        <li>
-                            <button id="emojiButton" class="dropdown-item buttons buttonsAction border-0"><i
-                                    class="bi bi-emoji-smile text-white"></i></button>
-                        </li>
-                        <li>
-                            <button id="shareButton" class="dropdown-item buttons buttonsAction border-0"><i
-                                    class="bi bi-file-play text-white fs-5"></i></button>
-                        </li>
-                        <li>
-                            <button id="raiseHandButton" class="dropdown-item buttons buttonsAction border-0"><i
-                                    class="bi bi-person-raised-hand text-white fs-5 fs-5"></i></button>
-                        </li>
+                <div class="col-2 position-absolute bottom-0 end-0 h-100 d-inline d-lg-none">
+                    <div class="dropup-center dropup d-flex align-items-center justify-content-end h-100">
+                        <button type="button" class="buttons buttonsAction" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            <i class="bi bi-arrow-up-circle text-white fs-5"></i>
+                        </button>
+                        <ul class="dropdown-menu bg-dark" style="min-width: 20px">
+                            <li>
+                                <button id="peopleButtonOnMobile"
+                                    class="dropdown-item buttons buttonsAction border-0"><i
+                                        class="bi bi-people text-white fs-5"></i></button>
+                            </li>
+                            <li>
+                                <button id="chatButtonOnMobile"
+                                    class="dropdown-item buttons buttonsAction border-0"><i
+                                        class="bi bi-chat-left-dots text-white fs-5"></i></button>
+                            </li>
+                             <li>
+                                <button id="controlButtonOnMobile"
+                                    class="dropdown-item buttons buttonsAction border-0"><i
+                                        class="bi bi-chat-left-dots text-white fs-5"></i></button>
+                            </li>
+                            <li>
+                                <button id="shareButton" class="dropdown-item buttons buttonsAction border-0"><i
+                                        class="bi bi-file-play text-white fs-5"></i></button>
+                            </li>
 
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="toast-container position-fixed bottom-0 start-0 pb-5 ps-3 mb-5 z-3">
-            <div id="liveToast" class="toast text-bg-secondary" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-body" id="toast-body">
-                    User left!
-                </div>
-            </div>
-        </div>
-        <div class="toast-container position-fixed bottom-0 end-0 pb-5 ps-3 mb-5 z-3">
-            <div id="liveToast2" class="toast text-bg-secondary" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-body" id="toast-body2">
-                    User join!
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-        crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
-        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <script src="/javascripts/bundle.js" type="module"></script>
-    {{!-- <script src="/javascripts/client.js" type="module"></script> --}}
+    <div class="toast-container position-fixed bottom-0 start-0 pb-5 ps-3 mb-5 z-3">
+        <div id="liveToast" class="toast text-bg-secondary" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-body" id="toast-body">
+                User left!
+            </div>
+        </div>
+    </div>
+    <div class="toast-container position-fixed bottom-0 end-0 pb-5 ps-3 mb-5 z-3">
+        <div id="liveToast2" class="toast text-bg-secondary" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-body" id="toast-body2">
+                User join!
+            </div>
+        </div>
+    </div>
+    <div class="toast-container position-fixed bottom-0 end-0 pb-5 ps-3 mb-5 z-3 me-3">
+        <div class="toast text-bg-secondary" role="alert" aria-live="assertive" aria-atomic="true" id="requestToast">
+        <div class="toast-body">
+            <span id="requestMessage">Nguyen Van Hao request to join.</span>
+            <input type="hidden" id="requestorId">
+            <div class="mt-2 pt-2 border-top">
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="toast" id="acceptButton">Accept</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="toast" id="declineButton">Decline</button>
+            </div>
+            </div>
+        </div>
+    </div>
+    </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        <script src="/javascripts/bundle.js" type="module"></script>
+        {{!--
+        <script src="/javascripts/client.js" type="module"></script> --}}
 
+
+        <script>
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        </script>
 
 </body>
-
+{{!-- Setting modal --}}
+<div class="modal fade" id="settingModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="min-height: 500px;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="list-group" id="list-tab" role="tablist">
+                                <a class="list-group-item list-group-item-action active" id="list-home-list"
+                                    data-bs-toggle="list" href="#list-home" role="tab" aria-controls="list-home"><i
+                                        class="bi bi-mic"></i>&ensp; Microphone</a>
+                                <a class="list-group-item list-group-item-action" id="list-profile-list"
+                                    data-bs-toggle="list" href="#list-profile" role="tab"
+                                    aria-controls="list-profile"><i class="bi bi-camera"></i>&ensp; Video</a>
+                            </div>
+                        </div>
+                        <div class="col-8">
+                            <div class="tab-content" id="nav-tabContent">
+                                <div class="tab-pane fade show active" id="list-home" role="tabpanel"
+                                    aria-labelledby="list-home-list">
+                                    <div class="container">
+                                        <div class="row">
+                                            <p class="fw-bold text-primary">Micro</p>
+                                        </div>
+                                        <div class="row pt-2">
+                                            <div class="col">
+                                                <div class="row">
+                                                    <div class="col text-start me-2 btn-group dropdown">
+                                                        <button id="micButtonDropdown"
+                                                            class="device-options d-flex rounded-pill align-items-center dropdown-toggle"
+                                                            data-bs-toggle="dropdown" aria-expanded="false"
+                                                            style="max-width: 200px; height: 40px">
+                                                            <i class="bi bi-mic fs-5 pe-2"></i>
+                                                            <p class="device-options p-0 m-0 text-center border-0"
+                                                                id="microphoneCurrent">Microphone
+                                                            </p>
+                                                        </button>
+                                                        <ul class="dropdown-menu" id="micDropdownMenu"></ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{!-- <div class="col">
+                                                <div
+                                                    class="mic-container d-flex justify-content-center align-items-center micActivevideoPreview">
+                                                    <div class="dot rounded-pill"></div>
+                                                    <div class="dot rounded-pill"></div>
+                                                    <div class="dot rounded-pill"></div>
+                                                </div>
+                                            </div> --}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="list-profile" role="tabpanel"
+                                    aria-labelledby="list-profile-list">
+                                    <div class="container">
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="row">
+                                                    <p class="fw-bold text-primary">Video</p>
+                                                </div>
+                                                <div class="row pt-2">
+                                                    <div class="col text-start me-2 btn-group dropup">
+                                                        <button id="cameraButtonDropdown"
+                                                            class="device-options d-flex rounded-pill align-items-center dropdown-toggle"
+                                                            data-bs-toggle="dropdown" aria-expanded="false"
+                                                            style="max-width: 200px;">
+                                                            <i class="bi bi-camera-video fs-5 pe-2"></i>
+                                                            <p class="device-options p-0 m-0 text-center border-0"
+                                                                id="cameraCurrent">Camera</p>
+                                                        </button>
+                                                        <ul class="dropdown-menu" id="cameraDropdownMenu"></ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <video id="videoPreview" autoplay disablePictureInPicture height="100"
+                                                    style="width:100%; border-radius: 5px;"></video>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    id="changeSourceCloseButton">Close</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="changeSourceButton">Save
+                    changes</button>
+            </div>
+        </div>
+    </div>
+</div>
 </html>
