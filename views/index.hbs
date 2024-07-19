@@ -307,11 +307,13 @@
                                     class="dropdown-item buttons buttonsAction border-0"><i
                                         class="bi bi-chat-left-dots text-white fs-5"></i></button>
                             </li>
+                            {{#ifEqual isOwner true}}  
                              <li>
                                 <button id="controlButtonOnMobile"
                                     class="dropdown-item buttons buttonsAction border-0"><i
-                                        class="bi bi-chat-left-dots text-white fs-5"></i></button>
+                                        class="bi bi-shield text-white fs-5"></i></button>
                             </li>
+                            {{/ifEqual}}
                             <li>
                                 <button id="shareButton" class="dropdown-item buttons buttonsAction border-0"><i
                                         class="bi bi-file-play text-white fs-5"></i></button>
@@ -337,6 +339,15 @@
             </div>
         </div>
     </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 pb-5 ps-3 mb-5 z-3">
+        <div id="warningToast" class="toast text-bg-warning" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-body text-white fw-bold" id="toast-body2">
+                <i class="bi bi-exclamation-circle"></i> DEVICE ALREADY IN USE OR ACCESS DENIED. PROGRAM MIGHT BE BUGGED. TRY USING AN AVAILABLE DEVICE.
+            </div>
+        </div>
+    </div>
+
     <div class="toast-container position-fixed bottom-0 end-0 pb-5 ps-3 mb-5 z-3 me-3">
         <div class="toast text-bg-secondary" role="alert" aria-live="assertive" aria-atomic="true" id="requestToast">
         <div class="toast-body">

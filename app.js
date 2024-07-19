@@ -9,11 +9,16 @@ const session = require('express-session');
 const flash = require('express-flash');
 require('dotenv').config({ path: './config/.env' });
 const initializePassport = require('./config/passport-config');
+const initializeGooglePassport = require('./config/gg-passport-config');
 const mediasoup = require('mediasoup');
 const cors = require('cors');
 
 //local passport config
 initializePassport(passport);
+
+//gg passport config
+
+initializeGooglePassport(passport);
 
 const port = process.env.PORT;
 const ws_url = process.env.WS_URL;

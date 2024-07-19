@@ -17221,7 +17221,8 @@ async function getLocalStream() {
     localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints));
     console.log("GET LOCAL STREAM");
   } catch (error) {
-    alert("DEVICE ALREADY IN USE OR ACCESS DENIED. PROGGRAMS MIGHT BE BUGGED. TRY USING AN AVAILABLE DEVICE");
+    // alert("DEVICE ALREADY IN USE OR ACCESS DENIED. PROGGRAMS MIGHT BE BUGGED. TRY USING AN AVAILABLE DEVICE")    
+    $("#warningToast").toast("show");
     console.error('Error getting local stream:', error);
   }
 }
@@ -17598,7 +17599,7 @@ const createSendTransport = async params => {
       errback(error);
     }
   });
-  connectSendTransport();
+  await connectSendTransport();
   // })
 };
 const connectSendTransport = async () => {
@@ -17648,8 +17649,15 @@ const connectSendTransport = async () => {
   } else {
     toggleButtonWhenProducerNotFound("video", webcamButton, true, "localVideo");
     webcamButton.attr("disabled", true);
+    ws.send(JSON.stringify({
+      action: "producerNotProvided",
+      kind: "video",
+      userId: id,
+      name: username,
+      roomId: roomId
+    }));
   }
-  allProduce = true;
+  //allProduce = true;
   // alert("Continue");
   if (audioParams && audioParams.track) {
     audioProducer = await producerTransport.produce(audioParams, {
@@ -17672,19 +17680,26 @@ const connectSendTransport = async () => {
   } else {
     toggleButtonWhenProducerNotFound("audio", micButton, true, "localVideo");
     micButton.attr("disabled", true);
+    ws.send(JSON.stringify({
+      action: "producerNotProvided",
+      kind: "audio",
+      userId: id,
+      name: username,
+      roomId: roomId
+    }));
   }
-  allProduce = false;
+  // allProduce = false;
   // }
   // alert("Consume both AUDIO AND VIDEO");
 
   console.log("PRODUCE BOTH", audioProducer);
   console.log("AUDIO STATUS");
   if (localStorage.getItem('micEnabled') == "false") {
-    toggleButton("audio", micButton);
+    await toggleButton("audio", micButton);
     console.log("TOGGLED");
   }
   if (localStorage.getItem('cameraEnabled') == "false") {
-    toggleButton("video", webcamButton);
+    await toggleButton("video", webcamButton);
   }
 
   // if(sharingProducer){
@@ -17895,12 +17910,12 @@ hangupButton.on("click", () => {
   // endCall();
   window.location.href = "/";
 });
-webcamButton.on("click", () => {
+webcamButton.on("click", async () => {
   console.log("click");
-  toggleButton("video", webcamButton);
+  await toggleButton("video", webcamButton);
 });
-micButton.on("click", () => {
-  toggleButton("audio", micButton);
+micButton.on("click", async () => {
+  await toggleButton("audio", micButton);
 });
 async function startCapture(displayMediaOptions) {
   let captureStream = null;
@@ -18170,8 +18185,10 @@ async function toggleButton(type, button) {
     // console.log(videoState);
     if (videoProducer) {
       const videoState = videoProducer.paused ? 'paused' : 'active';
+      console.log("VIDEO STATE", videoState);
+      console.log(videoState == 'active');
       if (videoState == 'active') {
-        videoProducer.pause();
+        await videoProducer.pause();
         // track.stop();
         stream.getVideoTracks()[0].stop();
         track.enabled = false;
@@ -18186,7 +18203,7 @@ async function toggleButton(type, button) {
           roomId: roomId
         }));
       } else {
-        videoProducer.resume();
+        await videoProducer.resume();
         // track.resume();
         // getLocalStream();
         let videoTrackReplace = await getVideoTrackReplace();

@@ -15,4 +15,9 @@ router.get('/signup', authController.signupGET)
 
 router.post('/signup', authController.signupPOST)
 
+router.get('/auth/google', passport.authenticate('google', { scope: [ 'email', 'profile' ] }));
+
+router.get('/auth/google/callback',
+    passport.authenticate( 'google', { failureRedirect: '/login', failureFlash: true, successRedirect: "/"}));
+
 module.exports = router;
