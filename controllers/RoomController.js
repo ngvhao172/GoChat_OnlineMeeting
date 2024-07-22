@@ -99,7 +99,7 @@ class RoomController {
                     }
                     else {
                         // console.log("Room not found");
-                        return res.redirect('/');
+                        return res.redirect('/notfound');
                     }
                     break;
                 default:
@@ -143,6 +143,9 @@ class RoomController {
         //             console.error('Unknown message action:', data.action);
         //     }
         // }; 
+    }
+    async notfound(req, res, next){
+        return res.render("notfound");
     }
 
 }

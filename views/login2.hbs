@@ -50,6 +50,18 @@
         border-radius: 30px;
     }
 
+    .position-relative {
+        position: relative;
+    }
+
+    .position-absolute {
+        position: absolute;
+        top: 50%;
+        right: 20px;
+        transform: translateY(-50%);
+        cursor: pointer;
+    }
+
     @media only screen and (max-width: 768px) {
         .box-area {
             margin: 0 10px;
@@ -111,7 +123,7 @@
                                 </span>
                             </div>
                             <input id="email" type="text" name="email" placeholder="Email"
-                                class="form-control bg-white border-left-0 border-md">
+                                class="form-control bg-white border-left-0 border-md" required>
                         </div>
                         <!-- password -->
                         <div class="input-group mb-4">
@@ -121,7 +133,9 @@
                                 </span>
                             </div>
                             <input id="password" type="password" name="password" placeholder="Password"
-                                class="form-control bg-white border-left-0 border-md">
+                                class="form-control bg-white border-left-0 border-md" required>
+                                 <i class="bi bi-eye-slash position-absolute" id="togglePassword"
+                                onclick="togglePasswordVisibility('password', 'togglePassword')"></i>
                         </div>
                         <div class="input-group mb-5 d-flex justify-content-between">
                             <div class="form-check">
@@ -148,6 +162,22 @@
             </div>
         </div>
     </div>
+    <script>
+    function togglePasswordVisibility(inputId, toggleIconId) {
+        const passwordInput = document.getElementById(inputId);
+        const togglePassword = document.getElementById(toggleIconId);
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            togglePassword.classList.remove('bi-eye-slash');
+            togglePassword.classList.add('bi-eye');
+        } else {
+            passwordInput.type = 'password';
+            togglePassword.classList.remove('bi-eye');
+            togglePassword.classList.add('bi-eye-slash');
+        }
+    }
+</script>
 </body>
 
 </html>

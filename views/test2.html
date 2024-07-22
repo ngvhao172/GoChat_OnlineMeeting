@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transition Example</title>
+    <style>
+        .main-container {
+            display: flex;
+            height: 85vh;
+            width: 100%;
+            overflow: hidden; /* Prevents overflow when the action-container slides in */
+        }
+
+        .container-grid {
+            padding: 10px;
+            width: calc(100% - 0px); /* Default width */
+            display: flex;
+            gap: 10px; /* Modern CSS gap instead of grid-gap */
+            transition: width 0.3s; /* Transition on width */
+            height: 100%;
+            background-color: red;
+            margin: 20px;
+        }
+
+        .action-container {
+            padding: 10px;
+            height: 100%;
+            width: 350px; /* Fixed width */
+            position: absolute; /* Position it outside the flow */
+            right: 0;
+            top: 0;
+            background-color: green;
+            transform: translateX(100%);
+            transition: transform 0.3s, opacity 0.3s, visibility 0.3s; /* Transition for transform, opacity, and visibility */
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .action-container.open {
+            transform: translateX(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .main-container.expanded .container-grid {
+            width: calc(100% - 350px); /* Adjust width when action-container is visible */
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container" id="mainContainer">
+    <div class="container-grid"></div>
+    <div id="actionContainer" class="action-container"></div>
+</div>
+
+<button onclick="toggleActionContainer()">Toggle Action Container</button>
+
+<script>
+    function toggleActionContainer() {
+        const mainContainer = document.getElementById('mainContainer');
+        const actionContainer = document.getElementById('actionContainer');
+
+        if (actionContainer.classList.contains('open')) {
+            actionContainer.classList.remove('open');
+            mainContainer.classList.remove('expanded');
+        } else {
+            actionContainer.classList.add('open');
+            mainContainer.classList.add('expanded');
+        }
+    }
+</script>
+
+</body>
+</html>

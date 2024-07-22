@@ -87,7 +87,7 @@ module.exports = async (httpServer, router) => {
               }
             }
             if(rooms[data.roomId].approvedUsers.includes(data.userId)){
-              rooms[data.roomId].users[data.userId] = { id: data.userId, ws, name: data.name, producerTransport: null, consumerTransports: {} };
+              rooms[data.roomId].users[data.userId] = { id: data.userId, ws, name: data.name, avatar: data.avatar, producerTransport: null, consumerTransports: {} };
               rooms[data.roomId].consumers[data.userId] = {};
 
               // console.log("Room", rooms[data.roomId]);
@@ -95,7 +95,7 @@ module.exports = async (httpServer, router) => {
               let users = [];
               let usersObject = Object.values(rooms[data.roomId].users);
               usersObject.forEach(user => {
-                users.push({ id: user.id, name: user.name });
+                users.push({ id: user.id, name: user.name, avatar: user.avatar });
               });
               sendBroadcast(data.roomId, { action: 'user-list', room: data.roomId, users: users, ownerId: rooms[data.roomId].ownerCreatedId, newUser: { name: data.name, id: data.userId } });
             }
@@ -225,6 +225,7 @@ module.exports = async (httpServer, router) => {
         case 'producerNotProvided':
           {
             const {roomId, userId, kind, name} = data;
+            const avatar = rooms[roomId].users[userId].avatar;
             console.log("ROOMSSSSSS");
             console.log(rooms[roomId].users)
             for (let id in rooms[roomId].users) {
@@ -235,6 +236,7 @@ module.exports = async (httpServer, router) => {
                   kind: kind,
                   producerUserId: userId,
                   name: name,
+                  avatar: avatar,
                   producerStatus: "off"
                 }));
               }
@@ -260,7 +262,7 @@ module.exports = async (httpServer, router) => {
             let users = [];
               let usersObject = Object.values(rooms[data.roomId].users);
               usersObject.forEach(user => {
-                users.push({ id: user.id, name: user.name });
+                users.push({ id: user.id, name: user.name, avatar: user.avatar });
               });
               console.log(users);
               //Create consumers for the new user for all existing producers
@@ -300,6 +302,7 @@ module.exports = async (httpServer, router) => {
                           kind: "video",
                           producerUserId: user.id,
                           name: user.name,
+                          avatar: user.avatar,
                           producerStatus: "off"
                         }));
                       }
@@ -323,6 +326,7 @@ module.exports = async (httpServer, router) => {
                           kind: "audio",
                           producerUserId: user.id,
                           name: user.name,
+                          avatar: user.avatar,
                           producerStatus: "off"
                         }));
                       }
@@ -337,12 +341,8 @@ module.exports = async (httpServer, router) => {
                           producerUserId: user.id,
                           producerStatus: producer["sharing"].status,
                         }));
-                      } 
-                  }
-                    // console.log(producer["audio"].id)
-                    // console.log(producer["video"].id)
-
-                    // ws.send(JSON.stringify({action: 'newConsumer', producerId: producer.id}));
+                      }
+                    }
                   }
                   else{
                     ws.send(JSON.stringify({
@@ -350,6 +350,7 @@ module.exports = async (httpServer, router) => {
                       kind: "video",
                       producerUserId: user.id,
                       name: user.name,
+                      avatar: user.avatar,
                       producerStatus: "off"
                     }));
                     ws.send(JSON.stringify({
@@ -357,6 +358,7 @@ module.exports = async (httpServer, router) => {
                       kind: "audio",
                       producerUserId: user.id,
                       name: user.name,
+                      avatar: user.avatar,
                       producerStatus: "off"
                     }));
                     
@@ -489,6 +491,7 @@ module.exports = async (httpServer, router) => {
               const consumer = await transport.consume({ producerId, rtpCapabilities, paused: true });
               rooms[roomId].consumers[userId][producerId] = consumer;
               const name = rooms[roomId].users[producerUserId].name;
+              const avatar = rooms[roomId].users[producerUserId].avatar;
 
               // console.log("ROOM AFTER CONSUMER:", rooms[roomId]);
               const isSharingProducer = rooms[roomId].producers[producerUserId]["sharing"];
@@ -503,6 +506,7 @@ module.exports = async (httpServer, router) => {
                   rtpParameters: consumer.rtpParameters,
                   producerUserId: producerUserId,
                   name: name,
+                  avatar: avatar,
                   producerStatus: producerStatus,
                   isSharing: true,
                   roomId: roomId
@@ -518,6 +522,7 @@ module.exports = async (httpServer, router) => {
                   rtpParameters: consumer.rtpParameters,
                   producerUserId: producerUserId,
                   name: name,
+                  avatar: avatar,
                   producerStatus: producerStatus,
                   roomId: roomId
                 }));

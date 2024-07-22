@@ -287,7 +287,7 @@
             }
             console.log(constraints)
             //const devices = await navigator.mediaDevices.enumerateDevices();
-            checkDeviceConstraints(audioConstraints, videoConstraints).then(result => {
+            checkDeviceConstraints(audioConstraints, videoConstraints).then(async result => {
                 console.log('Audio device exists:', result.audioDeviceExists);
                 console.log('Video device exists:', result.videoDeviceExists);
                 if(!result.audioDeviceExists){
@@ -297,7 +297,78 @@
                     constraints.video =  true;
                 }
                 console.log(constraints)
-                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+
+                let audioStreamPromise = navigator.mediaDevices.getUserMedia({ audio: audioConstraints ? JSON.parse(audioConstraints) : true });
+                let videoStreamPromise = navigator.mediaDevices.getUserMedia({ video: videoConstraints ? JSON.parse(videoConstraints) : true });
+
+                let audioStream = null;
+                let videoStream = null;
+
+                try {
+                    audioStream = await audioStreamPromise;
+                } catch (error) {
+                    disableButton("audio", micButton);
+                    console.warn('Audio permission denied or other issue:', error);
+                }
+                try {
+                    videoStream = await videoStreamPromise;
+                } catch (error) {
+                    disableButton("video", webcamButton);
+                    console.warn('Video permission denied or other issue:', error);
+                }
+
+                // Create a combined stream if both streams are available
+                const combinedStream = new MediaStream();
+                if (audioStream) {
+                    audioStream.getAudioTracks().forEach(track => combinedStream.addTrack(track));
+                }
+                if (videoStream) {
+                    videoStream.getVideoTracks().forEach(track => combinedStream.addTrack(track));
+                }
+                window.stream = combinedStream;
+                videoPreview.srcObject = combinedStream;
+                videoPreview.play();
+                const videoTrack = stream.getVideoTracks()[0];
+                const audioTrack = stream.getAudioTracks()[0];
+
+                if (videoTrack) {
+                    console.log('Video Track Device ID:', videoTrack.label);
+
+                    $("#cameraCurrent").text(videoTrack.label);
+
+                    let dropdownMenu = document.getElementById("cameraDropdownMenu");
+
+                    const items = dropdownMenu.querySelectorAll('.dropdown-item');
+                    items.forEach(item => {
+                        console.log(item.textContent)
+                        if (item.textContent.trim() === videoTrack.label) {
+                            item.classList.add('active');
+                        }
+                    });
+
+                }
+                if (audioTrack) {
+                    console.log('Audio Track Device ID:', audioTrack.label);
+
+                    $("#microphoneCurrent").text(audioTrack.label);
+
+                    let dropdownMenu = document.getElementById("micDropdownMenu");
+
+                    const items = dropdownMenu.querySelectorAll('.dropdown-item');
+                    items.forEach(item => {
+                        if (item.textContent.trim() === audioTrack.label) {
+                            item.classList.add('active');
+                        }
+                    });
+                }
+            })
+            .catch(function (error) {
+
+                console.error('Error when accessing devices:', error);
+                //constraints = {video: true, audio: true};
+
+            });
+                /*if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                     navigator.mediaDevices.getUserMedia(constraints)
                     .then(async function (stream) {
 
@@ -349,8 +420,8 @@
                     });
             } else {
                 alert('Sorry, your browser does not support getUserMedia');
-            }
-            });
+            }*/
+            
             async function checkDeviceConstraints(audioConstraints, videoConstraints) {
                 try {
                     const devices = await navigator.mediaDevices.enumerateDevices();
@@ -358,10 +429,17 @@
                     const audioInputs = devices.filter(device => device.kind === 'audioinput');
                     //const audioOutputs = devices.filter(device => device.kind === 'audiooutput');
                     const videoInputs = devices.filter(device => device.kind === 'videoinput');
-
-                    populateDropdown('micDropdownMenu', audioInputs, 'micButtonDropdown');
+                    if(audioInputs.length>0){
+                        console.log(audioInputs)
+                        populateDropdown('micDropdownMenu', audioInputs, 'micButtonDropdown');
+                    }
+                    if(videoInputs.length>0){
+                        console.log(videoInputs)
+                        populateDropdown('cameraDropdownMenu', videoInputs, 'cameraButtonDropdown');
+                    }
+                  
                     //populateDropdown('speakerDropdownMenu', audioOutputs, 'speakerButtonDropdown');
-                    populateDropdown('cameraDropdownMenu', videoInputs, 'cameraButtonDropdown');
+                   
 
                     console.log(JSON.parse(videoConstraints), JSON.parse(audioConstraints))
                     videoConstraints = JSON.parse(videoConstraints);
@@ -517,7 +595,23 @@
             const webcamButton = $('#webcamButton');
             const micButton = $('#micButton');
 
-
+            function disableButton(type, button){
+                if(type == "audio"){
+                    button.attr("disabled", true);
+                    button.addClass("bg-danger");
+                    $("#micIcon").removeClass("bi-mic");
+                    $("#micIcon").addClass("bi-mic-mute");
+                    localStorage.setItem("micEnabled", false);
+                }else{
+                    button.attr("disabled", true);
+                    $("#camera-off-text").removeClass("d-none");
+                    webcamButton.addClass("bg-danger");
+                    $("#webcamIcon").removeClass("bi-camera-video");
+                    $("#webcamIcon").addClass("bi-camera-video-off");
+                    $("#videoPreview").addClass("bg-dark");
+                    localStorage.setItem("cameraEnabled", false);
+                }
+            }
             webcamButton.on("click", () => {
                 let stream = videoPreview.captureStream();
                 let track = stream.getTracks().find(track => track.kind === "video");

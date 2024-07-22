@@ -13,6 +13,21 @@ const initializeGooglePassport = require('./config/gg-passport-config');
 const mediasoup = require('mediasoup');
 const cors = require('cors');
 
+const webPush = require('web-push');
+
+// Generate VAPID keys
+const vapidKeys = {
+  publicKey: "BCGeLzc1iyki17jIBjFxi351V6ttBrrBNpimnbw8mifWJG8x92l0G5s1fr4H2XtBjQ60rwxkd2rvjt-4TqvNqng",
+  privateKey: "xoGkTegQGWUg8yAtMupFFsKvCBUZWFo84Wf8nxeCCfY"
+};
+
+webPush.setVapidDetails(
+  'mailto:ngvhao172@example.com',
+  vapidKeys.publicKey,
+  vapidKeys.privateKey
+);
+
+
 //local passport config
 initializePassport(passport);
 
@@ -83,6 +98,21 @@ app.use(function (req, res, next) {
     res.redirect('/login');
   }
 })
+// app.post('/subscribe', (req, res) => {
+//   const subscription = req.body;
+
+//   // Send a push notification
+//   console.log("SUBCRIBE FOUND")
+//   const payload = JSON.stringify({ title: 'Test Notification', body: 'This is a test notification' });
+
+//   webPush.sendNotification(subscription, payload)
+//     .then(() => res.status(200).json({ message: 'Notification sent successfully.' }))
+//     .catch(err => {
+//       console.error(err);
+//       res.sendStatus(500);
+//     });
+// });
+
 
 app.use('/', indexRouter);
 // app.use('/users', usersRouter);

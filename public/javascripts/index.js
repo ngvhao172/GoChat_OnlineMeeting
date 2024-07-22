@@ -17,8 +17,9 @@ export async function toggleContainer(containerToShow, isActionContainerOpenGlob
         }
         if (isThisContainerOpen) {
             actionContainer.classList.remove('open');
+            $(".main-container").removeClass("expanded");
             setTimeout(() => {
-                actionContainer.style.display = 'none';
+                // actionContainer.style.display = 'none';
                 // document.querySelector('.grid-container').classList.remove('reduced');
             }, 300);
         }
@@ -30,11 +31,12 @@ export async function toggleContainer(containerToShow, isActionContainerOpenGlob
         }
     }
     else {
+        $(".main-container").addClass("expanded");
         actionContainers.forEach(container => {
             container.style.display = 'none';
         });
         containerToShow.style.display = 'flex';
-        actionContainer.style.display = 'block';
+        // actionContainer.style.display = 'block';
         setTimeout(() => {
             actionContainer.classList.toggle('open');
             // document.querySelector('.grid-container').classList.toggle('reduced');
@@ -63,7 +65,7 @@ setInterval(() => {
 }, 30000)
 
 
-export async function addItem(id, name) {
+export async function addItem(id, name, avatar) {
     const itemIdExists = document.getElementById(id);
     if(itemIdExists){
         return;
@@ -131,7 +133,11 @@ export async function addItem(id, name) {
     // image.classList.add("d-flex");
     // image.classList.add("justify-content-center");
     // image.classList.add("align-items-center");
-    image.src = 'https://assets.puzzlefactory.com/puzzle/566/423/original.jpg';
+    if(avatar){
+        image.src = avatar;
+    }else{
+        image.src = "/images/GoLogoNBg.png";
+    }
     divAlternative.appendChild(image);
     const nameDisplay2 = document.createElement('div');
     nameDisplay2.classList.add('name-display');
@@ -303,7 +309,7 @@ export function updateUserList({users, clientId, filter, idUserLeft, ownerId}) {
         if (!existedUser) {
             const userDiv = `
                 <div class="row d-flex align-items-center pt-2 pb-2 contributor-showing" data-name="${user.name}" id="contributor-${user.id}">
-                    <div class="col-2 avatar"><img class="user-avatar" src="https://th.bing.com/th/id/OIP.KTSVEqImOpx4gXTshphsnwHaHa?rs=1&pid=ImgDetMain" alt="" srcset=""></div>
+                    <div class="col-2 avatar"><img class="user-avatar" src="${user.avatar ? user.avatar: '/images/GoLogoNBg.png'}" alt="" srcset=""></div>
                     <div class="col-6 p-0 fs-6 ps-2"><span>${user.name}${user.id === clientId ? ' (You) ' : '' } ${user.id === ownerId ? "<span class='fw-bold fs-6'>(Host)</span>" : ''}</span></div>
                     <div class="col-2 text-center d-none mutedMic${user.id === clientId ? 'localVideo' : user.id}"><i class="bi bi-mic-mute"></i></div>
                     <div class="col-2 text-center d-none micActive${user.id === clientId ? 'localVideo' : user.id}">

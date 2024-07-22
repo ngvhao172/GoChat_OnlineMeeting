@@ -204,14 +204,14 @@
                 </div>
                 <div class="col-10 col-sm-6 position-absolute bottom-0 start-50 translate-middle-x h-100 z-3">
                     <div class="row d-flex justify-content-center align-items-center flex-nowrap h-100">
-                        <button id="micButton" class="buttons me-4" data-bs-toggle="tooltip" data-bs-placement="top"
+                        <button id="micButton" class="buttons me-4 btn" data-bs-toggle="tooltip" data-bs-placement="top"
                             title="Microphone"><i id="micIcon" class="bi bi-mic text-white fs-5"></i></button>
-                        <button id="webcamButton" class=" buttons me-4" data-bs-toggle="tooltip"
+                        <button id="webcamButton" class="buttons me-4 btn" data-bs-toggle="tooltip"
                             data-bs-placement="top" title="Camera"><i id="webcamIcon"
                                 class="bi bi-camera-video text-white fs-5"></i></button>
                         {{!-- <button id="emojiButton" class="buttons me-4 d-none d-sm-inline"><i
                                 class="bi bi-emoji-smile text-white"></i></button> --}}
-                        <button id="shareButton" class="buttons me-4 d-none d-sm-inline" data-bs-toggle="tooltip"
+                        <button id="shareButton" class="buttons me-4 d-none d-sm-inline btn" data-bs-toggle="tooltip"
                             data-bs-placement="top" title="Share your screen"><i
                                 class="bi bi-file-play text-white fs-5"></i></button>
                         {{!-- <button id="raiseHandButton" class="buttons me-4 d-none d-sm-inline"><i
@@ -342,8 +342,8 @@
 
     <div class="toast-container position-fixed bottom-0 end-0 pb-5 ps-3 mb-5 z-3">
         <div id="warningToast" class="toast text-bg-warning" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-body text-white fw-bold" id="toast-body2">
-                <i class="bi bi-exclamation-circle"></i> DEVICE ALREADY IN USE OR ACCESS DENIED. PROGRAM MIGHT BE BUGGED. TRY USING AN AVAILABLE DEVICE.
+            <div class="toast-body text-white fw-bold" id="warningToastBody">
+                <i class="bi bi-exclamation-circle"></i> <span id="warningToastText">DEVICE ALREADY IN USE OR ACCESS DENIED. PROGRAM MIGHT BE BUGGED. TRY USING AN AVAILABLE DEVICE.</span>
             </div>
         </div>
     </div>
@@ -446,7 +446,7 @@
                                                     <p class="fw-bold text-primary">Video</p>
                                                 </div>
                                                 <div class="row pt-2">
-                                                    <div class="col text-start me-2 btn-group dropup">
+                                                    <div class="col text-start me-2 btn-group dropdown">
                                                         <button id="cameraButtonDropdown"
                                                             class="device-options d-flex rounded-pill align-items-center dropdown-toggle"
                                                             data-bs-toggle="dropdown" aria-expanded="false"

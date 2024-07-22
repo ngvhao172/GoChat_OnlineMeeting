@@ -64,7 +64,7 @@ class AuthController {
         if (result.status === true) {
             req.flash('type', 'danger');
             req.flash('message', 'Account already exists.');
-            return res.status(400).send("ACCOUNT EXISTS!");
+            // return res.status(400).send("ACCOUNT EXISTS!");
             return res.redirect('/signup');
         }
         //tao user
@@ -90,20 +90,20 @@ class AuthController {
             if(resultAccount.status === true) {
                 req.flash('type', 'success');
                 req.flash('message', 'Account created successfully.');
-                return res.status(200).send("Success!");
+                //return res.status(200).send("Success!");
                 return res.redirect("/login");
             }
             else{
                 req.flash('type', 'danger');
                 req.flash('message', resultAccount.message);
-                return res.status(400).send("FAILED!");
+                //return res.status(400).send("FAILED!");
                 return res.redirect("/signup");
             }
         }
         else{
             req.flash('type', 'danger');
             req.flash('message', resultUser.message);
-            return res.status(400).send("FAILED!");
+            //return res.status(400).send("FAILED!");
             return res.redirect("/signup");
         }
     }

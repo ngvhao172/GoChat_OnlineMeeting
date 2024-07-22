@@ -16955,7 +16955,7 @@ $(document).ready(async function () {
   // $('#requestToast').toast("show");
 
   // await getLocalMedia();
-  await (0, _index.addItem)("localVideo", "You");
+  await (0, _index.addItem)("localVideo", "You", user.avatar);
 
   // addOtherUsersUIDiv();
 });
@@ -17162,38 +17162,112 @@ let isCallbackCalled = false;
 
 // let localStream;
 
+// async function getLocalStream() {
+//     try {
+//         let audioConstraints = localStorage.getItem("audioConstraints");
+//         let videoConstraints = localStorage.getItem("videoConstraints");
+//         console.log(audioConstraints, videoConstraints);
+
+//         let constraints = { video: true, audio: true };
+//         if (audioConstraints) {
+//             constraints.audio = JSON.parse(audioConstraints);
+//         }
+//         if (videoConstraints) {
+//             constraints.video = JSON.parse(videoConstraints);
+//         }
+//         if(audioConstraints && videoConstraints){
+//             const result = await checkDeviceConstraints(audioConstraints, videoConstraints);
+//             console.log('Audio device exists:', result.audioDeviceExists);
+//             console.log('Video device exists:', result.videoDeviceExists);
+
+//             if (!result.audioDeviceExists) {
+//                 constraints.audio = true;
+//             }
+//             if (!result.videoDeviceExists) {
+//                 constraints.video = true;
+//             }
+//         }
+//         console.log(constraints);
+
+//         const stream = await navigator.mediaDevices.getUserMedia(constraints);
+//         window.localStream = stream;
+//         localVideo.srcObject = stream;
+
+//         const videoTrack = stream.getVideoTracks()[0];
+//         const audioTrack = stream.getAudioTracks()[0];
+
+//         audioParams = {
+//             track: audioTrack,
+//             ...audioParams
+//         };
+
+//         videoParams = {
+//             track: videoTrack,
+//             ...videoParams
+//         };
+
+//         addTrackToVideoElement(audioTrack, "localVideo");
+
+//         let videoSettings = videoTrack.getSettings();
+//         const videoDeviceId = videoSettings.deviceId;
+
+//         videoConstraints = { deviceId: { exact: videoDeviceId } };
+//         localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
+
+//         let audioSettings = audioTrack.getSettings();
+//         const audioDeviceId = audioSettings.deviceId;
+
+//         audioConstraints = { deviceId: { exact: audioDeviceId } };
+//         localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
+
+//         console.log("GET LOCAL STREAM");
+
+//     } catch (error) {
+//         // alert("DEVICE ALREADY IN USE OR ACCESS DENIED. PROGGRAMS MIGHT BE BUGGED. TRY USING AN AVAILABLE DEVICE")    
+//         $("#warningToastText").text('ERROR GETTING LOCAL STREAM: ' + error +", PROGGRAM MIGHT BE BUGGED.");
+//         $("#warningToast").toast("show");
+//         console.error('Error getting local stream:', error);
+//     }
+// }
 async function getLocalStream() {
   try {
     let audioConstraints = localStorage.getItem("audioConstraints");
     let videoConstraints = localStorage.getItem("videoConstraints");
-    console.log(audioConstraints, videoConstraints);
-    let constraints = {
-      video: true,
-      audio: true
-    };
-    if (audioConstraints) {
-      constraints.audio = JSON.parse(audioConstraints);
+    let audioStreamPromise = navigator.mediaDevices.getUserMedia({
+      audio: audioConstraints ? JSON.parse(audioConstraints) : true
+    });
+    let videoStreamPromise = navigator.mediaDevices.getUserMedia({
+      video: videoConstraints ? JSON.parse(videoConstraints) : true
+    });
+    let audioStream = null;
+    let videoStream = null;
+    try {
+      audioStream = await audioStreamPromise;
+    } catch (error) {
+      console.warn('Audio permission denied or other issue:', error);
+      $("#warningToastText").text('ERROR GETTING AUDIO: ' + error + ", PROGRAM MIGHT BE BUGGED.");
+      $("#warningToast").toast("show");
     }
-    if (videoConstraints) {
-      constraints.video = JSON.parse(videoConstraints);
+    try {
+      videoStream = await videoStreamPromise;
+    } catch (error) {
+      console.warn('Video permission denied or other issue:', error);
+      $("#warningToastText").text('ERROR GETTING VIDEO: ' + error + ", PROGRAM MIGHT BE BUGGED.");
+      $("#warningToast").toast("show");
     }
-    if (audioConstraints && videoConstraints) {
-      const result = await checkDeviceConstraints(audioConstraints, videoConstraints);
-      console.log('Audio device exists:', result.audioDeviceExists);
-      console.log('Video device exists:', result.videoDeviceExists);
-      if (!result.audioDeviceExists) {
-        constraints.audio = true;
-      }
-      if (!result.videoDeviceExists) {
-        constraints.video = true;
-      }
+
+    // Create a combined stream if both streams are available
+    const combinedStream = new MediaStream();
+    if (audioStream) {
+      audioStream.getAudioTracks().forEach(track => combinedStream.addTrack(track));
     }
-    console.log(constraints);
-    const stream = await navigator.mediaDevices.getUserMedia(constraints);
-    window.localStream = stream;
-    localVideo.srcObject = stream;
-    const videoTrack = stream.getVideoTracks()[0];
-    const audioTrack = stream.getAudioTracks()[0];
+    if (videoStream) {
+      videoStream.getVideoTracks().forEach(track => combinedStream.addTrack(track));
+    }
+    window.localStream = combinedStream;
+    localVideo.srcObject = combinedStream;
+    const videoTrack = videoStream ? videoStream.getVideoTracks()[0] : null;
+    const audioTrack = audioStream ? audioStream.getAudioTracks()[0] : null;
     audioParams = {
       track: audioTrack,
       ...audioParams
@@ -17202,26 +17276,32 @@ async function getLocalStream() {
       track: videoTrack,
       ...videoParams
     };
-    addTrackToVideoElement(audioTrack, "localVideo");
-    let videoSettings = videoTrack.getSettings();
-    const videoDeviceId = videoSettings.deviceId;
-    videoConstraints = {
-      deviceId: {
-        exact: videoDeviceId
-      }
-    };
-    localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints));
-    let audioSettings = audioTrack.getSettings();
-    const audioDeviceId = audioSettings.deviceId;
-    audioConstraints = {
-      deviceId: {
-        exact: audioDeviceId
-      }
-    };
-    localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints));
+    if (videoTrack) {
+      addTrackToVideoElement(videoTrack, "localVideo");
+      let videoSettings = videoTrack.getSettings();
+      const videoDeviceId = videoSettings.deviceId;
+      videoConstraints = {
+        deviceId: {
+          exact: videoDeviceId
+        }
+      };
+      localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints));
+    }
+    if (audioTrack) {
+      addTrackToVideoElement(audioTrack, "localVideo");
+      let audioSettings = audioTrack.getSettings();
+      const audioDeviceId = audioSettings.deviceId;
+      audioConstraints = {
+        deviceId: {
+          exact: audioDeviceId
+        }
+      };
+      localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints));
+    }
     console.log("GET LOCAL STREAM");
   } catch (error) {
-    // alert("DEVICE ALREADY IN USE OR ACCESS DENIED. PROGGRAMS MIGHT BE BUGGED. TRY USING AN AVAILABLE DEVICE")    
+    // Handle errors
+    $("#warningToastText").text('ERROR GETTING LOCAL STREAM: ' + error + ", PROGRAM MIGHT BE BUGGED.");
     $("#warningToast").toast("show");
     console.error('Error getting local stream:', error);
   }
@@ -17256,7 +17336,8 @@ ws.onopen = async () => {
         action: 'join',
         roomId: roomId,
         userId: id,
-        name: username
+        name: username,
+        avatar: user.avatar
       }));
       ws.send(JSON.stringify({
         action: 'getRtpCapabilities',
@@ -17431,7 +17512,7 @@ ws.onmessage = async event => {
         (0, _index.moveDivToPosition)(data.producerUserId, 2);
         notifyUserJoin(data.name, true);
       } else {
-        await (0, _index.addItem)(data.producerUserId, data.name);
+        await (0, _index.addItem)(data.producerUserId, data.name, data.avatar);
         addTrackToVideoElement(track, data.producerUserId);
         if (producerStatus) {
           if (producerStatus == "off") {
@@ -17463,9 +17544,10 @@ ws.onmessage = async event => {
           kind,
           producerUserId,
           producerStatus,
-          name
+          name,
+          avatar
         } = data;
-        await (0, _index.addItem)(producerUserId, name);
+        await (0, _index.addItem)(producerUserId, name, avatar);
         toggleButtonWhenProducerNotFound(kind, null, true, producerUserId);
       }
       break;
@@ -17634,6 +17716,7 @@ const connectSendTransport = async () => {
   //     sharingProducer = await producerTransport.produce(sharingParams);
   // }
   // else{
+  console.log(videoParams);
   if (videoParams && videoParams.track) {
     videoProducer = await producerTransport.produce(videoParams);
     videoProducer.on('trackended', () => {
@@ -18401,7 +18484,7 @@ $("#settingButton").on("click", function () {
   if (videoConstraints) {
     constraints.video = JSON.parse(videoConstraints);
   }
-  checkDeviceConstraints(audioConstraints, videoConstraints).then(result => {
+  checkDeviceConstraints(audioConstraints, videoConstraints).then(async result => {
     console.log('Audio device exists:', result.audioDeviceExists);
     console.log('Video device exists:', result.videoDeviceExists);
     if (!result.audioDeviceExists) {
@@ -18411,48 +18494,119 @@ $("#settingButton").on("click", function () {
       constraints.video = true;
     }
     console.log(constraints);
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia(constraints).then(async function (stream) {
-        // let stream = localStream.srcObject;
+    // if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    //     navigator.mediaDevices.getUserMedia(constraints)
+    //         .then(async function (stream) {
+    //             // let stream = localStream.srcObject;
 
-        // window.stream = stream;
-        videoPreview.srcObject = stream;
-        videoPreview.play();
-        const videoTrack = stream.getVideoTracks()[0];
-        const audioTrack = stream.getAudioTracks()[0];
-        if (videoTrack) {
-          console.log('Video Track Device ID:', videoTrack.label);
-          $("#cameraCurrent").text(videoTrack.label);
-          let dropdownMenu = document.getElementById("cameraDropdownMenu");
-          const items = dropdownMenu.querySelectorAll('.dropdown-item');
-          items.forEach(item => {
-            console.log(item.textContent);
-            if (item.textContent.trim() === videoTrack.label) {
-              item.classList.add('active');
-            }
-          });
-        }
-        if (audioTrack) {
-          console.log('Audio Track Device ID:', audioTrack.label);
-          $("#microphoneCurrent").text(audioTrack.label);
+    //             // window.stream = stream;
+    //             videoPreview.srcObject = stream;
+    //             videoPreview.play();
 
-          // testMic(audioTrack, "videoPreview")
+    //             const videoTrack = stream.getVideoTracks()[0];
+    //             const audioTrack = stream.getAudioTracks()[0];
 
-          let dropdownMenu = document.getElementById("micDropdownMenu");
-          const items = dropdownMenu.querySelectorAll('.dropdown-item');
-          items.forEach(item => {
-            if (item.textContent.trim() === audioTrack.label) {
-              item.classList.add('active');
-            }
-          });
-        }
-      }).catch(function (error) {
-        console.error('Error when accessing devices:', error);
-      });
-    } else {
-      alert('Sorry, your browser does not support getUserMedia');
+    //             if (videoTrack) {
+    //                 console.log('Video Track Device ID:', videoTrack.label);
+
+    //                 $("#cameraCurrent").text(videoTrack.label);
+
+    //                 let dropdownMenu = document.getElementById("cameraDropdownMenu");
+
+    //                 const items = dropdownMenu.querySelectorAll('.dropdown-item');
+    //                 items.forEach(item => {
+    //                     console.log(item.textContent)
+    //                     if (item.textContent.trim() === videoTrack.label) {
+    //                         item.classList.add('active');
+    //                     }
+    //                 });
+
+    //             }
+    //             if (audioTrack) {
+    //                 console.log('Audio Track Device ID:', audioTrack.label);
+
+    //                 $("#microphoneCurrent").text(audioTrack.label);
+
+    //                 // testMic(audioTrack, "videoPreview")
+
+    //                 let dropdownMenu = document.getElementById("micDropdownMenu");
+
+    //                 const items = dropdownMenu.querySelectorAll('.dropdown-item');
+    //                 items.forEach(item => {
+    //                     if (item.textContent.trim() === audioTrack.label) {
+    //                         item.classList.add('active');
+    //                     }
+    //                 });
+    //             }
+    //         })
+    //         .catch(function (error) {
+    //             console.error('Error when accessing devices:', error);
+    //         });
+    // } else {
+    //     alert('Sorry, your browser does not support getUserMedia');
+    // }
+    let audioStreamPromise = navigator.mediaDevices.getUserMedia({
+      audio: audioConstraints ? JSON.parse(audioConstraints) : true
+    });
+    let videoStreamPromise = navigator.mediaDevices.getUserMedia({
+      video: videoConstraints ? JSON.parse(videoConstraints) : true
+    });
+    let audioStream = null;
+    let videoStream = null;
+    try {
+      audioStream = await audioStreamPromise;
+    } catch (error) {
+      //disableButton("audio", micButton);
+      console.warn('Audio permission denied or other issue:', error);
     }
+    try {
+      videoStream = await videoStreamPromise;
+    } catch (error) {
+      //disableButton("video", webcamButton);
+      console.warn('Video permission denied or other issue:', error);
+    }
+
+    // Create a combined stream if both streams are available
+    const combinedStream = new MediaStream();
+    if (audioStream) {
+      audioStream.getAudioTracks().forEach(track => combinedStream.addTrack(track));
+    }
+    if (videoStream) {
+      videoStream.getVideoTracks().forEach(track => combinedStream.addTrack(track));
+    }
+    window.stream = combinedStream;
+    videoPreview.srcObject = combinedStream;
+    videoPreview.play();
+    const videoTrack = stream.getVideoTracks()[0];
+    const audioTrack = stream.getAudioTracks()[0];
+    if (videoTrack) {
+      console.log('Video Track Device ID:', videoTrack.label);
+      $("#cameraCurrent").text(videoTrack.label);
+      let dropdownMenu = document.getElementById("cameraDropdownMenu");
+      const items = dropdownMenu.querySelectorAll('.dropdown-item');
+      items.forEach(item => {
+        console.log(item.textContent);
+        if (item.textContent.trim() === videoTrack.label) {
+          item.classList.add('active');
+        }
+      });
+    }
+    if (audioTrack) {
+      console.log('Audio Track Device ID:', audioTrack.label);
+      $("#microphoneCurrent").text(audioTrack.label);
+      let dropdownMenu = document.getElementById("micDropdownMenu");
+      const items = dropdownMenu.querySelectorAll('.dropdown-item');
+      items.forEach(item => {
+        if (item.textContent.trim() === audioTrack.label) {
+          item.classList.add('active');
+        }
+      });
+    }
+  }).catch(function (error) {
+    console.error('Error when accessing devices:', error);
+    //constraints = {video: true, audio: true};
   });
+  ;
 });
 async function changeMediaDevice(type, deviceId) {
   try {
@@ -18528,6 +18682,7 @@ async function changeMediaDevice(type, deviceId) {
           console.log("REPLACE VIDEO TRACK");
           //localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
         }
+        videoTracks[0].stop();
       }
       videoSrcChange = true;
     }
@@ -18616,10 +18771,10 @@ $("#changeSourceButton").on("click", async function () {
     //replace;
     if (videoTracks) {
       stream.removeTrack(videoTracks[0]);
-      videoTracks.forEach(track => track.stop());
     } else {
       console.log('No video tracks found in local video stream.');
     }
+    videoTracks[0].stop();
     stream.addTrack(videoTrackReplace);
     videoParams.track = videoTrackReplace;
     localVideo.srcObject = stream;
@@ -18830,8 +18985,9 @@ async function toggleContainer(containerToShow, isActionContainerOpenGlobal) {
     }
     if (isThisContainerOpen) {
       actionContainer.classList.remove('open');
+      $(".main-container").removeClass("expanded");
       setTimeout(() => {
-        actionContainer.style.display = 'none';
+        // actionContainer.style.display = 'none';
         // document.querySelector('.grid-container').classList.remove('reduced');
       }, 300);
     } else {
@@ -18841,11 +18997,12 @@ async function toggleContainer(containerToShow, isActionContainerOpenGlobal) {
       containerToShow.style.display = 'flex';
     }
   } else {
+    $(".main-container").addClass("expanded");
     actionContainers.forEach(container => {
       container.style.display = 'none';
     });
     containerToShow.style.display = 'flex';
-    actionContainer.style.display = 'block';
+    // actionContainer.style.display = 'block';
     setTimeout(() => {
       actionContainer.classList.toggle('open');
       // document.querySelector('.grid-container').classList.toggle('reduced');
@@ -18871,7 +19028,7 @@ $("#time").text(getCurrentTime());
 setInterval(() => {
   $("#time").text(getCurrentTime());
 }, 30000);
-async function addItem(id, name) {
+async function addItem(id, name, avatar) {
   const itemIdExists = document.getElementById(id);
   if (itemIdExists) {
     return;
@@ -18925,7 +19082,11 @@ async function addItem(id, name) {
   // image.classList.add("d-flex");
   // image.classList.add("justify-content-center");
   // image.classList.add("align-items-center");
-  image.src = 'https://assets.puzzlefactory.com/puzzle/566/423/original.jpg';
+  if (avatar) {
+    image.src = avatar;
+  } else {
+    image.src = "/images/GoLogoNBg.png";
+  }
   divAlternative.appendChild(image);
   const nameDisplay2 = document.createElement('div');
   nameDisplay2.classList.add('name-display');
@@ -19079,7 +19240,7 @@ function updateUserList({
     if (!existedUser) {
       const userDiv = `
                 <div class="row d-flex align-items-center pt-2 pb-2 contributor-showing" data-name="${user.name}" id="contributor-${user.id}">
-                    <div class="col-2 avatar"><img class="user-avatar" src="https://th.bing.com/th/id/OIP.KTSVEqImOpx4gXTshphsnwHaHa?rs=1&pid=ImgDetMain" alt="" srcset=""></div>
+                    <div class="col-2 avatar"><img class="user-avatar" src="${user.avatar ? user.avatar : '/images/GoLogoNBg.png'}" alt="" srcset=""></div>
                     <div class="col-6 p-0 fs-6 ps-2"><span>${user.name}${user.id === clientId ? ' (You) ' : ''} ${user.id === ownerId ? "<span class='fw-bold fs-6'>(Host)</span>" : ''}</span></div>
                     <div class="col-2 text-center d-none mutedMic${user.id === clientId ? 'localVideo' : user.id}"><i class="bi bi-mic-mute"></i></div>
                     <div class="col-2 text-center d-none micActive${user.id === clientId ? 'localVideo' : user.id}">

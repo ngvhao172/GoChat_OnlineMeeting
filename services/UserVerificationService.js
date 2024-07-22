@@ -33,7 +33,7 @@ class UserVerificationService {
                 pass: process.env.PASSWORD,
             },
         });
-        const currentUrl = `http://localhost:${process.env.PORT}/user`;
+        const currentUrl = process.env.DOMAIN;
         const uniqueString = uuidv4() + _id;
 
         const mailOptions = {

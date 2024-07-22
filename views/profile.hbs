@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+</head>
+<style>
+    body {
+        background: #ffffff;
+        margin-top: 20px;
+    }
+
+    .card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        word-wrap: break-word;
+        background-color: #fff;
+        background-clip: border-box;
+        border: 0 solid transparent;
+        border-radius: .25rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 6px 0 rgb(218 218 253 / 65%), 0 2px 6px 0 rgb(206 206 238 / 54%);
+    }
+
+    .me-2 {
+        margin-right: .5rem !important;
+    }
+
+
+    .tab button {
+        display: block;
+        background-color: inherit;
+        color: gray;
+        padding: 10px;
+        width: 100%;
+        border: none;
+        outline: none;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.3s;
+        font-size: 17px;
+    }
+
+    .tab button:hover {
+        background-color: #f7f6f6;
+        border-left: 5px solid #fbe3a7;
+    }
+
+    .tab button.active {
+        color: #FBB040;
+        font-weight: 600;
+        border-left: 5px solid #fbc02d;
+        background-color: #efeeee;
+    }
+
+    .position-relative {
+        position: relative;
+    }
+
+    .position-absolute {
+        position: absolute;
+        top: 50%;
+        right: 20px;
+        transform: translateY(-50%);
+        cursor: pointer;
+    }
+
+    #message {
+        display: none;
+        background-color: #f1f1f1;
+        color: #000;
+        position: relative;
+        margin-top: 10px;
+        padding: 10px 20px;
+    }
+
+    #message span {
+        padding: 0px 35px;
+    }
+
+    #messageMatch {
+        display: none;
+        position: relative;
+        padding: 0px 20px;
+        margin-top: 10px;
+    }
+
+    #messageMatch p {
+        padding: 0px 35px;
+    }
+
+    .valid {
+        color: green;
+    }
+
+    .valid:before {
+        position: relative;
+        left: -35px;
+        content: "\2713";
+        font-family: "Bootstrap Icons";
+    }
+
+    .invalid {
+        color: red;
+    }
+
+    .invalid:before {
+        position: relative;
+        left: -35px;
+        content: "\2717";
+        font-family: "Bootstrap Icons";
+    }
+
+    .user-avatar {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+    }
+</style>
+
+<body>
+    <div class="container">
+        <div class="main-body">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div><a href="/">HOME PAGE</a></div>
+                            <div class="d-flex flex-column align-items-center text-center">
+                                <form action="/updateUserAvatar" id="formAvatar" method="post" method="post" accept="image/*" enctype="multipart/form-data">
+                                    {{#if user.avatar}}
+                                        <img src="{{user.avatar}}" id="userAvatarPicture" alt="user avatar" class="user-avatar rounded-circle p-1 bg-secondary">
+                                    {{else}}
+                                        <img src="images/GoLogoNBg.png" id="userAvatarPicture" alt="user avatar" class="user-avatar rounded-circle p-1 bg-secondary">
+                                    {{/if}}
+                                    <div class="mt-3">
+                                        <h4>{{user.fullName}}</h4>
+                                        <p class="text-secondary mb-1">JPG or PNG no larger than 5 MB</p>
+                                        <button type="button" class="btn btn-primary" onclick="document.getElementById('image').click();">Upload new image</button>
+                                        <button type="button" class="btn btn-primary" id="saveButtonUserAvatar" type="button" disabled>Save changes</button>
+                                        <input type="file" name="image" id="image" style="display: none;" accept="image/*">
+                                    </div>
+                                </form>
+                            </div>
+                            <hr class="my-2">
+
+                            <div class="tab">
+                                <div class="tab-indicator">
+
+                                </div>
+                                <button class="tablinks" onclick="openCity(event, 'Profile')"
+                                    id="defaultOpen">Profile</button>
+                                <button class="tablinks" onclick="openCity(event, 'Edit')">Edit </button>
+                                <button class="tablinks" onclick="openCity(event, 'Change Password')">Change
+                                    Password</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    {{#if messages.message}}
+                            <div id="passport-alert" class="alert alert-{{messages.type}} alert-dismissible fade show" role="alert">
+                                <strong>{{messages.type}}!</strong> {{messages.message}}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                                </button>
+                            </div>
+                        {{/if}}
+                    <div id="Change Password" class="card tabcontent">
+                        <div class="card-body ">
+                            <h3>Change Password</h3>
+                            <p>Protect your account</p>
+                            <form action="">
+                                <div class="row mb-3">
+                                    <div class="col-sm-3">
+                                        <h6 class="mb-0">Password</h6>
+                                    </div>
+                                    <div class="col-sm-9 text-secondary position-relative">
+                                        <input type="password" class="form-control" id="passwordInput" value=""
+                                            required>
+                                        <i class="bi bi-eye-slash position-absolute" id="togglePassword"
+                                            onclick="togglePasswordVisibility('passwordInput', 'togglePassword')"></i>
+                                    </div>
+
+
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-3">
+                                        <h6 class="mb-0">New Password</h6>
+                                    </div>
+                                    <div class="col-sm-9 text-secondary position-relative">
+                                        <input type="password" class="form-control" id="newPasswordInput" value=""
+                                            pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                                            title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters"
+                                            required>
+                                        <i class="bi bi-eye-slash position-absolute" id="toggleNewPassword"
+                                            onclick="togglePasswordVisibility('newPasswordInput', 'toggleNewPassword')"></i>
+                                    </div>
+                                    <div id="message">
+                                        <h6>Password must contain the following:</h6>
+                                        <span id="letter" class="invalid">A lowercase letter</span><br>
+                                        <span id="capital" class="invalid">A capital (uppercase) letter</span><br>
+                                        <span id="number" class="invalid">A number</span><br>
+                                        <span id="length" class="invalid">Minimum 8 characters</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-3">
+                                        <h6 class="mb-0">Confirm New Password</h6>
+                                    </div>
+                                    <div class="col-sm-9 text-secondary position-relative">
+                                        <input type="password" class="form-control" id="confirmPasswordInput" value="">
+                                        <i class="bi bi-eye-slash position-absolute" id="toggleConfirmPassword"
+                                            onclick="togglePasswordVisibility('confirmPasswordInput', 'toggleConfirmPassword')"></i>
+                                    </div>
+                                    <div id="messageMatch">
+                                        <p id="passwordMatch" class="invalid">Passwords do not match</p>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-9 text-secondary">
+                                        <button type="submit" class="btn btn-primary px-4">Save
+                                            Changes</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card tabcontent" id="Edit">
+                        <div class="card-body ">
+                            <h3>Edit profile</h3>
+                            <p>Edit to perfection</p>
+                            <form action="/profile" method="post">
+                                <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Full Name</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    <input type="text" class="form-control" name="fullName" value="{{user.fullName}}" required>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Email</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    <input type="text" class="form-control" value="{{user.userEmail}}" disabled>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Phone Number</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    <input type="text" class="form-control" name="phoneNumber" value="{{user.phoneNumber}}" required>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Address</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    <input type="text" class="form-control" name="address" value="{{user.address}}" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-9 text-secondary">
+                                    <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+                                </div>
+                            </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card tabcontent" id="Profile">
+                        <div class="card-body">
+                            <h3>Your profile</h3>
+                            <p>Your informations</p>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="mb-0">Full Name</h6>
+                                </div>
+                                <div class="col-md-6">
+                                    <p>{{user.fullName}}</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="mb-0">Email</h6>
+                                </div>
+                                <div class="col-md-6">
+                                    <p>{{user.userEmail}}</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="mb-0">Phone Number</h6>
+                                </div>
+                                <div class="col-md-6">
+                                    {{#if user.phoneNumber}}
+                                        <p>{{user.phoneNumber}}</p>
+                                    {{else}}
+                                        <p>&nbsp;</p>
+                                    {{/if}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="mb-0">Address</h6>
+                                </div>
+                                <div class="col-md-6">
+                                    {{#if user.address}}
+                                       <p> {{user.address}}</p>
+                                    {{else}}
+                                        <p>&nbsp;</p>
+                                    {{/if}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" integrity="sha512-JyCZjCOZoyeQZSd5+YEAcFgz2fowJ1F1hyJOXgtKu4llIa0KneLcidn5bwfutiehUTiOuK87A986BZJMko0eWQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</body>
+<script>
+
+    /* $(document).ready(function (){
+
+        let cropper;
+        image.onchange = evt => {
+            const [file] = image.files
+            if (file) {
+
+                userAvatarPicture.src = URL.createObjectURL(file)
+                $('#saveButtonUserAvatar').prop('disabled', false);
+                if (cropper) {
+                const croppedCanvas = cropper.getCroppedCanvas({
+                        width: 300,
+                        height: 300,
+                    });
+                userAvatarPicture.src = croppedCanvas.toDataURL('image/jpeg');
+                image.src = croppedCanvas.toDataURL('image/jpeg');
+                }
+            }
+        }
+
+        $('#saveButtonUserAvatar').on('click', function () {
+            $("#formAvatar").submit();
+            $('#uploadImgButton').prop('disabled', false);
+            $('#saveButtonUserAvatar').prop('disabled', true);
+        });
+    }); */
+    $(document).ready(function () {
+    $('#image').on('change', function (evt) {
+        const [file] = evt.target.files;
+        if (file) {
+            const userAvatarPicture = document.getElementById('userAvatarPicture');
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+
+            img.onload = function () {
+                const size = Math.min(img.width, img.height);
+                canvas.width = 300;
+                canvas.height = 300;
+                ctx.drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, canvas.width, canvas.height);
+
+                const croppedDataUrl = canvas.toDataURL('image/jpeg');
+
+                // Update the userAvatarPicture for display
+                userAvatarPicture.src = croppedDataUrl;
+                // Update the input with the id 'image' with the cropped data URL
+                const imageInput = document.getElementById('image');
+                const blob = dataURLtoBlob(croppedDataUrl);
+                const fileInput = new File([blob], 'croppedImage.jpg', { type: 'image/jpeg' });
+
+                // Create a new DataTransfer object and append the new file
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(fileInput);
+
+                // Assign the files property of the input element to the DataTransfer object
+                imageInput.files = dataTransfer.files;
+
+                $('#saveButtonUserAvatar').prop('disabled', false);
+            };
+            img.src = URL.createObjectURL(file);
+        }
+    });
+
+    $('#saveButtonUserAvatar').on('click', function () {
+        $("#formAvatar").submit();
+        $('#saveButtonUserAvatar').prop('disabled', true);
+    });
+
+    // Function to convert Data URL to Blob
+    function dataURLtoBlob(dataurl) {
+        const arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], {type:mime});
+    }
+});
+
+
+
+    function openCity(evt, cityName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(cityName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+
+    document.getElementById("defaultOpen").click();
+
+    function togglePasswordVisibility(inputId, toggleIconId) {
+        const passwordInput = document.getElementById(inputId);
+        const togglePassword = document.getElementById(toggleIconId);
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            togglePassword.classList.remove('bi-eye-slash');
+            togglePassword.classList.add('bi-eye');
+        } else {
+            passwordInput.type = 'password';
+            togglePassword.classList.remove('bi-eye');
+            togglePassword.classList.add('bi-eye-slash');
+        }
+    }
+
+    var myInput = document.getElementById("newPasswordInput");
+    var letter = document.getElementById("letter");
+    var capital = document.getElementById("capital");
+    var number = document.getElementById("number");
+    var length = document.getElementById("length");
+
+    myInput.onfocus = function () {
+        document.getElementById("message").style.display = "block";
+    }
+
+    myInput.onblur = function () {
+        document.getElementById("message").style.display = "none";
+    }
+
+    myInput.onkeyup = function () {
+        var lowerCaseLetters = /[a-z]/g;
+        if (myInput.value.match(lowerCaseLetters)) {
+            letter.classList.remove("invalid");
+            letter.classList.add("valid");
+        } else {
+            letter.classList.remove("valid");
+            letter.classList.add("invalid");
+        }
+
+        var upperCaseLetters = /[A-Z]/g;
+        if (myInput.value.match(upperCaseLetters)) {
+            capital.classList.remove("invalid");
+            capital.classList.add("valid");
+        } else {
+            capital.classList.remove("valid");
+            capital.classList.add("invalid");
+        }
+
+        var numbers = /[0-9]/g;
+        if (myInput.value.match(numbers)) {
+            number.classList.remove("invalid");
+            number.classList.add("valid");
+        } else {
+            number.classList.remove("valid");
+            number.classList.add("invalid");
+        }
+
+        if (myInput.value.length >= 8) {
+            length.classList.remove("invalid");
+            length.classList.add("valid");
+        } else {
+            length.classList.remove("valid");
+            length.classList.add("invalid");
+        }
+    }
+
+    var myConfirmInput = document.getElementById("confirmPasswordInput");
+    var passwordMatch = document.getElementById("passwordMatch");
+
+    myConfirmInput.onfocus = function () {
+        document.getElementById("messageMatch").style.display = "block";
+    }
+
+    myConfirmInput.onblur = function () {
+        document.getElementById("messageMatch").style.display = "none";
+    }
+    myConfirmInput.onkeyup = function () {
+        if (myInput.value == myConfirmInput.value && myConfirmInput.value !== "") {
+            passwordMatch.style.display = "none";
+        } else {
+            passwordMatch.classList.add('invalid');
+        }
+    }
+
+</script>
+
+</html>

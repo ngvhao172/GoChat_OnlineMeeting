@@ -34,10 +34,10 @@ body {
   padding: 10px;
   display: flex;
   grid-gap: 10px;
-  flex-grow: 1;
-  transition: 300ms;
-  max-width: 100%;
+  flex-grow: 0;
+  width: calc(100% - 0px); 
   height: 100%;
+  transition: width 0.3s;
 }
 
 .grid-container {
@@ -134,16 +134,28 @@ body {
 
 .action-container {
   padding: 10px;
-  height: 100%;
-  display: none;
-  min-width: 350px;
-  max-width: 350px;
-  transition: transform 0.3s;
+  height: 85vh;
+  width: 350px; 
+  position: absolute; 
+  right: 0;
+  top: 0;
   transform: translateX(100%);
+  transition: transform 0.3s, opacity 0.3s, visibility 0.3s; 
+  opacity: 0;
+  visibility: hidden;
 }
 
-.action-container.open {
+/* .action-container.open {
   transform: translateX(0);
+} */
+ .action-container.open{
+  transform: translateX(0);
+  opacity: 1;
+  visibility: visible;
+ }
+
+.main-container.expanded .container-grid{
+  width: calc(100% - 350px);
 }
 
 .bottom-container {
@@ -275,9 +287,9 @@ p {
 }
 
 .user-avatar-display{
-  width: 150px;
-  height: 150px;
-  border-radius: 75px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
   background-repeat: no-repeat;
   background-size: cover;
   object-fit: cover;

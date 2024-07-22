@@ -19,14 +19,16 @@
     </script>
 </head>
 <style>
-    html, body{
+    html,
+    body {
         box-sizing: border-box;
-        
-        -webkit-user-select: none; 
-        -moz-user-select: none;  
-        -ms-user-select: none;     
-        user-select: none; 
+
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
     }
+
     .icon-container {
         position: relative;
         display: inline-block;
@@ -177,10 +179,23 @@
             margin: auto;
         }
     }
+
+    .device-options {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        background-color: transparent;
+        border: 1px solid black;
+        transition: background-color 0.3s, border 0.3s;
+    }
+    li {
+        cursor: pointer;
+    }
 </style>
 
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <button onclick="sendMessage('123', '{{user.userEmail}}', 'user1@gmail.com')">SEND MESSAGE</button>
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
                 <img src="images/GoChatHo.png" alt="" height="30">
@@ -191,24 +206,40 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-lg-0 profile-menu d-flex align-items-center">
-                    <div class="icon-container">
-                        <i class="bi bi-gear h5"></i>
-                    </div>
+                    <button class="pe-3 btn shadow-none" data-bs-toggle="modal" data-bs-target="#settingModal"
+                        id="settingsButton">
+                        <div class="icon-container">
+                            <i class="bi bi-gear h5"></i>
+                        </div>
                     </button>
-                    <button class="pe-3 btn btn-light " href="#" role="button" id="noticDropdown" role="button"
+                    <button class="pe-3 btn btn-light shadow-none" id="noticDropdown" onclick="getPermission()"
                         data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="icon-container">
                             <i class="bi bi-bell h5"></i>
                         </div>
                     </button>
-                    <ul class="dropdown-menu" aria-labelledby="noticDropdown">
-                        <li class="px-3 py-2">
+                    <ul class="dropdown-menu" aria-labelledby="noticDropdown" onclick="getPermission()" id="ulInvitations" style="overflow-y: auto; max-height: 300px">
+                        <li class="px-3 py-2" id="emptyNotiLi">
+                            <div class="d-flex align-items-center">
+                                <div>
+                                    <span>
+                                        Nothing here yet
+                                    </span>
+                                </div>
+                            </div>
+                        </li>
+                        {{!-- <li id="getPermissionLi">
+                            <Button class="bg-transparent border-0" onclick="getPermission()">Get permission</Button>
+                        </li> --}}
+                        {{!-- <li class="px-3 py-2">
                             <div class="d-flex align-items-center">
                                 <div class="me-3">
                                     {{#if user.avatar}}
-                                        <img src="{{user.avatar}}" height="25" alt="Profile Picture">
+                                    <img src="{{user.avatar}}" class="rounded-circle" height="25"
+                                        style="width: 50px; height: 50px" alt="Profile Picture">
                                     {{else}}
-                                        <img src="images/GoLogoNBg.png" height="25" alt="Profile Picture">
+                                    <img src="images/GoLogoNBg.png" height="25" style="width: 50px; height: 50px"
+                                        alt="Profile Picture">
                                     {{/if}}
                                 </div>
                                 <div>
@@ -248,23 +279,30 @@
                                     </span>
                                 </div>
                             </div>
-                        </li>
+                        </li> --}}
                     </ul>
                     <div class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
                             <div class="profile-pic">
-                                <img src="images/GoLogoNBg.png" alt="Profile Picture">
+                                {{#if user.avatar}}
+                                <img src="{{user.avatar}}" height="30"
+                                    style="width: 50px; height: 50px; object-fit: cover;" class="rounded-circle"
+                                    alt="Profile Picture">
+                                {{else}}
+                                <img src="images/GoLogoNBg.png" height="30" alt="Profile Picture">
+                                {{/if}}
                             </div>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <li class="px-3 py-2">
                                 <div class="d-flex align-items-center">
-                                    <div class="me-3">
-                                         {{#if user.avatar}}
-                                            <img src="{{user.avatar}}" height="30" alt="Profile Picture">
+                                    <div class="me-3" style="width: 50px; height: 50px">
+                                        {{#if user.avatar}}
+                                        <img src="{{user.avatar}}" style="height: 50px; width: 50px; object-fit: cover;"
+                                            class="rounded-circle" alt="Profile Picture">
                                         {{else}}
-                                            <img src="images/GoLogoNBg.png" height="30" alt="Profile Picture">
+                                        <img src="images/GoLogoNBg.png" height="30" alt="Profile Picture">
                                         {{/if}}
                                     </div>
                                     <div>
@@ -274,7 +312,7 @@
                                     </div>
                                 </div>
                             </li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-person-fill pe-2"></i></i>
+                            <li><a class="dropdown-item" href="/profile"><i class="bi bi-person-fill pe-2"></i></i>
                                     Account</a>
                             </li>
                             <li><a class="dropdown-item" href="#"><i class="bi bi-gear-fill pe-2"></i> Setting</a>
@@ -297,7 +335,7 @@
                 <div class="row" style="margin-top: 150px">
                     <div class="col d-flex align-items-end flex-column" style="margin: 20px 20px 0 0">
                         <div class="new-meeting" onclick=createMeeting()>
-                                <i class="bi bi-camera-video-fill h1"></i>
+                            <i class="bi bi-camera-video-fill h1"></i>
                         </div>
                         <p>Meeting&emsp;</p>
                         <form action="createMeeting" id="createMeeting" method="post">
@@ -492,17 +530,388 @@
                         </div> --}}
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" id="joinButton" onclick=joinMeeting(event)>Join</button>
+                        <button type="button" class="btn btn-secondary" id="joinButton"
+                            onclick=joinMeeting(event)>Join</button>
                         <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+    {{!-- Setting modal --}}
+    <div class="modal fade" id="settingModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="min-height: 500px;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Settings</h5>
+                    <button type="button" class="btn-close" id="closeModal" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="list-group" id="list-tab" role="tablist">
+                                    <a class="list-group-item list-group-item-action active" id="list-profile-list"
+                                        data-bs-toggle="list" href="#list-profile" role="tab"
+                                        aria-controls="list-profile"><i class="bi bi-camera"></i>&ensp; Video</a>
+                                    <a class="list-group-item list-group-item-action" id="list-home-list"
+                                        data-bs-toggle="list" href="#list-home" role="tab" aria-controls="list-home"><i
+                                            class="bi bi-mic"></i>&ensp; Microphone</a>
+
+                                </div>
+                            </div>
+                            <div class="col-8">
+                                <div class="tab-content" id="nav-tabContent">
+                                    <div class="tab-pane fade show active" id="list-profile" role="tabpanel"
+                                        aria-labelledby="list-profile-list">
+                                        <div class="container">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="row">
+                                                        <p class="fw-bold text-primary">Video</p>
+                                                    </div>
+                                                    <div class="row pt-2">
+                                                        <div class="col text-start me-2 btn-group dropdown">
+                                                            <button id="cameraButtonDropdown"
+                                                                class="device-options d-flex bg-transparent rounded-pill align-items-center dropdown-toggle"
+                                                                data-bs-toggle="dropdown" aria-expanded="false"
+                                                                style="max-width: 200px;">
+                                                                <i class="bi bi-camera-video fs-5 pe-2"></i>
+                                                                <p class="device-options p-0 m-0 text-center border-0"
+                                                                    id="cameraCurrent">Camera</p>
+                                                            </button>
+                                                            <ul class="dropdown-menu" id="cameraDropdownMenu"></ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <video id="videoPreview" autoplay disablePictureInPicture
+                                                        height="100" style="width:100%; border-radius: 5px;"></video>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="list-home" role="tabpanel"
+                                        aria-labelledby="list-home-list">
+                                        <div class="container">
+                                            <div class="row">
+                                                <p class="fw-bold text-primary">Micro</p>
+                                            </div>
+                                            <div class="row pt-2">
+                                                <div class="col">
+                                                    <div class="row">
+                                                        <div class="col text-start me-2 btn-group dropdown">
+                                                            <button id="micButtonDropdown"
+                                                                class="device-options bg-transparent d-flex rounded-pill align-items-center dropdown-toggle"
+                                                                data-bs-toggle="dropdown" aria-expanded="false"
+                                                                style="max-width: 200px; height: 40px">
+                                                                <i class="bi bi-mic fs-5 pe-2"></i>
+                                                                <p class="device-options p-0 m-0 text-center border-0"
+                                                                    id="microphoneCurrent">Microphone
+                                                                </p>
+                                                            </button>
+                                                            <ul class="dropdown-menu" id="micDropdownMenu"></ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {{!-- <div class="col">
+                                                    <div
+                                                        class="mic-container d-flex justify-content-center align-items-center micActivevideoPreview">
+                                                        <div class="dot rounded-pill"></div>
+                                                        <div class="dot rounded-pill"></div>
+                                                        <div class="dot rounded-pill"></div>
+                                                    </div>
+                                                </div> --}}
+                                            </div>
+                                            <div class="row mt-2">
+                                                <div class="col">
+                                                    <button id="start-record-btn" class="btn btn-primary">Start
+                                                        Recording
+                                                    </button>
+                                                    <button id="stop-record-btn" class="btn btn-primary" disabled>Stop
+                                                        Recording</button>
+                                                </div>
+                                                <br>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <h6>Loudspeaker</h6>
+                                                    <button class="btn btn-primary" id="play-back-btn" disabled>Play
+                                                        Back</button>
+                                                    <div id="output" class="d-none">
+                                                        <p>Recording...</p>
+                                                    </div>
+                                                    <div id="output2" class="d-none">
+                                                        <p>Playing...</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                        id="changeSourceCloseButton">Close</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="changeSourceButton">Save
+                        changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 <script>
+    function joinRoom(roomId){
+        window.location.href = `/${roomId}`
+    }
 
-    function createAccount(){
+
+    $(document).ready(function (){
+        //localStorage.clear();
+        const storedDataArrayString = localStorage.getItem('invitations');
+
+        const storedDataArray = storedDataArrayString ? JSON.parse(storedDataArrayString) : []
+        if(storedDataArray.length>0){
+            const check = storedDataArray[0];
+            if(check.to != "{{user.userEmail}}"){
+                return;
+            }
+            $("#emptyNotiLi").addClass("d-none");
+            const ul = document.getElementById("ulInvitations");
+            storedDataArray.forEach(invitation => {
+                const div = `
+                    <li class="px-3 py-2" onclick="joinRoom(${invitation.roomId})">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <img src="${invitation.fromUserAvatar ? invitation.fromUserAvatar : 'images/GoLogoNBg.png'}" class="rounded-circle" height="25" style="width: 50px; height: 50px" alt="Profile Picture">
+                            </div>
+                            <div>
+                                <span>${invitation.from} invites you to join the meeting <br> at ${invitation.formattedTime} on
+                                        ${invitation.formattedDate}</span>
+                            </div>
+                        </div>
+                    </li>
+                `;
+                ul.insertAdjacentHTML('beforeend', div);
+            })
+        }
+    })
+    let per = false;
+    var refreshing;
+    if (navigator.serviceWorker) {
+        navigator.serviceWorker.addEventListener('message', event => {
+            if (event.data && event.data.type === 'push-notification') {
+                const data = event.data.data;
+                console.log("Received data from Service Worker:", data);
+                const {from, roomId, to, fromUserAvatar} = data;
+                if(to!="{{user.userEmail}}"){
+                    return;
+                }
+
+                const storedDataArrayString = localStorage.getItem('invitations');
+
+                const storedDataArray = storedDataArrayString ? JSON.parse(storedDataArrayString) : [];
+
+                const now = new Date();
+                const formattedDate = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+                const formattedTime = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+                const date = formattedDate
+                const time = formattedTime
+
+                storedDataArray.push({from, roomId, to, fromUserAvatar, date, time} );
+                localStorage.setItem('invitations', JSON.stringify(storedDataArray));
+
+                $("#emptyNotiLi").addClass("d-none");
+
+                const div = `
+                    <li class="px-3 py-2" onclick="joinRoom(${roomId})">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <img src="${fromUserAvatar ? fromUserAvatar : 'images/GoLogoNBg.png'}" class="rounded-circle" height="25" style="width: 50px; height: 50px" alt="Profile Picture">
+                            </div>
+                            <div>
+                                <span>${from} invites you to join the meeting <br> at ${formattedTime} on
+                                        ${formattedDate}</span>
+                            </div>
+                        </div>
+                    </li>
+                `;
+                const ul = document.getElementById("ulInvitations");
+                ul.insertAdjacentHTML('beforeend', div); 
+
+                //updateUIWithNotification(data);
+            }
+        });
+
+    }
+    else {
+        console.log("Khong tim thay service WOrker")
+    }
+    async function checkAndRegisterForPushNotifications(registration) {
+        try {
+            const subscription = await registration.pushManager.getSubscription();
+           if (subscription) {
+                console.log("Client is already subscribed:", subscription);
+                try {
+                    const getSub = await getSubscription(subscription.endpoint);
+                    if (!getSub.status) {
+                        await registerForPushNotifications(registration);
+                    }
+                } catch (error) {
+                    console.error('Error during subscription check or registration:', error);
+                }
+            } else {
+                try {
+                    await registerForPushNotifications(registration);
+                } catch (error) {
+                    console.error('Error during registration:', error);
+                }
+            }
+        } catch (error) {
+            console.error('Error checking subscription:', error);
+        }
+    }
+    async function registerForPushNotifications(registration) {
+    try {
+        const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array("BCGeLzc1iyki17jIBjFxi351V6ttBrrBNpimnbw8mifWJG8x92l0G5s1fr4H2XtBjQ60rwxkd2rvjt-4TqvNqng")
+        });
+        const response = await saveSubscription(subscription)
+        console.log(response)
+
+        window.location.reload();
+        navigator.serviceWorker.addEventListener('controllerchange',
+            function () {
+                if (refreshing) return;
+                refreshing = true;
+                window.location.reload();
+            })
+
+        console.log("Push subscription registered successfully:", subscription);
+    } catch (error) {
+        console.error('Failed to subscribe to push notifications:', error);
+    }
+}
+
+
+    const checkPermission = () => {
+        if (!('serviceWorker' in navigator)) {
+            throw new Error("No support for service worker!")
+        }
+
+        if (!('Notification' in window)) {
+            throw new Error("No support for notification API");
+        }
+
+        if (!('PushManager' in window)) {
+            throw new Error("No support for Push API")
+        }
+    }
+
+    const registerSW = async () => {
+        const registration = await navigator.serviceWorker.register('./service-worker.js');
+        return registration;
+    }
+
+    const urlBase64ToUint8Array = base64String => {
+        const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+        const base64 = (base64String + padding)
+            .replace(/\-/g, '+')
+            .replace(/_/g, '/');
+
+        const rawData = atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+
+        return outputArray;
+    }
+
+    const saveSubscription = async (subscription) => {
+        const response = await fetch('/saveSubscription', {
+            method: 'post',
+            headers: { 'Content-type': "application/json" },
+            body: JSON.stringify({
+                subscription: subscription,
+                userId: "{{user.id}}"
+            })
+        })
+
+        return response.json()
+    }
+
+    const getSubscription = async (endpoint) => {
+    const response = await fetch('/getSubscription', {
+        method: 'POST',  
+        headers: { 'Content-Type': "application/json" },  
+        body: JSON.stringify({
+            endpoint: endpoint,
+            userId: "{{user.id}}" 
+        })
+    });
+    return response.json(); 
+}
+
+
+    async function requestNotificationPermission() {
+        const permission = await Notification.requestPermission();
+
+        if (permission !== 'granted') {
+            throw new Error("Notification permission not granted")
+        }
+        else {
+            $("#getPermissionLi").addClass("d-none");
+        }
+    }
+
+    const getPermission = async () => {
+        console.log("GET")
+        checkPermission()
+        await requestNotificationPermission()
+        registerSW().then(registration => {
+            console.log('Service Worker registered with scope:', registration.scope);
+
+            if (navigator.serviceWorker.controller) {
+                checkAndRegisterForPushNotifications(registration);
+            } else {
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (navigator.serviceWorker.controller) {
+                        checkAndRegisterForPushNotifications(registration);
+                    }
+                });
+            }
+        }).catch(error => {
+            console.error('Service Worker registration failed:', error);
+        });
+    }
+
+
+    function sendMessage(roomId, from, to) {
+        $.ajax({
+            url: '/sendNotification',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                roomId: roomId,
+                from: from,
+                to: to
+            }),
+            success: function (response) {
+                console.log('Send success:', response);
+            },
+            error: function (xhr, status, error) {
+                console.error('Send error:', xhr.responseText);
+            }
+        });
+    }
+
+    function createAccount() {
         for (var i = 31; i <= 50; i++) {
             $.ajax({
                 url: 'http://localhost:3000/signup',
@@ -514,16 +923,16 @@
                     password: "$2b$10$zUgT3d3b0xZRZOypaBM8KegTZVT6Fgr8e9GBLlwrMUn7rHqOrasBS",
                     cfpassword: "$2b$10$zUgT3d3b0xZRZOypaBM8KegTZVT6Fgr8e9GBLlwrMUn7rHqOrasBS"
                 }),
-                success: function(response) {
+                success: function (response) {
                     console.log('Signup success:', response);
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('Signup error:', xhr.responseText);
                 }
             });
         }
     }
-    const socket = new WebSocket("{{ws_url}}"); 
+    const socket = new WebSocket("{{ws_url}}");
     //const socket = new WebSocket('wss://videochatapp.online');
     socket.onmessage = async (message) => {
         const data = JSON.parse(message.data);
@@ -558,8 +967,10 @@
         }
     }
 
-    function createMeeting(){
+    function createMeeting() {
         $("#createMeeting").submit();
+        localStorage.setItem("micEnabled", true);
+        localStorage.setItem("cameraEnabled", true);
     }
     document.addEventListener('DOMContentLoaded', function () {
         const now = new Date();
@@ -644,6 +1055,525 @@
         attendes.addEventListener('input', toggleScheButton);
 
         toggleScheButton();
+    });
+
+    let videoSrcChange = false;
+    let audioSrcChange = false;
+
+    $("#settingsButton").on("click", function () {
+        const videoPreview = document.getElementById('videoPreview');
+        let audioConstraints = localStorage.getItem("audioConstraints");
+        let videoConstraints = localStorage.getItem("videoConstraints");
+        console.log(audioConstraints, videoConstraints)
+        let constraints = { video: true, audio: true };
+        if (audioConstraints) {
+            constraints.audio = JSON.parse(audioConstraints)
+        }
+        if (videoConstraints) {
+            constraints.video = JSON.parse(videoConstraints)
+        }
+        console.log(constraints)
+        //const devices = await navigator.mediaDevices.enumerateDevices();
+        checkDeviceConstraints(audioConstraints, videoConstraints).then(async result => {
+            console.log('Audio device exists:', result.audioDeviceExists);
+            console.log('Video device exists:', result.videoDeviceExists);
+            if (!result.audioDeviceExists) {
+                constraints.audio = true;
+            }
+            if (!result.videoDeviceExists) {
+                constraints.video = true;
+            }
+            console.log(constraints)
+
+            let audioStreamPromise = navigator.mediaDevices.getUserMedia({ audio: audioConstraints ? JSON.parse(audioConstraints) : true });
+            let videoStreamPromise = navigator.mediaDevices.getUserMedia({ video: videoConstraints ? JSON.parse(videoConstraints) : true });
+
+            let audioStream = null;
+            let videoStream = null;
+
+            try {
+                audioStream = await audioStreamPromise;
+            } catch (error) {
+                disableButton("audio", micButton);
+                console.warn('Audio permission denied or other issue:', error);
+            }
+            try {
+                videoStream = await videoStreamPromise;
+            } catch (error) {
+                disableButton("video", webcamButton);
+                console.warn('Video permission denied or other issue:', error);
+            }
+
+            // Create a combined stream if both streams are available
+            const combinedStream = new MediaStream();
+            if (audioStream) {
+                audioStream.getAudioTracks().forEach(track => combinedStream.addTrack(track));
+            }
+            if (videoStream) {
+                videoStream.getVideoTracks().forEach(track => combinedStream.addTrack(track));
+            }
+            videoPreview.srcObject = combinedStream;
+            videoPreview.play();
+            const videoTrack = combinedStream.getVideoTracks()[0];
+            const audioTrack = combinedStream.getAudioTracks()[0];
+
+            if (videoTrack) {
+                console.log('Video Track Device ID:', videoTrack.label);
+
+                $("#cameraCurrent").text(videoTrack.label);
+
+                let dropdownMenu = document.getElementById("cameraDropdownMenu");
+
+                const items = dropdownMenu.querySelectorAll('.dropdown-item');
+                items.forEach(item => {
+                    console.log(item.textContent)
+                    if (item.textContent.trim() === videoTrack.label) {
+                        item.classList.add('active');
+                    }
+                });
+
+            }
+            if (audioTrack) {
+                console.log('Audio Track Device ID:', audioTrack.label);
+
+                $("#microphoneCurrent").text(audioTrack.label);
+
+                let dropdownMenu = document.getElementById("micDropdownMenu");
+
+                const items = dropdownMenu.querySelectorAll('.dropdown-item');
+                items.forEach(item => {
+                    if (item.textContent.trim() === audioTrack.label) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+        })
+            .catch(function (error) {
+
+                console.error('Error when accessing devices:', error);
+                //constraints = {video: true, audio: true};
+
+            });
+    })
+    async function populateDropdown(dropdownId, devices, buttonId) {
+        const dropdownMenu = document.getElementById(dropdownId);
+        dropdownMenu.innerHTML = '';
+
+        devices.forEach(device => {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.className = 'dropdown-item';
+            a.href = '#';
+            a.textContent = device.label || `Thiết bị không có tên (${device.deviceId})`;
+            a.dataset.deviceId = device.deviceId;
+
+            a.addEventListener('click', async function (event) {
+                event.preventDefault();
+
+                const button = document.getElementById(buttonId);
+                const buttonLabel = button.querySelector('p');
+                buttonLabel.textContent = this.textContent;
+
+                const items = dropdownMenu.querySelectorAll('.dropdown-item');
+                items.forEach(item => item.classList.remove('active'));
+                this.classList.add('active');
+
+                await changeMediaDevice(devices[0].kind, this.dataset.deviceId);
+            });
+
+            li.appendChild(a);
+            dropdownMenu.appendChild(li);
+        });
+    }
+    async function getUserMediaWithConstraints(audioConstraints, videoConstraints) {
+        try {
+            const constraints = {};
+            if (audioConstraints) {
+                constraints.audio = audioConstraints;
+            }
+            if (videoConstraints) {
+                constraints.video = videoConstraints;
+            }
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            return stream;
+        } catch (error) {
+            console.error('Lỗi khi lấy media stream:', error);
+        }
+    }
+    async function checkDeviceConstraints(audioConstraints, videoConstraints) {
+        try {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+
+            const audioInputs = devices.filter(device => device.kind === 'audioinput');
+            //const audioOutputs = devices.filter(device => device.kind === 'audiooutput');
+            const videoInputs = devices.filter(device => device.kind === 'videoinput');
+            if (audioInputs.length > 0) {
+                console.log(audioInputs)
+                populateDropdown('micDropdownMenu', audioInputs, 'micButtonDropdown');
+            }
+            if (videoInputs.length > 0) {
+                console.log(videoInputs)
+                populateDropdown('cameraDropdownMenu', videoInputs, 'cameraButtonDropdown');
+            }
+
+            //populateDropdown('speakerDropdownMenu', audioOutputs, 'speakerButtonDropdown');
+
+
+            console.log(JSON.parse(videoConstraints), JSON.parse(audioConstraints))
+            videoConstraints = JSON.parse(videoConstraints);
+            audioConstraints = JSON.parse(audioConstraints);
+            let audioDeviceExists;
+            if (audioConstraints && audioConstraints.deviceId) {
+                audioDeviceExists = devices.some(device =>
+                    device.kind === 'audioinput' && device.deviceId === audioConstraints.deviceId.exact
+                );
+            }
+            else {
+                audioDeviceExists = false;
+            }
+
+            let videoDeviceExists
+            if (videoConstraints && videoConstraints.deviceId) {
+                videoDeviceExists = devices.some(device =>
+                    device.kind === 'videoinput' && device.deviceId === videoConstraints.deviceId.exact
+                )
+            }
+            else {
+                videoDeviceExists = false;
+            }
+
+            return { audioDeviceExists, videoDeviceExists };
+        } catch (error) {
+            console.error("Error checking device constraints:", error);
+            return { audioDeviceExists: false, videoDeviceExists: false };
+        }
+    }
+    async function changeMediaDevice(type, deviceId) {
+        try {
+            const videoElement = document.getElementById('videoPreview');
+            // if (!window.stream) {
+            //     let stream = await getUserMediaWithConstraints(true, true);
+            //     window.stream = stream
+            //     videoElement.srcObject = stream;
+            // }
+            let stream = videoElement.srcObject;
+
+            let audioConstraints = null;
+            let videoConstraints = null;
+            if (type === 'audioinput') {
+                audioConstraints = { deviceId: { exact: deviceId } };
+
+                let audioStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints })
+
+                if (!stream) {
+                    /*let stream = await getUserMediaWithConstraints(true, true);
+                    let videoTrack = stream.getVideoTracks()[0];
+                    let videoSettings = videoTrack.getSettings();
+                    const videoDeviceId = videoSettings.deviceId;
+
+                    let videoConstraints = { deviceId: { exact: videoDeviceId } };*/
+                    videoElement.srcObject = audioStream;
+                    //videoElement.srcObject.addTrack(audioStream.getVideoTracks()[0]);
+                    //localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
+                }
+                else {
+                    const audioTracks = stream.getAudioTracks();
+                    console.log(audioTracks)
+                    if (audioTracks.length > 0) {
+                        stream.removeTrack(audioTracks[0]);
+                        stream.addTrack(audioStream.getAudioTracks()[0])
+                        //localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
+                    }
+                    else {
+                        stream.addTrack(audioStream.getAudioTracks()[0])
+                        //localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
+                    }
+                }
+                audioSrcChange = true;
+            } else if (type === 'videoinput') {
+                videoConstraints = { deviceId: { exact: deviceId } };
+
+                console.log(videoConstraints)
+                let videoStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints })
+                if (!stream) {
+                    /*let stream = await getUserMediaWithConstraints(true, true);
+                    let videoTrack = stream.getVideoTracks()[0];
+                    let videoSettings = videoTrack.getSettings();
+                    const videoDeviceId = videoSettings.deviceId;
+
+                    let videoConstraints = { deviceId: { exact: videoDeviceId } };*/
+                    videoElement.srcObject = videoStream;
+                    //localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
+                }
+                else {
+                    const videoTracks = stream.getVideoTracks();
+                    if (videoTracks.length > 0) {
+                        stream.removeTrack(videoTracks[0]);
+                        stream.addTrack(videoStream.getVideoTracks()[0]);
+                        console.log(videoStream.getVideoTracks()[0])
+                        console.log("REPLACE VIDEO TRACK")
+                        //localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
+                    }
+                    else {
+                        stream.addTrack(videoStream.getVideoTracks()[0]);
+                        console.log(videoStream.getVideoTracks()[0])
+                        console.log("REPLACE VIDEO TRACK")
+                        //localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
+                    }
+                    videoTracks[0].stop();
+                }
+                videoSrcChange = true;
+            }
+        } catch (error) {
+            console.error('Lỗi khi thay đổi thiết bị media:', error);
+        }
+    }
+    $("#changeSourceButton").on("click", async function () {
+        const videoPreview = document.getElementById("videoPreview");
+        let videoPreviewStream = videoPreview.srcObject;
+        let videoTrackReplace = videoPreviewStream.getVideoTracks()[0];
+        let videoTracks;
+        if (videoSrcChange) {
+            let track = videoTrackReplace;
+            let videoSettings = track.getSettings();
+            const videoDeviceId = videoSettings.deviceId;
+
+            let videoConstraints = { deviceId: { exact: videoDeviceId } };
+            localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
+            console.log("CHANGE MEDIA SOURCE")
+            console.log(videoConstraints);
+            videoPreview.srcObject = null;
+            videoSrcChange = false;
+        }
+        if (audioSrcChange == true) {
+            let audioTrackReplace = videoPreviewStream.getAudioTracks()[0];
+
+            let audioTracks = stream.getAudioTracks();
+            // if(!stream){
+            //     audioTracks = audioTrackReplace;
+            // }else{
+            //     audioTracks = 
+            // }
+
+
+            //replace;
+            if (audioTracks.length > 0) {
+                audioTracks.forEach(track => {
+                    stream.removeTrack(track);
+                });
+                stream.addTrack(audioTrackReplace);
+
+                await audioProducer.replaceTrack({ track: audioTrackReplace });
+
+                let track = audioTrackReplace;
+                const audioSettings = track.getSettings();
+                const audioDeviceId = audioSettings.deviceId;
+
+                const audioConstraints = { deviceId: { exact: audioDeviceId } };
+                localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
+
+                let id = "localVideo";
+                if (harkInstances[id]) {
+                    console.log("EXISTS HARK INSTANCE")
+                    harkInstances[id].stop();
+                    harkInstances[id] = null;
+                    delete harkInstances[id];
+                }
+                console.log(harkInstances);
+                let audioStream = new MediaStream();
+                audioStream.addTrack(stream.getAudioTracks()[0]);
+                let options = {
+                    threshold: -70
+                };
+                harkInstances[id] = hark(audioStream, options);
+
+                harkInstances[id].on('speaking', () => {
+                    console.log(`${id} is speaking on track ${track.id}`);
+                    showDots(id);
+                    moveDivToPositionWhenSpeaking(id);
+                });
+
+                harkInstances[id].on('stopped_speaking', () => {
+                    console.log(`${id} speech stopped on track ${track.id}`);
+                    stopDots(id);
+                });
+                harkInstances[id].on('volume_change', (volume, threshold) => {
+                    //console.log(`Volume change: ${volume}, Threshold: ${threshold}`);
+
+                    updateDots(volume, id);
+                });
+            } else {
+                console.error('No video tracks found in local video stream.');
+            }
+
+            audioSrcChange = false;
+        }
+
+
+
+
+        // const audioSettings = track.getSettings();
+        // const deviceId = settings.deviceId;
+
+        // let audioConstraints = { deviceId: { exact: deviceId } };
+        // localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
+        //replace;
+
+        // let stopStream = videoPreview.srcObject;
+        // let videoStopTracks = stopStream.getVideoTracks()[0]
+        // videoStopTracks.stop();
+        // let audioStopTracks = stopStream.getAudioTracks()[0]
+        // audioStopTracks.stop();
+
+
+        videoPreview.srcObject = null;
+
+    });
+
+    $("#changeSourceCloseButton").on("click", function () {
+        const videoPreview = document.getElementById("videoPreview");
+        let stream = videoPreview.srcObject;
+        let videoTracks = stream.getVideoTracks()[0]
+        videoTracks.stop();
+        let audioTracks = stream.getAudioTracks()[0]
+        audioTracks.stop();
+        videoPreview.srcObject = null;
+    })
+
+    $("#closeModal").on("click", function () {
+        const videoPreview = document.getElementById("videoPreview");
+        let stream = videoPreview.srcObject;
+        let videoTracks = stream.getVideoTracks()[0]
+        videoTracks.stop();
+        let audioTracks = stream.getAudioTracks()[0]
+        audioTracks.stop();
+        videoPreview.srcObject = null;
+    })
+
+    //audio
+    let audioContext;
+    let recorder;
+    let audioChunks = [];
+    var recording = document.getElementById('output');
+    var playing = document.getElementById('output2');
+    var playback = document.getElementById('play-back-btn');
+    var startbtn = document.getElementById('start-record-btn');
+    var stopbtn = document.getElementById('stop-record-btn');
+
+    let activeStream = null; // Để lưu trữ stream hiện tại
+
+    startbtn.addEventListener('click', async () => {
+        // Clear old audio and data
+        const audioElements = document.querySelectorAll('audio');
+        audioElements.forEach(audio => {
+            if (!audio.paused) {
+                audio.pause();
+                audio.currentTime = 0;
+            }
+        });
+        audioChunks = [];
+
+        // Initialize new recording
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let stream;
+        const videoElement = document.getElementById("videoPreview");
+        if (videoElement && videoElement.srcObject) {
+            stream = new MediaStream();
+            if (videoElement.srcObject.getAudioTracks().length > 0) {
+                stream.addTrack(videoElement.srcObject.getAudioTracks()[0]);
+            } else {
+                // Handle the case where no audio tracks are available
+                console.error('No audio tracks available in the video element.');
+                return;
+            }
+        } else {
+            stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        }
+        let input = audioContext.createMediaStreamSource(stream);
+        activeStream = stream;
+        if (!recorder) {
+            recorder = new MediaRecorder(activeStream);
+        }
+
+        recorder.ondataavailable = event => {
+            audioChunks.push(event.data);
+        };
+
+        recorder.onstop = () => {
+            let audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            let audioUrl = URL.createObjectURL(audioBlob);
+            let audio = new Audio(audioUrl);
+            playback.disabled = false;
+            playing.classList.add('d-none');
+
+            playback.addEventListener('click', async () => {
+                if (!audio.paused) {
+                    await audio.pause();
+                    playing.classList.add('d-none');
+                    startbtn.disabled = false;
+                    playback.innerText = "Play back";
+                } else {
+                    await audio.play();
+                    playing.classList.remove('d-none');
+                    startbtn.disabled = true;
+                    playback.innerText = "Stop play";
+                }
+            });
+        };
+
+        recorder.start();
+        startbtn.disabled = true;
+        playback.disabled = true;
+        stopbtn.disabled = false;
+        recording.classList.remove('d-none');
+        playing.classList.add('d-none');
+    });
+
+
+    stopbtn.addEventListener('click', async () => {
+        if (recorder && recorder.state !== 'inactive') {
+            await recorder.stop();
+            console.log("STOP")
+            await audioContext.close();
+            if (activeStream) {
+                activeStream.getTracks().forEach(track => track.stop());
+                activeStream = null;
+            }
+            startbtn.disabled = false;
+            stopbtn.disabled = true;
+            recording.classList.add('d-none');
+        }
+    });
+
+    document.getElementById('settingModal').addEventListener('hidden.bs.modal', () => {
+        // Dừng ghi âm và giải phóng tài nguyên nếu đang ghi âm
+        if (recorder && recorder.state !== 'inactive') {
+            recorder.stop();
+            audioContext.close();
+            if (activeStream) {
+                activeStream.getTracks().forEach(track => track.stop());
+                activeStream = null;
+            }
+        }
+
+        // Dừng phát lại âm thanh nếu có
+        const audioElements = document.querySelectorAll('audio');
+        audioElements.forEach(audio => {
+            if (!audio.paused) {
+                audio.pause();
+                audio.currentTime = 0;
+            }
+        });
+
+        // Xóa âm thanh cũ và dữ liệu
+        audioChunks = [];
+
+        // Reset UI elements
+        startbtn.disabled = false;
+        playback.disabled = true;
+        stopbtn.disabled = true;
+        recording.classList.add('hidden');
+        playing.classList.add('hidden');
     });
 </script>
 
