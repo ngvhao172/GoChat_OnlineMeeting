@@ -4,19 +4,13 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebRTC - Meeting App</title>
+    <title>GoChat</title>
+     <link rel="icon" href="/images/GoLogoNBg.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
 
-    {{!--
-    <link rel="stylesheet" href="/stylesheets/style.css"> --}}
-    {{!--
-    <script>
-        // Embed server-side data into a global JavaScript variable
-        window.serverData = {{ { json user } }};
-    </script> --}}
     <style>
         * {
             box-sizing: border-box;
@@ -86,28 +80,29 @@
 </head>
 
 <body>
-    <div class="container-fluid vh-100 d-flex flex-column pt-2 m-0">
-        <div class="header row d-flex justify-content-between align-items-center p-0 m-0">
-            <div class="col-6 h-100">
-                <img src="/images/GoChatNBg.png" alt="" srcset="" style="height: 100px; width: 100px">
-            </div>
-            <div class="col-6 text-end h-100 pt-2">
+    <div class="container-fluid vh-100 d-flex flex-column p-0 m-0">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            {{!-- <button onclick="sendMessage('123', '{{user.userEmail}}', 'user1@gmail.com')">SEND MESSAGE</button>
+            --}}
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/">
+                    <img src="images/GoChatHo.png" alt="" height="30">
+                </a>
                 <div class="row me-3">
-                    <div class="col-12 col-sm-11 text-end">
+                    <div class="col-12 col-sm-10 text-end">
                         <p class="d-sm-block p-0 m-0 fw-semibold">{{user.fullName}}</p>
                         <p class="d-sm-block p-0 m-0">{{user.userEmail}}</p>
                     </div>
-                    <div class="col-sm-1 d-none d-sm-block text-end">
+                    <div class="profile-pic col-sm-2 align-self-center d-none d-sm-block">
                         {{#if user.avatar}}
-                        <img class="rounded-circle" src="{{user.avatar}}" alt="" style="height: 50px; width: 50px">
+                        <img src="{{user.avatar}}" height="30" class="rounded-circle" alt="Profile Picture">
                         {{else}}
-                        <img class="rounded-circle" src="/images/GoLogoNBg.png" alt=""
-                            style="height: 50px; width: 50px">
+                        <img src="images/GoLogoNBg.png" height="30" alt="Profile Picture">
                         {{/if}}
                     </div>
                 </div>
             </div>
-        </div>
+        </nav>
         <div class="main container my-auto">
             <div class="row">
                 <div class="col-12 col-sm-8 justify-content-center">
@@ -218,13 +213,15 @@
                             </div>
                         </div>
                     </div>
-                     <div id="declineContainer" class="d-none">
+                    <div id="declineContainer" class="d-none">
                         <p class="fs-6 fw-bold">Someone had declined your request.</p>
-                        <button type="button" class="btn btn-primary" onclick=returnToHome()>Return to home page</button>
+                        <button type="button" class="btn btn-primary" onclick=returnToHome()>Return to home
+                            page</button>
                     </div>
                 </div>
             </div>
         </div>
+        <input type="hidden" id="userEmailHidden" value="{{user.userEmail}}">
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
@@ -234,11 +231,11 @@
 
 
     <script>
-        
-        function returnToHome(){
+
+        function returnToHome() {
             window.location.href = "/";
         }
-        $(document).ready( function (){
+        $(document).ready(function () {
             const ws_url = "{{ws_url}}";
             const ws = new WebSocket(ws_url);
             ws.onmessage = async (message) => {
@@ -262,12 +259,12 @@
                     default:
                         console.error('Unknown message action:', data.action);
                 }
-            }; 
-            $("#joinButton").on("click", function (){
+            };
+            $("#joinButton").on("click", function () {
                 $("#joinButton").prop("disabled", true);
                 $("#joinText").addClass("d-none");
                 $("#loadingJoin").removeClass("d-none");
-                ws.send(JSON.stringify({ action: 'requestJoin', roomId: "{{roomId}}", userId: "{{user.id}}", name: "{{user.fullName}}" }));
+                ws.send(JSON.stringify({ action: 'requestJoin', roomId: "{{roomId}}", email: "{{user.userEmail}}", name: "{{user.fullName}}" }));
             });
         })
         document.addEventListener('DOMContentLoaded', async (event) => {
@@ -282,7 +279,7 @@
             if (audioConstraints) {
                 constraints.audio = JSON.parse(audioConstraints)
             }
-            if(videoConstraints){
+            if (videoConstraints) {
                 constraints.video = JSON.parse(videoConstraints)
             }
             console.log(constraints)
@@ -290,11 +287,11 @@
             checkDeviceConstraints(audioConstraints, videoConstraints).then(async result => {
                 console.log('Audio device exists:', result.audioDeviceExists);
                 console.log('Video device exists:', result.videoDeviceExists);
-                if(!result.audioDeviceExists){
-                    constraints.audio =  true;
+                if (!result.audioDeviceExists) {
+                    constraints.audio = true;
                 }
-                if(!result.videoDeviceExists){
-                    constraints.video =  true;
+                if (!result.videoDeviceExists) {
+                    constraints.video = true;
                 }
                 console.log(constraints)
 
@@ -362,66 +359,66 @@
                     });
                 }
             })
-            .catch(function (error) {
+                .catch(function (error) {
 
-                console.error('Error when accessing devices:', error);
-                //constraints = {video: true, audio: true};
+                    console.error('Error when accessing devices:', error);
+                    //constraints = {video: true, audio: true};
 
-            });
-                /*if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                    navigator.mediaDevices.getUserMedia(constraints)
-                    .then(async function (stream) {
+                });
+            /*if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia(constraints)
+                .then(async function (stream) {
 
-                        window.stream = stream;
-                        videoPreview.srcObject = stream;
-                        videoPreview.play();
-                        //const devices = await navigator.mediaDevices.enumerateDevices();
-              
+                    window.stream = stream;
+                    videoPreview.srcObject = stream;
+                    videoPreview.play();
+                    //const devices = await navigator.mediaDevices.enumerateDevices();
+          
 
-                        const videoTrack = stream.getVideoTracks()[0];
-                        const audioTrack = stream.getAudioTracks()[0];
+                    const videoTrack = stream.getVideoTracks()[0];
+                    const audioTrack = stream.getAudioTracks()[0];
 
-                        if (videoTrack) {
-                            console.log('Video Track Device ID:', videoTrack.label);
+                    if (videoTrack) {
+                        console.log('Video Track Device ID:', videoTrack.label);
 
-                            $("#cameraCurrent").text(videoTrack.label);
+                        $("#cameraCurrent").text(videoTrack.label);
 
-                            let dropdownMenu = document.getElementById("cameraDropdownMenu");
+                        let dropdownMenu = document.getElementById("cameraDropdownMenu");
 
-                            const items = dropdownMenu.querySelectorAll('.dropdown-item');
-                            items.forEach(item => {
-                                console.log(item.textContent)
-                                if (item.textContent.trim() === videoTrack.label) {
-                                    item.classList.add('active');
-                                }
-                            });
+                        const items = dropdownMenu.querySelectorAll('.dropdown-item');
+                        items.forEach(item => {
+                            console.log(item.textContent)
+                            if (item.textContent.trim() === videoTrack.label) {
+                                item.classList.add('active');
+                            }
+                        });
 
-                        }
-                        if (audioTrack) {
-                            console.log('Audio Track Device ID:', audioTrack.label);
+                    }
+                    if (audioTrack) {
+                        console.log('Audio Track Device ID:', audioTrack.label);
 
-                            $("#microphoneCurrent").text(audioTrack.label);
+                        $("#microphoneCurrent").text(audioTrack.label);
 
-                            let dropdownMenu = document.getElementById("micDropdownMenu");
+                        let dropdownMenu = document.getElementById("micDropdownMenu");
 
-                            const items = dropdownMenu.querySelectorAll('.dropdown-item');
-                            items.forEach(item => {
-                                if (item.textContent.trim() === audioTrack.label) {
-                                    item.classList.add('active');
-                                }
-                            });
-                        }
-                    })
-                    .catch(function (error) {
+                        const items = dropdownMenu.querySelectorAll('.dropdown-item');
+                        items.forEach(item => {
+                            if (item.textContent.trim() === audioTrack.label) {
+                                item.classList.add('active');
+                            }
+                        });
+                    }
+                })
+                .catch(function (error) {
 
-                        console.error('Error when accessing devices:', error);
-                        //constraints = {video: true, audio: true};
+                    console.error('Error when accessing devices:', error);
+                    //constraints = {video: true, audio: true};
 
-                    });
-            } else {
-                alert('Sorry, your browser does not support getUserMedia');
-            }*/
-            
+                });
+        } else {
+            alert('Sorry, your browser does not support getUserMedia');
+        }*/
+
             async function checkDeviceConstraints(audioConstraints, videoConstraints) {
                 try {
                     const devices = await navigator.mediaDevices.enumerateDevices();
@@ -429,40 +426,41 @@
                     const audioInputs = devices.filter(device => device.kind === 'audioinput');
                     //const audioOutputs = devices.filter(device => device.kind === 'audiooutput');
                     const videoInputs = devices.filter(device => device.kind === 'videoinput');
-                    if(audioInputs.length>0){
+                    if (audioInputs.length > 0) {
                         console.log(audioInputs)
                         populateDropdown('micDropdownMenu', audioInputs, 'micButtonDropdown');
                     }
-                    if(videoInputs.length>0){
+                    if (videoInputs.length > 0) {
                         console.log(videoInputs)
                         populateDropdown('cameraDropdownMenu', videoInputs, 'cameraButtonDropdown');
                     }
-                  
+
                     //populateDropdown('speakerDropdownMenu', audioOutputs, 'speakerButtonDropdown');
-                   
+
 
                     console.log(JSON.parse(videoConstraints), JSON.parse(audioConstraints))
                     videoConstraints = JSON.parse(videoConstraints);
                     audioConstraints = JSON.parse(audioConstraints);
                     let audioDeviceExists;
-                    if(audioConstraints.deviceId){
-                        audioDeviceExists = devices.some(device => 
+                    if (audioConstraints.deviceId) {
+                        audioDeviceExists = devices.some(device =>
                             device.kind === 'audioinput' && device.deviceId === audioConstraints.deviceId.exact
                         );
                     }
-                    else{
+                    else {
                         audioDeviceExists = false;
                     }
-                    
+
                     let videoDeviceExists
-                    if(videoConstraints.deviceId){
-                        videoDeviceExists = devices.some(device => 
-                        device.kind === 'videoinput' && device.deviceId === videoConstraints.deviceId.exact
-                    )}
-                    else{
+                    if (videoConstraints.deviceId) {
+                        videoDeviceExists = devices.some(device =>
+                            device.kind === 'videoinput' && device.deviceId === videoConstraints.deviceId.exact
+                        )
+                    }
+                    else {
                         videoDeviceExists = false;
                     }
-                    
+
                     return { audioDeviceExists, videoDeviceExists };
                 } catch (error) {
                     console.error("Error checking device constraints:", error);
@@ -486,7 +484,7 @@
 
                         let audioStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints })
 
-                        if(!stream){
+                        if (!stream) {
                             /*let stream = await getUserMediaWithConstraints(true, true);
                             let videoTrack = stream.getVideoTracks()[0];
                             let videoSettings = videoTrack.getSettings();
@@ -497,7 +495,7 @@
                             //videoElement.srcObject.addTrack(audioStream.getVideoTracks()[0]);
                             localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
                         }
-                        else{
+                        else {
                             const audioTracks = stream.getAudioTracks();
                             console.log(audioTracks)
                             if (audioTracks.length > 0) {
@@ -505,7 +503,7 @@
                                 stream.addTrack(audioStream.getAudioTracks()[0])
                                 localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
                             }
-                            else{
+                            else {
                                 stream.addTrack(audioStream.getAudioTracks()[0])
                                 localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
                             }
@@ -515,7 +513,7 @@
 
                         console.log(videoConstraints)
                         let videoStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints })
-                        if(!stream){
+                        if (!stream) {
                             /*let stream = await getUserMediaWithConstraints(true, true);
                             let videoTrack = stream.getVideoTracks()[0];
                             let videoSettings = videoTrack.getSettings();
@@ -525,7 +523,7 @@
                             videoElement.srcObject = videoStream;
                             localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
                         }
-                        else{
+                        else {
                             const videoTracks = stream.getVideoTracks();
                             if (videoTracks.length > 0) {
                                 stream.removeTrack(videoTracks[0]);
@@ -534,7 +532,7 @@
                                 console.log("REPLACE VIDEO TRACK")
                                 localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
                             }
-                            else{
+                            else {
                                 stream.addTrack(videoStream.getVideoTracks()[0]);
                                 console.log(videoStream.getVideoTracks()[0])
                                 console.log("REPLACE VIDEO TRACK")
@@ -595,14 +593,14 @@
             const webcamButton = $('#webcamButton');
             const micButton = $('#micButton');
 
-            function disableButton(type, button){
-                if(type == "audio"){
+            function disableButton(type, button) {
+                if (type == "audio") {
                     button.attr("disabled", true);
                     button.addClass("bg-danger");
                     $("#micIcon").removeClass("bi-mic");
                     $("#micIcon").addClass("bi-mic-mute");
                     localStorage.setItem("micEnabled", false);
-                }else{
+                } else {
                     button.attr("disabled", true);
                     $("#camera-off-text").removeClass("d-none");
                     webcamButton.addClass("bg-danger");
@@ -674,7 +672,9 @@
                 }
             }
         });
+
     </script>
+    <script src="/javascripts/message-sw.js"></script>
 </body>
 
 </html>

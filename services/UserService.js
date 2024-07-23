@@ -89,6 +89,35 @@ const User = require('../models/User');
                 return { status: false, message: 'Error getting account by email: ' + error.message };
             }
         }
+        async  getUsersByContainingEmail(email) {
+            try {
+            //   // Validate email format (optional)
+            //   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            //     return { status: false, message: 'Invalid email format' };
+            //   }
+           
+              const q = query(collection(db, 'users'), where('userEmail', '>=', email), where('userEmail', '<=', email + '~'));
+              const querySnapshot = await getDocs(q);
+          
+              if (querySnapshot.empty) {
+                return { status: false, message: `No users found containing email: ${email}` };
+              }
+          
+              const users = [];
+              querySnapshot.forEach(doc => {
+                const userData = doc.data();
+                const newUser = new User();
+                newUser.email = userData.userEmail;
+                newUser.avatar = userData.avatar;
+                users.push(newUser);
+              });
+          
+              return { status: true, data: users };
+            } catch (error) {
+              console.error('Error getting users by containing email:', error);
+              return { status: false, message: 'Error getting users: ' + error.message };
+            }
+          }
         
     
     async updateUser(id, newData) {

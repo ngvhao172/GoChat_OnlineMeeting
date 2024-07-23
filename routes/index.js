@@ -15,17 +15,21 @@ router.post('/profile', userController.updateProfile)
 
 router.post('/updateUserAvatar', userController.updateUserAvatar)
 
-router.post("/saveSubscription", notificationController.saveSubscription)
+router.post('/saveSubscription', notificationController.saveSubscription)
 
-router.post("/sendNotification", notificationController.sendNotification);
+router.post('/sendNotification', notificationController.sendNotification);
 
-router.post("/getSubscription", notificationController.getSubscription)
+router.post('/getSubscription', notificationController.getSubscription)
 
-router.get("/notfound", roomController.notfound)
+router.post('/getUserByContainingEmail', userController.getUserByContainingEmail);
+
+router.post('/deleteUsers', userController.deleteUserByUserEmail);
+
+router.get('/notfound', roomController.notfound)
 
 router.get('/', roomController.index);
 
-router.get("/favicon.ico", (req, res) => res.end());
+router.get('/favicon.ico', (req, res) => res.end());
 
 router.get('/:roomId', roomController.joinRoom);
 

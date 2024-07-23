@@ -42,7 +42,7 @@ module.exports = async (httpServer, router) => {
                 settings: {
                   'private': false
                 },
-                approvedUsers: [userId],
+                approvedUsers: [data.email],
                 requestingUsers: [],
                 requestingUsersWs: {}
                 // audioLevelObserver: audioLevelObserver
@@ -82,12 +82,12 @@ module.exports = async (httpServer, router) => {
               break;
             }
             if(rooms[data.roomId].settings["private"] == false){
-              if(!rooms[data.roomId].approvedUsers.includes(data.userId)){
-                rooms[data.roomId].approvedUsers.push(data.userId);
+              if(!rooms[data.roomId].approvedUsers.includes(data.email)){
+                rooms[data.roomId].approvedUsers.push(data.email);
               }
             }
-            if(rooms[data.roomId].approvedUsers.includes(data.userId)){
-              rooms[data.roomId].users[data.userId] = { id: data.userId, ws, name: data.name, avatar: data.avatar, producerTransport: null, consumerTransports: {} };
+            if(rooms[data.roomId].approvedUsers.includes(data.email)){
+              rooms[data.roomId].users[data.userId] = { id: data.userId, ws, name: data.name, avatar: data.avatar, email: data.email, producerTransport: null, consumerTransports: {} };
               rooms[data.roomId].consumers[data.userId] = {};
 
               // console.log("Room", rooms[data.roomId]);
@@ -131,23 +131,23 @@ module.exports = async (httpServer, router) => {
           break;
         case 'requestJoin':
           {
-            if(rooms[data.roomId].approvedUsers.includes(data.userId) || rooms[data.roomId].settings["private"] == false){
+            if(rooms[data.roomId].approvedUsers.includes(data.email) || rooms[data.roomId].settings["private"] == false){
               ws.send(JSON.stringify({
                 action: 'requestResponse',
                 isApproved: true
             }));
             }else{
-              const exists = rooms[roomId].requestingUsers.some(user => user.id === data.userId);
+              const exists = rooms[roomId].requestingUsers.some(user => user.email === data.email);
               if(!exists){
-                rooms[roomId].requestingUsers.push({ name: data.name, id: data.userId });
+                rooms[roomId].requestingUsers.push({ name: data.name, email: data.email });
               }
-              rooms[roomId].requestingUsersWs[data.userId] = ws;
+              rooms[roomId].requestingUsersWs[data.email] = ws;
               console.log(rooms[roomId]);
               try{
                 const ownerWS = rooms[roomId].users[rooms[data.roomId].ownerCreatedId]["ws"];
                   ownerWS.send(JSON.stringify({
                     action: 'newRequest',
-                    newUser: { name: data.name, id: data.userId },
+                    newUser: { name: data.name, email: data.email },
                     requestingUsers:  rooms[roomId].requestingUsers
                   }
                 ));
@@ -155,23 +155,29 @@ module.exports = async (httpServer, router) => {
                 console.log(e);
               }
             }
-            break;
           }
+          break;
         case 'acceptRequest':
           {
-            const {roomId, requestorId} = data;
-            if(!rooms[roomId].approvedUsers.includes(requestorId)){
-              rooms[roomId].approvedUsers.push(requestorId);
+            const {roomId, email, id} = data;
+            if(id!= rooms[roomId].ownerCreatedId){
+              return;
+            }
+            if(!rooms[roomId].approvedUsers.includes(email)){
+              const requestorWs = rooms[roomId].requestingUsersWs[email];
+              if(requestorWs){
+                rooms[roomId].approvedUsers.push(email);
+              }
               //xoa khoi requesting list
               //
               // const index = rooms[roomId].requestingUsers.indexOf(requestorId);
               // if (index !== -1) {
               //     list.splice(index, 1);
               // }
-              const updatedRequestingUsers = rooms[roomId].requestingUsers.filter(user => user.id !== requestorId);
+              const updatedRequestingUsers = rooms[roomId].requestingUsers.filter(user => user.email !== email);
               rooms[roomId].requestingUsers = updatedRequestingUsers;
               console.log("REQUESTINGUSER:", rooms[roomId].requestingUsersWs);
-              const requestorWs = rooms[roomId].requestingUsersWs[requestorId];
+              //const requestorWs = rooms[roomId].requestingUsersWs[email];
 
               if(requestorWs){
                 requestorWs.send(JSON.stringify({
@@ -179,37 +185,56 @@ module.exports = async (httpServer, router) => {
                   isApproved: true
                 }));
 
-                delete rooms[roomId].requestingUsersWs[requestorId];
+                delete rooms[roomId].requestingUsersWs[email];
               }
             }
           }
           break;
         case 'declineRequest':
           {
-            const {roomId, requestorId} = data;
-            if(!rooms[roomId].approvedUsers.includes(requestorId)){
-              //xoa khoi requesting list
-              //
-              // const index = rooms[roomId].requestingUsers.indexOf(requestorId);
-              // if (index !== -1) {
-              //     list.splice(index, 1);
-              // }
-              const updatedRequestingUsers = rooms[roomId].requestingUsers.filter(user => user.id !== requestorId);
-              rooms[roomId].requestingUsers = updatedRequestingUsers;
-              const requestorWs = rooms[roomId].requestingUsersWs[requestorId];
-              if(requestorWs){
-                requestorWs.send(JSON.stringify({
-                  action: 'requestResponse',
-                  isApproved: false
-                }));
-
-                //delete rooms[roomId].requestingUsersWs[requestorId];
-
-                console.log("REQUESTINGUSER:", rooms[roomId].requestingUsersWs);
+            try {
+              const {roomId, email, id} = data;
+              if(id!= rooms[roomId].ownerCreatedId){
+                return;
               }
+              if(!rooms[roomId].approvedUsers.includes(email)){
+                //xoa khoi requesting list
+                //
+                // const index = rooms[roomId].requestingUsers.indexOf(requestorId);
+                // if (index !== -1) {
+                //     list.splice(index, 1);
+                // }
+                const updatedRequestingUsers = rooms[roomId].requestingUsers.filter(user => user.id !== email);
+                rooms[roomId].requestingUsers = updatedRequestingUsers;
+                const requestorWs = rooms[roomId].requestingUsersWs[email];
+                if(requestorWs){
+                  requestorWs.send(JSON.stringify({
+                    action: 'requestResponse',
+                    isApproved: false
+                  }));
+  
+                  delete rooms[roomId].requestingUsersWs[email];
+  
+                  console.log("REQUESTINGUSER:", rooms[roomId].requestingUsersWs);
+                }
+              } 
+            } catch (error) {
+              console.log(error);
             }
             break;
           }
+        case 'inviteUser':
+          {
+            const {roomId, id, userEmailInvited} = data;
+            if(id!= rooms[roomId].ownerCreatedId){
+              return;
+            }
+            if(!rooms[roomId].approvedUsers.includes(userEmailInvited)){
+              rooms[roomId].approvedUsers.push(userEmailInvited);
+            }
+            console.log(rooms[roomId]);
+          }
+          break;
         case 'getRtpCapabilities':
           {
             const rtpCapabilities = router.rtpCapabilities
@@ -641,7 +666,7 @@ module.exports = async (httpServer, router) => {
               ws.send(JSON.stringify({ action: 'checked-result', roomId: roomId, exists: false,}));
             }
             else {
-              let isApproved = rooms[roomId].approvedUsers.includes(data.userId);
+              let isApproved = rooms[roomId].approvedUsers.includes(data.email);
               let isPrivateRoom = rooms[roomId].settings["private"];
               if(isPrivateRoom == false){
                 isApproved = true;
@@ -698,7 +723,7 @@ module.exports = async (httpServer, router) => {
               // xoa khoi audio observer
               // handleProducerStop(roomId, room.producers[userId]["audio"], userId);
               for (let id in room.users) {
-                delete room.consumers[id][producerAudioId];
+                delete room.consumers[id][producerVideoId];
                 // console.log("PRODUCER SHARING: ", room.producers[userId]['sharing'].id);
                 // console.log(producerSharingId)
               }

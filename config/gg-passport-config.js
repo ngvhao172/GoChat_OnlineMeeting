@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const Account = require('../models/Account');
 const User = require('../models/User');
 const userService = require('../services/UserService');
+const accountService = require('../services/AccountService')
 
 async function initializeGooglePassport(passport) {
     passport.use(new GoogleStrategy({
@@ -32,7 +33,7 @@ async function initializeGooglePassport(passport) {
             const resultUser = await userService.createUser(user);
             if(resultUser.status) {
                 const userCreated = resultUser.data;
-                const password = profile.email.split("@")[0];
+                const password = profile.email.toString().split("@")[0];
                 //tao tai khoan
                 //hash password
                 const hasedPassword = await bcrypt.hash(password, 10);

@@ -17017,27 +17017,29 @@ function notifyUserLeft(username, isSharing) {
   }
   $('#liveToast').toast("show");
 }
-function notifyNewRequest(username, userId) {
+function notifyNewRequest(username, email) {
   //update ui request toast
   $("#requestMessage").text(username + " request to join.");
-  $("#requestorId").val(userId);
+  $("#requestorId").val(email);
   $('#requestToast').toast("show");
 }
-function acceptRequest(requestorId) {
+function acceptRequest(email) {
   ws.send(JSON.stringify({
     action: "acceptRequest",
     roomId: roomId,
-    requestorId: requestorId
+    email: email,
+    id: id
   }));
-  (0, _index.removeRequestorUi)(requestorId);
+  (0, _index.removeRequestorUi)(email);
 }
-function declineRequest(requestorId) {
+function declineRequest(email) {
   ws.send(JSON.stringify({
     action: "declineRequest",
     roomId: roomId,
-    requestorId: requestorId
+    email: email,
+    id: id
   }));
-  (0, _index.removeRequestorUi)(requestorId);
+  (0, _index.removeRequestorUi)(email);
 }
 let requestorIds = [];
 function updateRequestorsList(requestingUsers) {
@@ -17046,19 +17048,19 @@ function updateRequestorsList(requestingUsers) {
   if (requestingUsers.length > 0) {
     requestingUsers.forEach(requestor => {
       const div = `
-                <div class="container-fluid p-0 requestor-container" id="requestor-${requestor.id}">
+                <div class="container-fluid p-0 requestor-container" id="requestor-${requestor.email}">
                     <div class="row d-flex align-items-center pt-2 pb-2">
                         <div class="col-2 avatar"><img class="user-avatar"
-                                src="https://th.bing.com/th/id/OIP.KTSVEqImOpx4gXTshphsnwHaHa?rs=1&pid=ImgDetMain"
+                                src="${requestor.avatar ? requestor.avatar : '/images/GoLogoNBg.png'}"
                                 alt="" srcset=""></div>
                         <div class="col-6 p-0 fs-6 ps-2">${requestor.name}</div>
-                        <button class="col-2 p-0 text-primary border-0 bg-transparent text-decoration-underline accept-button" style="font-size: 12px;" data-id="${requestor.id}">Accept</button>
-                        <button class="col-2 p-0 text-start text-danger border-0 bg-transparent text-decoration-underline decline-button" style="font-size: 12px;" data-id="${requestor.id}">Decline</button>
+                        <button class="col-2 p-0 text-primary border-0 bg-transparent text-decoration-underline accept-button" style="font-size: 12px;" data-id="${requestor.email}">Accept</button>
+                        <button class="col-2 p-0 text-start text-danger border-0 bg-transparent text-decoration-underline decline-button" style="font-size: 12px;" data-id="${requestor.email}">Decline</button>
                     </div>
                 </div>
             `;
       requestorsList.append(div);
-      requestorIds.push(requestor.id);
+      requestorIds.push(requestor.email);
     });
     $(".accept-button").on("click", function () {
       const requestorId = $(this).data("id");
@@ -17337,7 +17339,8 @@ ws.onopen = async () => {
         roomId: roomId,
         userId: id,
         name: username,
-        avatar: user.avatar
+        avatar: user.avatar,
+        email: user.userEmail
       }));
       ws.send(JSON.stringify({
         action: 'getRtpCapabilities',
@@ -17513,6 +17516,7 @@ ws.onmessage = async event => {
         notifyUserJoin(data.name, true);
       } else {
         await (0, _index.addItem)(data.producerUserId, data.name, data.avatar);
+        console.log("ADDTRACK TO REMOTE STREAM", track);
         addTrackToVideoElement(track, data.producerUserId);
         if (producerStatus) {
           if (producerStatus == "off") {
@@ -17585,7 +17589,7 @@ ws.onmessage = async event => {
         requestingUsers,
         newUser
       } = data;
-      notifyNewRequest(newUser.name, newUser.id, newUser.avatar);
+      notifyNewRequest(newUser.name, newUser.email, newUser.avatar);
       updateRequestorsList(requestingUsers);
       break;
     default:
@@ -17829,7 +17833,7 @@ function addTrackToVideoElement(track, id) {
   //     remoteVideo.srcObject.addTrack(track);
   // }
   remoteVideo.srcObject.addTrack(track);
-  if (id.includes("-")) {
+  if (id.includes("Sharing")) {
     return;
   }
   console.log(harkInstances);
@@ -18941,6 +18945,151 @@ $("#declineButton").on("click", function () {
 //         $("#meetingAccessDes").text("This meeting is for public");
 //     }
 // }
+let invitedUsers = [];
+$("#input-invite").on("input", function () {
+  getUserByContainingEmail();
+});
+$("#inviteButton").on("click", function () {
+  sendInvites();
+});
+function sendInvites() {
+  invitedUsers.forEach(email => {
+    sendInvite(roomId, user.userEmail, email);
+  });
+  $("#inviteToast").toast("show");
+  invitedUsers.forEach(email => {
+    removeUser(email);
+  });
+  $("#input-invite").val("");
+}
+function sendInvite(roomId, from, to) {
+  $.ajax({
+    url: '/sendNotification',
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({
+      roomId: roomId,
+      from: from,
+      to: to
+    }),
+    success: function (response) {
+      ws.send(JSON.stringify({
+        action: "inviteUser",
+        userEmailInvited: to,
+        roomId: roomId,
+        id: user.id
+      }));
+      console.log('Send success:', response);
+    },
+    error: function (xhr, status, error) {
+      console.error('Send error:', xhr.responseText);
+    }
+  });
+}
+function getUserByContainingEmail() {
+  let email = $("#input-invite").val();
+  if (email.trim().length < 5) {
+    return;
+  }
+  setTimeout(function () {
+    $.ajax({
+      url: '/getUserByContainingEmail',
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({
+        email: email.trim()
+      }),
+      success: function (response) {
+        const users = response;
+        console.log(users);
+        if (users.length == 0) {
+          $("#noUserDiv").removeClass("d-none");
+        } else {
+          $("#noUserDiv").addClass("d-none");
+          const foundUser = $("#foundUser");
+          const foundUserDiv = $("#foundUser div");
+          foundUserDiv.remove();
+          users.forEach(iUser => {
+            if (iUser.email == user.userEmail && users.length == 1) {
+              $("#noUserDiv").removeClass("d-none");
+              return;
+            }
+            const newUserFound = $(` 
+                            <div class="list-group">
+                                <label class="list-group-item d-flex align-items-center">
+                                    <div class="w-100"> 
+                                        <img src="${iUser.avatar ? iUser.avatar : '/images/GoLogoNBg.png'}" alt="" srcset="" class="user-avatar rounded-circle" style="height: 28px; width: 28px; object-fit: contain;"> 
+                                        ${iUser.email}
+                                    </div>
+                                    <input id="input${iUser.email}" class="invite-user-button form-check-input me-1 flex-shrink-1" type="checkbox" value="" 
+                                    data-avatar='${iUser.avatar}' data-email='${iUser.email}'" ${invitedUsers.includes(iUser.email) ? 'checked' : ''}>
+                                </label>
+                            </div>
+                        `);
+            foundUser.append(newUserFound);
+          });
+          // $(document).on('change', '.invite-user-button', function() {
+
+          // });
+          $(".invite-user-button").on("change", function () {
+            const userEmail = $(this).data('email');
+            const userAvatar = $(this).data('avatar');
+            console.log(userEmail, userAvatar);
+            inviteUser(userEmail, this, userAvatar);
+          });
+        }
+      },
+      error: function (xhr, status, error) {
+        console.error('Send error:', xhr.responseText);
+      }
+    });
+  }, 2000);
+}
+function removeUser(email) {
+  invitedUsers = invitedUsers.filter(userEmail => userEmail != email);
+  const listOfUsersDiv = document.querySelectorAll("#listOfUsers div");
+  listOfUsersDiv.forEach(user => {
+    if (user.getAttribute('data-id') === email) {
+      user.remove();
+      const listItem = document.getElementById(`input${email}`);
+      if (listItem) {
+        listItem.checked = false;
+      }
+    }
+  });
+}
+function inviteUser(email, checkbox, avatar) {
+  const listOfUsersDiv = document.querySelectorAll("#listOfUsers div");
+  const listOfUsers = $("#listOfUsers");
+  if (checkbox.checked) {
+    const newUserInvited = $(`
+            <div data-id="${email}" class="invited-user col rounded-pill border border-secondary d-flex align-items-center p-0">
+                <div class="text-start user-invited-content">
+                    <img src="${avatar ? avatar : '/images/GoLogoNBg.png'}" alt="" class="user-invited-avatar rounded-circle">
+                    <span>${email}</span>
+                </div>
+                <i class="bi bi-x text-dark delete-invite-user" data-email='${email}'"></i>
+            </div>
+        `);
+    const input = $("#input-invite");
+    input.before(newUserInvited);
+    invitedUsers.push(email);
+    $(".delete-invite-user").on("click", function () {
+      const userEmail = $(this).data('email');
+      console.log(userEmail);
+      removeUser(userEmail);
+    });
+
+    //listOfUsers.insertBefore(input, newUserInvited[0]);
+  } else {
+    invitedUsers = invitedUsers.filter(userEmail => userEmail != email);
+    listOfUsersDiv.forEach(user => {
+      if (user.getAttribute('data-id') === email) {
+        user.remove();
+      }
+    });
+  }
+}
 
 },{"./index.js":59,"hark":9,"mediasoup-client":41}],59:[function(require,module,exports){
 "use strict";
@@ -18986,10 +19135,6 @@ async function toggleContainer(containerToShow, isActionContainerOpenGlobal) {
     if (isThisContainerOpen) {
       actionContainer.classList.remove('open');
       $(".main-container").removeClass("expanded");
-      setTimeout(() => {
-        // actionContainer.style.display = 'none';
-        // document.querySelector('.grid-container').classList.remove('reduced');
-      }, 300);
     } else {
       actionContainers.forEach(container => {
         container.style.display = 'none';
@@ -19012,10 +19157,7 @@ async function toggleContainer(containerToShow, isActionContainerOpenGlobal) {
 function closeActionContainer() {
   isActionContainerOpenGlobal = false;
   actionContainer.classList.remove('open');
-  setTimeout(() => {
-    actionContainer.style.display = 'none';
-    // document.querySelector('.grid-container').classList.remove('reduced');
-  }, 300);
+  $(".main-container").removeClass("expanded");
 }
 ;
 function getCurrentTime() {

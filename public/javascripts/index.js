@@ -18,10 +18,6 @@ export async function toggleContainer(containerToShow, isActionContainerOpenGlob
         if (isThisContainerOpen) {
             actionContainer.classList.remove('open');
             $(".main-container").removeClass("expanded");
-            setTimeout(() => {
-                // actionContainer.style.display = 'none';
-                // document.querySelector('.grid-container').classList.remove('reduced');
-            }, 300);
         }
         else {
             actionContainers.forEach(container => {
@@ -46,10 +42,7 @@ export async function toggleContainer(containerToShow, isActionContainerOpenGlob
 export function closeActionContainer() {
     isActionContainerOpenGlobal = false;
     actionContainer.classList.remove('open');
-    setTimeout(() => {
-        actionContainer.style.display = 'none';
-        // document.querySelector('.grid-container').classList.remove('reduced');
-    }, 300);
+    $(".main-container").removeClass("expanded");
 };
 
 export function getCurrentTime() {

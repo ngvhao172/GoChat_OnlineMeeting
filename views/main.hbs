@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>GoChat</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
         crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
+    <link rel="icon" href="/images/GoLogoNBg.png">
     <!-- clock -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js">
     </script>
@@ -34,7 +34,7 @@
         display: inline-block;
     }
 
-    .icon-container .bi-bell::after {
+    .new-noti {
         content: '';
         position: absolute;
         top: -5px;
@@ -113,8 +113,6 @@
     .share-screen {
         background-color: #7ED957;
     }
-
-
 
     .clockdate-wrapper {
         background: #141E30;
@@ -195,7 +193,7 @@
 
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <button onclick="sendMessage('123', '{{user.userEmail}}', 'user1@gmail.com')">SEND MESSAGE</button>
+        {{!-- <button onclick="sendMessage('123', '{{user.userEmail}}', 'user1@gmail.com')">SEND MESSAGE</button> --}}
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
                 <img src="images/GoChatHo.png" alt="" height="30">
@@ -208,14 +206,17 @@
                 <ul class="navbar-nav ms-auto mb-lg-0 profile-menu d-flex align-items-center">
                     <button class="pe-3 btn shadow-none" data-bs-toggle="modal" data-bs-target="#settingModal"
                         id="settingsButton">
-                        <div class="icon-container">
+                        <div class="icon-container" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                            title="Settings">
                             <i class="bi bi-gear h5"></i>
                         </div>
                     </button>
                     <button class="pe-3 btn btn-light shadow-none" id="noticDropdown" onclick="getPermission()"
                         data-bs-toggle="dropdown" aria-expanded="false">
-                        <div class="icon-container">
+                        <div class="icon-container" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                            title="Notifications">
                             <i class="bi bi-bell h5"></i>
+                            <span class="new-noti d-none" id="new-noti-green"></span>
                         </div>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="noticDropdown" onclick="getPermission()" id="ulInvitations" style="overflow-y: auto; max-height: 300px">
@@ -223,7 +224,16 @@
                             <div class="d-flex align-items-center">
                                 <div>
                                     <span>
-                                        Nothing here yet
+                                        Nothing here
+                                    </span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="px-3 py-2" id="blockNotiLi" class="d-none">
+                            <div class="d-flex align-items-center">
+                                <div>
+                                    <span id="permissionText">
+                                        Notification need permission to show and <br> private browser do not support notifications.
                                     </span>
                                 </div>
                             </div>
@@ -284,10 +294,10 @@
                     <div class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
-                            <div class="profile-pic">
+                            <div class="profile-pic" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                            title="Profile">
                                 {{#if user.avatar}}
-                                <img src="{{user.avatar}}" height="30"
-                                    style="width: 50px; height: 50px; object-fit: cover;" class="rounded-circle"
+                                <img src="{{user.avatar}}" height="30" class="rounded-circle"
                                     alt="Profile Picture">
                                 {{else}}
                                 <img src="images/GoLogoNBg.png" height="30" alt="Profile Picture">
@@ -539,7 +549,7 @@
         </div>
     </div>
     {{!-- Setting modal --}}
-    <div class="modal fade" id="settingModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="settingModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-lg">
             <div class="modal-content" style="min-height: 500px;">
                 <div class="modal-header">
@@ -664,10 +674,13 @@
     </div>
 </body>
 <script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
     function joinRoom(roomId){
-        window.location.href = `/${roomId}`
+        window.location.href = `/${roomId.toString()}`
     }
-
 
     $(document).ready(function (){
         //localStorage.clear();
@@ -683,14 +696,14 @@
             const ul = document.getElementById("ulInvitations");
             storedDataArray.forEach(invitation => {
                 const div = `
-                    <li class="px-3 py-2" onclick="joinRoom(${invitation.roomId})">
+                    <li class="px-3 py-2" onclick="joinRoom('${invitation.roomId}')">
                         <div class="d-flex align-items-center">
                             <div class="me-3">
                                 <img src="${invitation.fromUserAvatar ? invitation.fromUserAvatar : 'images/GoLogoNBg.png'}" class="rounded-circle" height="25" style="width: 50px; height: 50px" alt="Profile Picture">
                             </div>
                             <div>
-                                <span>${invitation.from} invites you to join the meeting <br> at ${invitation.formattedTime} on
-                                        ${invitation.formattedDate}</span>
+                                <span>${invitation.from} invites you to join the meeting <br> at ${invitation.time} on
+                                        ${invitation.date}</span>
                             </div>
                         </div>
                     </li>
@@ -701,6 +714,11 @@
     })
     let per = false;
     var refreshing;
+    const newMessage = localStorage.getItem('newMessage');
+    console.log(newMessage)
+    if(newMessage=="true"){
+        $("#new-noti-green").removeClass("d-none");
+    }
     if (navigator.serviceWorker) {
         navigator.serviceWorker.addEventListener('message', event => {
             if (event.data && event.data.type === 'push-notification') {
@@ -710,6 +728,10 @@
                 if(to!="{{user.userEmail}}"){
                     return;
                 }
+                $("#new-noti-green").removeClass("d-none");
+                $("#emptyNotiLi").addClass("d-none");
+
+                localStorage.setItem('newMessage', true);
 
                 const storedDataArrayString = localStorage.getItem('invitations');
 
@@ -721,13 +743,11 @@
                 const date = formattedDate
                 const time = formattedTime
 
-                storedDataArray.push({from, roomId, to, fromUserAvatar, date, time} );
+                storedDataArray.unshift({from, roomId, to, fromUserAvatar, date, time} );
                 localStorage.setItem('invitations', JSON.stringify(storedDataArray));
 
-                $("#emptyNotiLi").addClass("d-none");
-
                 const div = `
-                    <li class="px-3 py-2" onclick="joinRoom(${roomId})">
+                    <li class="px-3 py-2" onclick="joinRoom('${roomId}')">
                         <div class="d-flex align-items-center">
                             <div class="me-3">
                                 <img src="${fromUserAvatar ? fromUserAvatar : 'images/GoLogoNBg.png'}" class="rounded-circle" height="25" style="width: 50px; height: 50px" alt="Profile Picture">
@@ -740,7 +760,7 @@
                     </li>
                 `;
                 const ul = document.getElementById("ulInvitations");
-                ul.insertAdjacentHTML('beforeend', div); 
+                ul.insertAdjacentHTML('afterbegin', div); 
 
                 //updateUIWithNotification(data);
             }
@@ -757,6 +777,7 @@
                 console.log("Client is already subscribed:", subscription);
                 try {
                     const getSub = await getSubscription(subscription.endpoint);
+                    console.log(getSub);
                     if (!getSub.status) {
                         await registerForPushNotifications(registration);
                     }
@@ -794,6 +815,8 @@
         console.log("Push subscription registered successfully:", subscription);
     } catch (error) {
         console.error('Failed to subscribe to push notifications:', error);
+        $("#emptyNotiLi").addClass("d-none");
+        $("#blockNotiLi").removeClass("d-none");
     }
 }
 
@@ -839,7 +862,7 @@
             headers: { 'Content-type': "application/json" },
             body: JSON.stringify({
                 subscription: subscription,
-                userId: "{{user.id}}"
+                userEmail: "{{user.userEmail}}"
             })
         })
 
@@ -852,7 +875,7 @@
         headers: { 'Content-Type': "application/json" },  
         body: JSON.stringify({
             endpoint: endpoint,
-            userId: "{{user.id}}" 
+            userEmail: "{{user.userEmail}}" 
         })
     });
     return response.json(); 
@@ -863,18 +886,23 @@
         const permission = await Notification.requestPermission();
 
         if (permission !== 'granted') {
+            $("#blockNotiLi").removeClass("d-none");
+            $("#emptyNotiLi").addClass("d-none");
             throw new Error("Notification permission not granted")
         }
         else {
-            $("#getPermissionLi").addClass("d-none");
+            //$("#emptyNotiLi").removeClass("d-none");
+            $("#blockNotiLi").addClass("d-none");
         }
     }
 
     const getPermission = async () => {
         console.log("GET")
+        localStorage.setItem('newMessage', false);
+        $("#new-noti-green").addClass("d-none");
         checkPermission()
-        await requestNotificationPermission()
-        registerSW().then(registration => {
+        await requestNotificationPermission();
+        await registerSW().then(registration => {
             console.log('Service Worker registered with scope:', registration.scope);
 
             if (navigator.serviceWorker.controller) {
@@ -892,7 +920,7 @@
     }
 
 
-    function sendMessage(roomId, from, to) {
+    /*function sendMessage(roomId, from, to) {
         $.ajax({
             url: '/sendNotification',
             type: 'POST',
@@ -910,7 +938,6 @@
             }
         });
     }
-
     function createAccount() {
         for (var i = 31; i <= 50; i++) {
             $.ajax({
@@ -920,8 +947,8 @@
                 data: JSON.stringify({
                     fullname: `Nguyen Van Hao ${i}`,
                     email: `user${i}@gmail.com`,
-                    password: "$2b$10$zUgT3d3b0xZRZOypaBM8KegTZVT6Fgr8e9GBLlwrMUn7rHqOrasBS",
-                    cfpassword: "$2b$10$zUgT3d3b0xZRZOypaBM8KegTZVT6Fgr8e9GBLlwrMUn7rHqOrasBS"
+                    password: "123",
+                    cfpassword: "123"
                 }),
                 success: function (response) {
                     console.log('Signup success:', response);
@@ -931,7 +958,7 @@
                 }
             });
         }
-    }
+    }*/
     const socket = new WebSocket("{{ws_url}}");
     //const socket = new WebSocket('wss://videochatapp.online');
     socket.onmessage = async (message) => {
@@ -1342,7 +1369,7 @@
             localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
             console.log("CHANGE MEDIA SOURCE")
             console.log(videoConstraints);
-            videoPreview.srcObject = null;
+            //videoPreview.srcObject = null;
             videoSrcChange = false;
         }
         if (audioSrcChange == true) {
@@ -1354,8 +1381,6 @@
             // }else{
             //     audioTracks = 
             // }
-
-
             //replace;
             if (audioTracks.length > 0) {
                 audioTracks.forEach(track => {
@@ -1425,7 +1450,11 @@
         // let audioStopTracks = stopStream.getAudioTracks()[0]
         // audioStopTracks.stop();
 
-
+        let stream = videoPreview.srcObject;
+        let videoTracksStop = stream.getVideoTracks()[0]
+        videoTracksStop.stop();
+        let audioTracksStop = stream.getAudioTracks()[0]
+        audioTracksStop.stop();
         videoPreview.srcObject = null;
 
     });

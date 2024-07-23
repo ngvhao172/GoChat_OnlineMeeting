@@ -10,13 +10,13 @@ body {
   overflow: hidden;
   background-color: #202124;
 
-  -webkit-user-select: none; 
-  -moz-user-select: none;  
-  -ms-user-select: none;     
-  user-select: none; 
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
-.body-container{
+.body-container {
   position: fixed;
   top: 0;
   left: 0;
@@ -30,12 +30,13 @@ body {
   height: 85vh;
   width: 100%;
 }
+
 .container-grid {
   padding: 10px;
   display: flex;
   grid-gap: 10px;
   flex-grow: 0;
-  width: calc(100% - 0px); 
+  width: calc(100% - 0px);
   height: 100%;
   transition: width 0.3s;
 }
@@ -56,7 +57,7 @@ body {
   display: none;
 }
 
-.sharing-container{
+.sharing-container {
   padding: 10px;
   display: grid;
   grid-template-columns: repeat(1, 1fr);
@@ -93,9 +94,10 @@ body {
 }
 
 
-.default-border-class-video{
+.default-border-class-video {
   border: 5px solid #202124;
 }
+
 .custom-border-class {
   border: 5px solid #2370ff;
 }
@@ -135,12 +137,12 @@ body {
 .action-container {
   padding: 10px;
   height: 85vh;
-  width: 350px; 
-  position: absolute; 
+  width: 350px;
+  position: absolute;
   right: 0;
   top: 0;
   transform: translateX(100%);
-  transition: transform 0.3s, opacity 0.3s, visibility 0.3s; 
+  transition: transform 0.3s, opacity 0.3s, visibility 0.3s;
   opacity: 0;
   visibility: hidden;
 }
@@ -148,13 +150,13 @@ body {
 /* .action-container.open {
   transform: translateX(0);
 } */
- .action-container.open{
+.action-container.open {
   transform: translateX(0);
   opacity: 1;
   visibility: visible;
- }
+}
 
-.main-container.expanded .container-grid{
+.main-container.expanded .container-grid {
   width: calc(100% - 350px);
 }
 
@@ -162,7 +164,8 @@ body {
   height: 15vh;
 }
 
-.chat-container, .control-container,
+.chat-container,
+.control-container,
 .people-container {
   display: none;
   padding: 10px;
@@ -173,11 +176,11 @@ body {
   border-left: 1px solid #ddd;
 }
 
-.chat-container{
+.chat-container {
   -webkit-user-select: text;
   -moz-user-select: text;
-  -ms-user-select: text;     
-  user-select: text; 
+  -ms-user-select: text;
+  user-select: text;
 }
 
 .chat-header,
@@ -186,11 +189,15 @@ body {
   border-bottom: 1px solid #ddd;
 }
 
-.chat-body, .people-in-meeting, .requestors-in-meeting{
+.chat-body,
+.people-in-meeting,
+.requestors-in-meeting {
   overflow-y: auto;
 }
-.people-in-meeting, .requestors-in-meeting{
-  overflow-x:hidden;
+
+.people-in-meeting,
+.requestors-in-meeting {
+  overflow-x: hidden;
 }
 
 .chat-footer {
@@ -215,6 +222,15 @@ body {
   width: 100%;
   overflow-y: auto;
   white-space: pre-wrap;
+}
+
+#input-invite:focus-visible {
+  border: none;
+  outline: none;
+}
+
+i {
+  cursor: pointer;
 }
 
 .send-button {
@@ -244,28 +260,31 @@ p {
   box-shadow: 0 4px 15px 0 rgba(49, 196, 190, 0.75)
 }
 
-.wrapper{
+.wrapper {
   border: #cccccc 1px solid;
 }
+
 .wrapper .search-people:focus {
-  outline: none; 
+  outline: none;
 }
 
-.wrapper .search-people:focus ~ .bi,
-.wrapper:focus-within, .wrapper:active {
+.wrapper .search-people:focus~.bi,
+.wrapper:focus-within,
+.wrapper:active {
   border: #007BFF 1px solid;
 }
 
-.user-avatar{
+.user-avatar {
   width: 40px;
   height: 40px;
   border-radius: 20px;
   background-repeat: no-repeat;
   background-size: cover;
   object-fit: cover;
-  object-position: center; 
+  object-position: center;
 }
-.muted-mic{
+
+.muted-mic {
   width: 40px;
   height: 40px;
 }
@@ -278,6 +297,7 @@ p {
   background-color: #2370ff;
   border-radius: 20px;
 }
+
 .dot {
   width: 5px;
   height: 5px;
@@ -286,7 +306,7 @@ p {
   transition: height 0.1s;
 }
 
-.user-avatar-display{
+.user-avatar-display {
   width: 200px;
   height: 200px;
   border-radius: 50%;
@@ -296,19 +316,20 @@ p {
   object-position: center;
 }
 
-.contributor:hover{
+.contributor:hover {
   background-color: #d5d7d8;
   cursor: pointer;
 }
+
 .video-container {
-position: relative;
+  position: relative;
 }
 
 .name-display {
   position: absolute;
   bottom: 0;
   right: 0;
-  color: white; 
+  color: white;
   padding: 10px;
 }
 
@@ -322,4 +343,27 @@ position: relative;
   width: 100%;
   background: url('overlay-image.jpg') no-repeat center center;
   background-size: cover;
+}
+
+
+.invited-user {
+  width: 220px;
+  height: 30px;
+  margin-right: 5px;
+  margin-top: 2px;
+}
+
+.user-invited-content {
+  width: 200px;
+  height: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 1px;
+}
+
+.user-invited-avatar {
+  height: 28px;
+  width: 28px;
+  object-fit: contain;
 }

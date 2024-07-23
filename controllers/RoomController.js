@@ -1,4 +1,5 @@
 const WebSocket = require('ws');
+
 class RoomController {
 
     async index(req, res, next){
@@ -32,7 +33,7 @@ class RoomController {
         const ws_url = res.locals.ws_url;
         const ws = new WebSocket(ws_url);
         ws.onopen = () => {
-            ws.send(JSON.stringify({ action: 'create', roomId: roomId.toString().trim(), userId: user.id}));
+            ws.send(JSON.stringify({ action: 'create', roomId: roomId.toString().trim(), userId: user.id, email: user.userEmail}));
         }
         ws.onmessage = async (message) => {
             const data = JSON.parse(message.data);
@@ -68,7 +69,7 @@ class RoomController {
         const ws_url = res.locals.ws_url;
         const ws = new WebSocket(ws_url);
         ws.onopen = () => {
-            ws.send(JSON.stringify({ action: 'check-room-existed', roomId: roomId.toString().trim(), userId: res.locals.user.id }));
+            ws.send(JSON.stringify({ action: 'check-room-existed', roomId: roomId.toString().trim(), email: res.locals.user.userEmail }));
         }
         ws.onmessage = async (message) => {
             const data = JSON.parse(message.data);

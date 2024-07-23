@@ -40,21 +40,37 @@ class NotificationController {
         }
     }
     async saveSubscription(req, res, next){
-        const {userId, subscription} = req.body;
+        const {userEmail, subscription} = req.body;
+        if(!userEmail || !subscription){
+            res.status(500).json({ "status": "Error", "message": "All fields are required" });
+        }
+        const userData = await userService.getUserByEmail(userEmail);
+        if(!userData.status){
+            res.status(500).json({ "status": "Error", "message": userData.message });
+        }
         const newSub = new NotificationSub();
-        newSub.userId = userId;
+        newSub.userId = userData.data.id;
         newSub.subScription = subscription;
         newSub.createdAt = new Date();
         const subSavedResult = await notificationService.createNotificationSub(newSub);
         if(subSavedResult.status){
             return res.json({ status: "Success", message: "Subscription saved!" })
+        }else{
+            res.status(500).json({ "status": "Error", "message": subSavedResult.message });
         }
     }
 
     async getSubscription(req, res, next) {
         try {
-            const { endpoint, userId } = req.body;
-            const subsExisted = await notificationService.getNotificationSubByEndpointAndUserId(endpoint, userId);
+            const { endpoint, userEmail } = req.body;
+            if(!userEmail || !endpoint){
+                return res.status(500).json({ "status": "Error", "message": "All fields are required" });
+            }
+            const userData = await userService.getUserByEmail(userEmail);
+            if(!userData.status){
+                res.status(500).json({ "status": "Error", "message": userData.message });
+            }
+            const subsExisted = await notificationService.getNotificationSubByEndpointAndUserId(endpoint, userData.data.id);
     
             if (subsExisted.status) {
                 return res.json({ status: true, message: "Subscription existed!" });

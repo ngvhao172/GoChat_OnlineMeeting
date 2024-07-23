@@ -1,31 +1,111 @@
 const nodemailer = require('nodemailer');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
+const { getFirestore, collection, doc, getDoc, addDoc, updateDoc, deleteDoc, where, query, Timestamp, getDocs } = require('firebase/firestore');
+const { app } = require('../config/firebase');
+const db = getFirestore(app);
 const UserVerification = require('../models/UserVerification');
-const {mongooseToObject} = require('../utils/convertMongoose')
 
 class UserVerificationService {
-    async getUserVerificationByUserId(userId, type) {
-        return await UserVerification.findOne({ userId })
-            .then((result) => {
-                return { status: true, data: mongooseToObject(result) };
-            })
-            .catch((error) => {
-                return { status: false, message: "There was an error while finding user. " + error.message};
-            })
-    }
-    async delUserVerification(userID) {
+
+    async createUserVerification(userVerification) {
         try {
-            await UserVerification.deleteOne({ userId: userID });
-            return { status: true, message: "Deleted UserVerification successful." };
+            const userVerificationRef = await addDoc(collection(db, 'userverifications'), {
+                userId: userVerification.userId,
+                uniqueString: userVerification.uniqueString,
+                createdAt: Timestamp.fromDate(new Date(userVerification.createdAt)),
+                expiredAt: Timestamp.fromDate(new Date(userVerification.expiredAt))
+            });
+            userVerification.id = userVerificationRef.id;
+            console.log('UserVerification created:', userVerification);
+            return { status: true, data: userVerification };
         } catch (error) {
-            return { status: false, message: "There was an error while deleting the UserVerification." + error.message};
+            console.error('Error creating user verification:', error);
+            return { status: false, message: 'Error creating user verification', error };
+        }
+    }
+    async getUserVerificationByUserId(userId) {
+        try {
+            const userVerificationQuery = query(
+                collection(db, "userverifications"),
+                where("userId", "==", userId)
+            );
+            const querySnapshot = await getDocs(userVerificationQuery);
+    
+            if (querySnapshot.empty) {
+                console.log('UserVerification not found');
+                return { status: false, message: 'UserVerification not found' };
+            }
+            const docSnapshot = querySnapshot.docs[0]; 
+            const data = docSnapshot.data();
+
+            const userVerification = new UserVerification(
+                docSnapshot.id,
+                data.userId,
+                data.uniqueString,
+                data.createdAt.toDate(),
+                data.expiredAt.toDate()
+            );
+
+            return { status: true, data: userVerification };
+        } catch (error) {
+            console.error('Error getting user verification by user ID:', error);
+            return { status: false, message: 'Error getting user verification by user ID', error };
+        }
+    }
+    
+    async getUserVerificationById(id) {
+        try {
+            const userVerificationRef = doc(db, "userverifications", id);
+            const userVerificationSnap = await getDoc(userVerificationRef);
+
+            if (!userVerificationSnap.exists()) {
+                console.log('UserVerification not found');
+                return { status: false, message: 'UserVerification not found' };
+            }
+
+            const data = userVerificationSnap.data();
+            const userVerification = new UserVerification(
+                userVerificationSnap.id,
+                data.userId,
+                data.uniqueString,
+                data.createdAt.toDate(),
+                data.expiredAt.toDate()
+            );
+
+            return { status: true, data: userVerification };
+        } catch (error) {
+            console.error('Error getting user verification by ID:', error);
+            return { status: false, message: 'Error getting user verification by ID', error };
+        }
+    }
+    async updateUserVerification(id, updatedData) {
+        try {
+            const userVerificationRef = doc(db, "userverifications", id);
+            await updateDoc(userVerificationRef, {
+                ...updatedData,
+                updatedAt: Timestamp.fromDate(new Date())
+            });
+            return { status: true, message: 'UserVerification updated successfully' };
+        } catch (error) {
+            console.error('Error updating user verification:', error);
+            return { status: false, message: 'Error updating user verification', error };
+        }
+    }
+    async deleteUserVerification(id) {
+        try {
+            const userVerificationRef = doc(db, "userverifications", id);
+            await deleteDoc(userVerificationRef);
+            return { status: true, message: 'UserVerification deleted successfully' };
+        } catch (error) {
+            console.error('Error deleting user verification:', error);
+            return { status: false, message: 'Error deleting user verification', error };
         }
     }
 
     // sending mail register using nodemailer
-
-    sendVerificationEmail = async ({ _id, userEmail }) => {
+    
+    sendVerificationEmail = async ( _id, userEmail ) => {
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
@@ -41,25 +121,28 @@ class UserVerificationService {
             to: userEmail,
             subject: "Verify Your Email",
             html: `<p>Verify your email address to complete the signup and login into your account.</p>
-                  <p>Press <a href=${currentUrl + "/verify/" + _id + "/" + uniqueString}> here </a> to proceed. This link will expire after 1 minute.</p>`,
+                  <p>Press <a href=${currentUrl + "/verify/" + _id + "/" + uniqueString}> here </a> to proceed. This link will expire after 10 minute.</p>`,
         };
 
         try {
             const hasedUniqueString = await bcrypt.hash(uniqueString, 10);
 
-            const newUserVerification = new UserVerification({
-                userId: _id,
-                uniqueString: hasedUniqueString,
-                type: "Verification",
-                createdAt: Date.now(),
-                expiredAt: Date.now() + 60000, // 1 phút hết hạn
-            });
+            const newUserVerification = new UserVerification();
+            newUserVerification.userId = _id;
+            newUserVerification.uniqueString = hasedUniqueString;
+            newUserVerification.createdAt = Date.now();
+            newUserVerification.expiredAt = Date.now() + 600000;
 
-            await newUserVerification.save();
+            const newUserVeriSaved = await this.createUserVerification(newUserVerification);
+            console.log(newUserVeriSaved);
+            if(newUserVeriSaved.status){
+                const info = await transporter.sendMail(mailOptions);
+                console.log(`Verification mail has been sent to ${mailOptions.to}`);
+                return { status: true };
+            }else{
+                return { status: false, message: 'Error when sending user verification: ' +  newUserVeriSaved.message };
+            }
 
-            const info = await transporter.sendMail(mailOptions);
-            console.log(`Verification mail has been sent to ${mailOptions.to}`);
-            return { status: true };
         } catch (err) {
             console.error("An error occurred while sending email:", err.message);
             return {
@@ -79,7 +162,7 @@ class UserVerificationService {
                 pass: process.env.PASSWORD
             }
         });
-        const currentUrl = `http://localhost:${process.env.PORT}`;
+        const currentUrl = process.env.DOMAIN;
         const uniqueString = uuidv4() + _id;
 
         const mailOptions = {
@@ -89,6 +172,7 @@ class UserVerificationService {
             html: `<p>We've processed your password change request. If it is you who sent this request, click on the link below to change your password.</p>
             <p>Press <a href=${currentUrl + "/changepassword/" + _id + "/" + uniqueString}> here </a> to proceed. </p>`
         };
+        
 
         const userVerificationData = await this.getUserVerificationByUserId(_id, "ForgotPassword");
         if(!userVerificationData.status){

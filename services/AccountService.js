@@ -1,5 +1,5 @@
 const { app } = require('../config/firebase');
-const { getFirestore, collection, doc, getDocs, addDoc, updateDoc, deleteDoc, where, query, Timestamp } = require('firebase/firestore');
+const { getFirestore, collection, doc, getDocs, addDoc, updateDoc, deleteDoc, where, query, Timestamp, getDoc } = require('firebase/firestore');
 const db = getFirestore(app);
 
 const Account = require('../models/Account');
@@ -99,7 +99,6 @@ class AccountService {
             throw error;
         }
     }
-
     async deleteAccount(id) {
         try {
             await deleteDoc(doc(db, 'accounts', id));

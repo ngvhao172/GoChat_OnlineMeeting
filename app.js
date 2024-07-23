@@ -88,7 +88,9 @@ app.use('/', accessRouter);
 app.use(function (req, res, next) {
   // console.log(req.isAuthenticated());
   if (req.isAuthenticated()) {
+    const sessionUUID = req.session.userUUID;
     res.locals.user = req.user;
+    res.locals.user.id = sessionUUID;
     res.locals.ws_url = ws_url;
     res.locals.domain = domain;
     return next();
