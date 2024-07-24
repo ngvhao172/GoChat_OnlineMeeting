@@ -74,6 +74,9 @@ export async function addItem(id, name, avatar) {
     video.classList.add('default-border-class-video');
     video.id = id
     video.autoplay = true
+    if(id == "localVideo"){
+        video.muted = true
+    }
     video.playsInline = true
     item.appendChild(video)
 

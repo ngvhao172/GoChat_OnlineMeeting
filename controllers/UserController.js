@@ -13,7 +13,14 @@ class UserController {
 
     async updateProfile(req, res, next) {
         const { fullName, phoneNumber, address } = req.body;
-        const updateResult = await userService.updateUser(res.locals.user.id, { "fullName": fullName, "phoneNumber": phoneNumber ? phoneNumber : "", "address": address ? address : "" });
+        console.log(res.locals.user);
+        const userData = await userService.getUserByEmail(res.locals.user.userEmail);
+        if(!userData.status){
+            req.flash('type', 'danger');
+            req.flash('message', userData.message);
+            return res.render('profile');
+        }
+        const updateResult = await userService.updateUserById(userData.data.id, { "fullName": fullName, "phoneNumber": phoneNumber ? phoneNumber : "", "address": address ? address : "" });
         if (updateResult.status) {
             req.flash('type', 'success');
             req.flash('message', 'Update profile successfully');
@@ -35,7 +42,7 @@ class UserController {
                 console.error('Error parsing form:', err);
                 req.flash('type', 'danger');
                 req.flash('message', 'Error parsing form data.');
-                return res.render('profile');
+                return res.redirect('/profile');
             }
 
             const file = files.image && files.image[0];
@@ -43,12 +50,17 @@ class UserController {
             if (!file) {
                 req.flash('type', 'danger');
                 req.flash('message', "Avatar picker not found");
-                return res.render('profile');
+                return res.redirect('/profile');
             }
             try {
                 const fileBuffer = await fs.promises.readFile(file.path);
-
-                const updateAvatar = await userService.uploadImageAndUpdateProfile(res.locals.user.id, {
+                const userData = await userService.getUserByEmail(res.locals.user.userEmail);
+                if(!userData.status){
+                    req.flash('type', 'danger');
+                    req.flash('message', userData.message);
+                    return res.render('profile');
+                }
+                const updateAvatar = await userService.uploadImageAndUpdateProfile(userData.data.id, {
                     buffer: fileBuffer,
                     mimetype: file.headers['content-type']
                 });
@@ -61,12 +73,12 @@ class UserController {
                     req.flash('type', 'danger');
                     req.flash('message', updateAvatar.message);
                 }
-                return res.render('profile');
+                return res.redirect('/profile');
             } catch (error) {
                 console.error('Error processing file:', error);
                 req.flash('type', 'danger');
                 req.flash('message', 'An error occurred while updating the avatar.');
-                return res.render('profile');
+                return res.redirect('/profile');
             }
         });
     }
@@ -174,6 +186,7 @@ class UserController {
             return res.status(400).json(error.message);
         }
     }
+
 }
 
 module.exports = new UserController;

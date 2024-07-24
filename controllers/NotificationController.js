@@ -6,8 +6,8 @@ const webPush = require("web-push");
 class NotificationController {
     async sendNotification(req, res, next){
         const {from, to, roomId} = req.body;
-        if(!from || !to || !roomId){
-            return res.status(500).json({ "status": "Error", "message": "Invite must have from, to and roomId" });
+        if(!from || !to || !roomId || !from.trim() || !to.trim() || !roomId.trim()){
+            return res.status(400).json({ "status": "Error", "message": "Invite must have from, to and roomId" });
         }
         try {
             let fromUserAvatar;
@@ -41,12 +41,12 @@ class NotificationController {
     }
     async saveSubscription(req, res, next){
         const {userEmail, subscription} = req.body;
-        if(!userEmail || !subscription){
-            res.status(500).json({ "status": "Error", "message": "All fields are required" });
+        if(!userEmail || !userEmail.trim() || !subscription || !subscription.trim()){
+            return res.status(500).json({ "status": "Error", "message": "All fields are required" });
         }
         const userData = await userService.getUserByEmail(userEmail);
         if(!userData.status){
-            res.status(500).json({ "status": "Error", "message": userData.message });
+            return res.status(500).json({ "status": "Error", "message": userData.message });
         }
         const newSub = new NotificationSub();
         newSub.userId = userData.data.id;
@@ -63,8 +63,8 @@ class NotificationController {
     async getSubscription(req, res, next) {
         try {
             const { endpoint, userEmail } = req.body;
-            if(!userEmail || !endpoint){
-                return res.status(500).json({ "status": "Error", "message": "All fields are required" });
+            if(!userEmail || !userEmail.trim() || !endpoint || !endpoint.trim()){
+                return res.status(400).json({ "status": "Error", "message": "All fields are required" });
             }
             const userData = await userService.getUserByEmail(userEmail);
             if(!userData.status){
@@ -81,6 +81,25 @@ class NotificationController {
             console.error('Error in getSubscription:', error);
             return res.status(500).json({ status: false, message: 'Internal server error', error });
         }
+    }
+
+    async sendInviteEmail(req, res, next){
+        const {roomId, to} = req.body;
+        if(!roomId || !roomId.trim() || !to || !to.trim()){
+            return res.status(400).json({ "status": "Error", "message": "All fields are required" });
+        }
+        try {
+            const invited = await notificationService.sendInviteEmail(to, roomId);
+            if(invited.status){
+                return res.json({ status: true, message: "Email Invitation sent!" });
+            }
+            else{
+                return res.status(500).json({ status: false, message: invited.message });
+            }
+        } catch (error) {
+            return res.status(500).json({ status: false, message: 'Error when sending email invitation', error });
+        }
+
     }
     
 }

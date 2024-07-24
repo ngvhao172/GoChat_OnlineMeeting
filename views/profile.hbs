@@ -182,13 +182,13 @@
                         <div class="card-body ">
                             <h3>Change Password</h3>
                             <p>Protect your account</p>
-                            <form action="">
+                            <form action="/changePassword" method="post">
                                 <div class="row mb-3">
                                     <div class="col-sm-3">
-                                        <h6 class="mb-0">Password</h6>
+                                        <h6 class="mb-0">Current Password</h6>
                                     </div>
                                     <div class="col-sm-9 text-secondary position-relative">
-                                        <input type="password" class="form-control" id="passwordInput" value=""
+                                        <input type="password" name="currentPassword" class="form-control" id="passwordInput" value=""
                                             required>
                                         <i class="bi bi-eye-slash position-absolute" id="togglePassword"
                                             onclick="togglePasswordVisibility('passwordInput', 'togglePassword')"></i>
@@ -201,7 +201,7 @@
                                         <h6 class="mb-0">New Password</h6>
                                     </div>
                                     <div class="col-sm-9 text-secondary position-relative">
-                                        <input type="password" class="form-control" id="newPasswordInput" value=""
+                                        <input type="password" name="newPassword" class="form-control" id="newPasswordInput" value=""
                                             pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
                                             title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters"
                                             required>
@@ -221,7 +221,7 @@
                                         <h6 class="mb-0">Confirm New Password</h6>
                                     </div>
                                     <div class="col-sm-9 text-secondary position-relative">
-                                        <input type="password" class="form-control" id="confirmPasswordInput" value="">
+                                        <input type="password" name="cfPassword" class="form-control" id="confirmPasswordInput" value="">
                                         <i class="bi bi-eye-slash position-absolute" id="toggleConfirmPassword"
                                             onclick="togglePasswordVisibility('confirmPasswordInput', 'toggleConfirmPassword')"></i>
                                     </div>

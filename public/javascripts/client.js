@@ -414,11 +414,13 @@ let isCallbackCalled = false;
 // }
 async function getLocalStream() {
     try {
-        let audioConstraints = localStorage.getItem("audioConstraints");
-        let videoConstraints = localStorage.getItem("videoConstraints");
-
-        let audioStreamPromise = navigator.mediaDevices.getUserMedia({ audio: audioConstraints ? JSON.parse(audioConstraints) : true });
-        let videoStreamPromise = navigator.mediaDevices.getUserMedia({ video: videoConstraints ? JSON.parse(videoConstraints) : true });
+        let audioStreamPromise = navigator.mediaDevices.getUserMedia({ audio: false });
+        // let audioStreamPromise = navigator.mediaDevices.getUserMedia({ audio: {
+        //     echoCancellation: true,
+        //     noiseSuppression: true,
+        //     sampleRate: 44100
+        // } });
+        let videoStreamPromise = navigator.mediaDevices.getUserMedia({ video: false });
 
         let audioStream = null;
         let videoStream = null;
@@ -439,49 +441,6 @@ async function getLocalStream() {
             $("#warningToast").toast("show");
         }
 
-        // Create a combined stream if both streams are available
-        const combinedStream = new MediaStream();
-        if (audioStream) {
-            audioStream.getAudioTracks().forEach(track => combinedStream.addTrack(track));
-        }
-        if (videoStream) {
-            videoStream.getVideoTracks().forEach(track => combinedStream.addTrack(track));
-        }
-
-        window.localStream = combinedStream;
-        localVideo.srcObject = combinedStream;
-
-        const videoTrack = videoStream ? videoStream.getVideoTracks()[0] : null;
-        const audioTrack = audioStream ? audioStream.getAudioTracks()[0] : null;
-
-        audioParams = {
-            track: audioTrack,
-            ...audioParams
-        };
-
-        videoParams = {
-            track: videoTrack,
-            ...videoParams
-        };
-
-        if (videoTrack) {
-            addTrackToVideoElement(videoTrack, "localVideo");
-            let videoSettings = videoTrack.getSettings();
-            const videoDeviceId = videoSettings.deviceId;
-            videoConstraints = { deviceId: { exact: videoDeviceId } };
-            localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints));
-        }
-
-        if (audioTrack) {
-            addTrackToVideoElement(audioTrack, "localVideo");
-            let audioSettings = audioTrack.getSettings();
-            const audioDeviceId = audioSettings.deviceId;
-            audioConstraints = { deviceId: { exact: audioDeviceId } };
-            localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints));
-        }
-
-        console.log("GET LOCAL STREAM");
-
     } catch (error) {
         // Handle errors
         $("#warningToastText").text('ERROR GETTING LOCAL STREAM: ' + error + ", PROGRAM MIGHT BE BUGGED.");
@@ -489,32 +448,6 @@ async function getLocalStream() {
         console.error('Error getting local stream:', error);
     }
 }
-
-
-
-
-async function getVideoTrackReplace() {
-    let videoConstraints = localStorage.getItem("videoConstraints");
-    let constraints = { video: true };
-    if (videoConstraints) {
-        constraints.video = JSON.parse(videoConstraints)
-    }
-
-    let stream = await navigator.mediaDevices.getUserMedia(constraints);
-    let videoTrack = stream.getVideoTracks()[0];
-    return videoTrack;
-}
-
-
-// async function initializeLocalStream() {
-//     try {
-//         await getLocalStream();
-//         console.log("GET LOCAL STREAM");
-//     } catch (error) {
-//         alert('Error getting local stream:', error)
-//         console.error('Error getting local stream:', error);
-//     }
-// }
 
 ws.onopen = async () => {
     try {
@@ -544,8 +477,6 @@ ws.onmessage = async (event) => {
         case 'leave':
             console.log("LEAVE: ", data);
             updateUserList({ users: data.users, idUserLeft: data.userLeftId });
-
-            updateUIVideo(data.userLeftId, data.username);
 
             notifyUserLeft(data.username, false);
 
@@ -2233,6 +2164,8 @@ $("#inviteButton").on("click", function (){
 function sendInvites(){
     invitedUsers.forEach(email => {
         sendInvite(roomId, user.userEmail, email);
+
+
     });
     $("#inviteToast").toast("show");
     invitedUsers.forEach(email => {
@@ -2241,28 +2174,47 @@ function sendInvites(){
     $("#input-invite").val("");
 }
 function sendInvite(roomId, from, to) {
-    $.ajax({
-        url: '/sendNotification',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({
-            roomId: roomId,
-            from: from,
-            to: to
-        }),
-        success: function (response) {
-            ws.send(JSON.stringify({
-                action: "inviteUser",
-                userEmailInvited: to,
+    try {
+        $.ajax({
+            url: '/sendNotification',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
                 roomId: roomId,
-                id: user.id
-            }));
-            console.log('Send success:', response);
-        },
-        error: function (xhr, status, error) {
-            console.error('Send error:', xhr.responseText);
-        }
-    });
+                from: from,
+                to: to
+            }),
+            success: function (response) {
+                ws.send(JSON.stringify({
+                    action: "inviteUser",
+                    userEmailInvited: to,
+                    roomId: roomId,
+                    id: user.id
+                }));
+                console.log('Send notification success:', response);
+            },
+            error: function (xhr, status, error) {
+                console.error('Send error:', xhr.responseText);
+            }
+        });
+        $.ajax({
+            url: '/sendInviteEmail',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                roomId: roomId,
+                to: to
+            }),
+            success: function (response) {
+                console.log('Send Email Invitation success:', response);
+            },
+            error: function (xhr, status, error) {
+                console.error('Send error:', xhr.responseText);
+            }
+        });
+    } catch (error) {
+        console.log("Error when sending invitation: ", error)
+    }
 }
 function getUserByContainingEmail(){
     let email = $("#input-invite").val();

@@ -208,11 +208,12 @@
                         <button class="btn btn-lg w-100 fs-6 btn-primary mt-2 mb-3" type="submit"
                             style=" color: white">Register</button>
                     </form>
-                    <button class="btn btn-lg btn-light w-100 fs-6 mb-3"><img src="images/google.png"
-                            style="width:20px" class="me-2"><small> Sign Up with Google</small></button>
-                    <small>Already have an account? <a class="links" href="/login" id="loginLink">Sign In</a>
-                    </small>
+                    <form action="/auth/google" method="get">
+                        <button class="btn btn-lg btn-light w-100 fs-6 mb-3"><img src="images/google.png"
+                                style="width:20px" class="me-2"><small> Sign Up with Google</small></button>
                     </form>
+                                <small>Already have an account? <a class="links" href="/login" id="loginLink">Sign In</a>
+                        </small>
                 </div>
 
             </div>

@@ -115,13 +115,13 @@ class UserVerificationService {
         });
         const currentUrl = process.env.DOMAIN;
         const uniqueString = uuidv4() + _id;
-
+        const footer = "<br/><br/><hr/><p>Best regards,<br/>GoChat - Online Meeting<br/>Address: District 7, Ho Chi Minh City, Vietnam<br/>Email: gochat.onlinemeeting@gmail.com</p>";
         const mailOptions = {
             from: process.env.AUTH_EMAIL,
             to: userEmail,
-            subject: "Verify Your Email",
+            subject: "[GoChat] Verify Your Email",
             html: `<p>Verify your email address to complete the signup and login into your account.</p>
-                  <p>Press <a href=${currentUrl + "/verify/" + _id + "/" + uniqueString}> here </a> to proceed. This link will expire after 10 minute.</p>`,
+                  <p>Press <a href=${currentUrl + "/verify/" + _id + "/" + uniqueString}> here </a> to proceed. This link will expire after 10 minute.</p>` + footer,
         };
 
         try {
@@ -151,59 +151,6 @@ class UserVerificationService {
             };
         }
     };
-
-
-    //sending mail resetpassword using nodemailer
-    sendCodeResetPassword = async ({ _id, userEmail }) => {
-        const transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-                user: process.env.AUTH_EMAIL,
-                pass: process.env.PASSWORD
-            }
-        });
-        const currentUrl = process.env.DOMAIN;
-        const uniqueString = uuidv4() + _id;
-
-        const mailOptions = {
-            from: process.env.AUTH_EMAIL,
-            to: userEmail,
-            subject: "Reset Your Password",
-            html: `<p>We've processed your password change request. If it is you who sent this request, click on the link below to change your password.</p>
-            <p>Press <a href=${currentUrl + "/changepassword/" + _id + "/" + uniqueString}> here </a> to proceed. </p>`
-        };
-        
-
-        const userVerificationData = await this.getUserVerificationByUserId(_id, "ForgotPassword");
-        if(!userVerificationData.status){
-            return { status: false, message: "An error occurred while fetching UserVerification." + error.message };
-        }
-        const userVerification = userVerificationData.data;
-        if (!userVerification) {
-            try {
-                const hashedUniqueString = await bcrypt.hash(uniqueString, 10);
-                const newUserVerification = new UserVerification({
-                    userId: _id,
-                    uniqueString: hashedUniqueString,
-                    type: "ForgotPassword",
-                    createdAt: Date.now(),
-                    expiredAt: Date.now() + 21600000 // 6 tiếng
-                });
-
-                await newUserVerification.save();
-                await transporter.sendMail(mailOptions);
-                console.log(`Password request mail has been sent to ${mailOptions.to}`);
-
-                return { status: true };
-            } catch (error) {
-                console.error(error);
-                return { status: false, message: "An error occurred while processing the request." + error.message };
-            }
-        } else {
-            return { status: false, message: "You have sent a request before. Please check your email address." };
-        }
-    }
-
 }
 
 

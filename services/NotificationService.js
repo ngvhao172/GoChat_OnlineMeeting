@@ -1,10 +1,9 @@
 const { app } = require('../config/firebase');
-
 const NotificationSub = require("../models/NotificationSub");
-
 const { getFirestore, collection, doc, getDoc, addDoc, updateDoc, deleteDoc, where, query, Timestamp, getDocs } = require('firebase/firestore');
-
 const db = getFirestore(app);
+
+const nodemailer = require('nodemailer');
 
 class NotificationSubService {
     async createNotificationSub(notificationSub) {
@@ -143,6 +142,38 @@ class NotificationSubService {
             return { status: false, message: 'Error listing notification subscriptions', error };
         }
     }
+
+    sendInviteEmail = async ( userEmail, roomId ) => {
+        const transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: process.env.AUTH_EMAIL,
+                pass: process.env.PASSWORD,
+            },
+        });
+        const currentUrl = process.env.DOMAIN;
+        const footer = "<br/><br/><hr/><p>Best regards,<br/>GoChat - Online Meeting<br/>Address: District 7, Ho Chi Minh City, Vietnam<br/>Email: gochat.onlinemeeting@gmail.com</p>";
+        const mailOptions = {
+            from: process.env.AUTH_EMAIL,
+            to: userEmail,
+            subject: "[GoChat] Meeting Invitation",
+            html: `<p>You are inviting to a meeting.</p>
+                <p>Room code: ${roomId} </p>
+                <p>Press <a href=${currentUrl + "/" + roomId }> here </a> to join.</p>` + footer,
+        };
+        try {
+            const info = await transporter.sendMail(mailOptions);
+            console.log(`Verification mail has been sent to ${mailOptions.to}`);
+            return { status: true };
+
+        } catch (err) {
+            console.error("An error occurred while sending email:", err.message);
+            return {
+                status: false,
+                message: err.message,
+            };
+        }
+    };
 }
 
 module.exports = new NotificationSubService;

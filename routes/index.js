@@ -6,6 +6,8 @@ const roomController = require('../controllers/RoomController');
 const userController = require('../controllers/UserController');
 
 const notificationController = require('../controllers/NotificationController');
+const AccountService = require('../services/AccountService');
+const accountController = require('../controllers/AccountController');
 
 router.post('/createMeeting', roomController.createRoom);
 
@@ -21,9 +23,13 @@ router.post('/sendNotification', notificationController.sendNotification);
 
 router.post('/getSubscription', notificationController.getSubscription)
 
+router.post('/sendInviteEmail', notificationController.sendInviteEmail)
+
 router.post('/getUserByContainingEmail', userController.getUserByContainingEmail);
 
 router.post('/deleteUsers', userController.deleteUserByUserEmail);
+
+router.post('/changePassword', accountController.changePassword)
 
 router.get('/notfound', roomController.notfound)
 

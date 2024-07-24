@@ -61,7 +61,7 @@ class AuthController {
                 req.flash('message', 'Password do not match.');
                 return res.redirect('/signup');
             }
-            if(!fullname || !email || !password || !cfpassword){
+            if(!fullname || !email || !password || !cfpassword || !fullname.trim() || !email.trim() || !password.trim() || !cfpassword.trim()){
                 req.flash('type', 'danger');
                 req.flash('message', 'All fields are required.');
                 return res.redirect('/signup');
@@ -132,6 +132,75 @@ class AuthController {
             req.flash('message', error.message);
             //return res.status(400).send("FAILED!");
             return res.redirect("/signup");
+        }
+    }
+
+    generatePassword() {
+        const upperCaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const lowerCaseChars = 'abcdefghijklmnopqrstuvwxyz';
+        const numbers = '0123456789';
+        const specialChars = '!@#$%^&*()_+~`|}{[]:;?><,./-=';
+        
+        const allChars = upperCaseChars + lowerCaseChars + numbers + specialChars;
+        
+        let password = '';
+      
+       
+        password += upperCaseChars.charAt(Math.floor(Math.random() * upperCaseChars.length));
+        password += lowerCaseChars.charAt(Math.floor(Math.random() * lowerCaseChars.length));
+        password += numbers.charAt(Math.floor(Math.random() * numbers.length));
+        password += specialChars.charAt(Math.floor(Math.random() * specialChars.length));
+      
+        for (let i = password.length; i < 8; i++) {
+          password += allChars.charAt(Math.floor(Math.random() * allChars.length));
+        }
+        password = password.split('').sort(() => 0.5 - Math.random()).join('');
+      
+        return password;
+      }
+
+    async forgotpasswordGET(req, res, next){
+        return res.render("forgotpassword")
+    }
+
+    forgotpasswordPOST = async (req, res, next) => {
+        try {
+            const {email} = req.body;
+            if(!email || !email.trim()){
+                req.flash('type', 'danger');
+                req.flash('message', "Email is required");
+                return res.redirect('/forgotpassword');
+            }
+            const userAccountData = await accountService.getAccountByEmail(email);
+            if(!userAccountData.status){
+                req.flash('type', 'danger');
+                req.flash('message', userAccountData.message);
+                return res.redirect('/forgotpassword');
+            }
+            const account = userAccountData.data;
+            const newPassword = this.generatePassword();
+            const hasedPassword = await bcrypt.hash(newPassword, 10);
+            const updatePassword = await accountService.updateAccount(account.id, {password: hasedPassword});
+            if(updatePassword.status){
+                const sendResult = await accountService.sendResetPassword(email, newPassword);
+                if(sendResult.status){
+                    req.flash('type', 'success');
+                    req.flash('message', "New password has been sent to your email.");
+                    return res.redirect('/forgotpassword');
+                }
+                else{
+                    req.flash('type', 'danger');
+                    req.flash('message', sendResult.message);
+                    return res.redirect('/forgotpassword');
+                }
+            }
+            else{
+                req.flash('type', 'danger');
+                req.flash('message', "Error when reset your password: " + updatePassword.message);
+                return res.redirect('/forgotpassword');
+            }
+        } catch (error) {
+            console.log(error)
         }
     }
 }

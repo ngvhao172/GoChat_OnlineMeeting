@@ -17,6 +17,10 @@ router.get('/signup', authController.signupGET)
 
 router.post('/signup', authController.signupPOST)
 
+router.get('/forgotpassword', authController.forgotpasswordGET)
+
+router.post('/forgotPassword', authController.forgotpasswordPOST);
+
 //router.post('/getUserByContainingEmail', userController.getUserByContainingEmail);
 
 router.get('/auth/google', passport.authenticate('google', { scope: [ 'email', 'profile' ] }) );

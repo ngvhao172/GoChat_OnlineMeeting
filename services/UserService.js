@@ -39,7 +39,7 @@ const User = require('../models/User');
         
                 if (!userSnap.exists()) {
                     console.log('User not found');
-                    return { status: false, message: "Không tìm thấy người dùng với id: " + id };
+                    return { status: false, message: "No user found with id: " + id };
                 }
         
                 const userData = userSnap.data();
@@ -67,7 +67,7 @@ const User = require('../models/User');
         
                 if (querySnapshot.empty) {
                     console.log('User not found');
-                    return { status: false, message: "Không tìm thấy người dùng với email: " + email };
+                    return { status: false, message: "No user found with email: " + email };
                 }
         
                 const userDoc = querySnapshot.docs[0];
@@ -120,7 +120,7 @@ const User = require('../models/User');
           }
         
     
-    async updateUser(id, newData) {
+    async updateUserById(id, newData) {
         try {
             const userRef = doc(db, 'users', id.trim());
             await updateDoc(userRef, newData);

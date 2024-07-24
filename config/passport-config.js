@@ -7,6 +7,9 @@ const userVerificationService = require("../services/UserVerificationService");
 //Login passport 
 function initialize(passport) {
     const authenticateUsers = async (email, password, done) => {
+        if(!email || !password || !email.trim() || !password.trim()){
+            return done(null, false, { message: "All fields are required" }); 
+        }
         email = email.trim();
         password = password.trim();
         const result = await accountService.getAccountByEmail(email);
