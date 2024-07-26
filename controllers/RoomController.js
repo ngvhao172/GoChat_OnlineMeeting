@@ -1,4 +1,8 @@
 const WebSocket = require('ws');
+const moment = require('moment-timezone');
+const roomService = require("../services/RoomService");
+const Room = require('../models/Room');
+const userService = require('../services/UserService');
 
 class RoomController {
 
@@ -43,8 +47,28 @@ class RoomController {
                 switch (data.action) {
                     case 'created':
                         if (data.status) {
-                            req.flash("created", true);
-                            return res.redirect(data.roomId);
+                            //save room to dtb
+                            //
+                            try {
+                                let date = moment.utc(new Date()).tz('Asia/Ho_Chi_Minh').format();
+                                const userData = await userService.getUserByEmail(user.userEmail)
+                                if(userData.status){
+                                    const newRoom = new Room();
+                                    newRoom.roomId = roomId;
+                                    newRoom.createdAt = date;
+                                    newRoom.startAt = date;
+                                    newRoom.roomName = user.fullName + "'s Meeting";
+                                    newRoom.creatorId = userData.data.id;
+                                    newRoom.specificDates = [moment.utc(new Date()).tz('Asia/Ho_Chi_Minh').format("YYYY-MM-DD")]
+                                    console.log(newRoom)
+                                    const savedRoom = await roomService.createRoom(newRoom);
+                                    console.log(savedRoom);
+                                }
+                                req.flash("created", true);
+                                return res.redirect(data.roomId);   
+                            } catch (error) {
+                                console.log(error);
+                            }
                         }
                         else {
                             // console.log(data.message);
@@ -86,16 +110,14 @@ class RoomController {
                             // console.log("Room found");
                             const isRoomNewCreated = req.flash('created');
                             const isPrejoined =  req.flash("prejoin");
-                            const isCompanionMode =  req.flash("companionMode");
                             console.log("IS PREJOIN", isPrejoined);
-                            const isOwner = (data.ownerId == res.locals.user.id)
+                            const isOwner = (data.ownerId == res.locals.user.id);
+                            if(data.isBlocked){
+                                return res.render('prejoin', { isBlocked: true});
+                            }
                             if(isRoomNewCreated && isRoomNewCreated[0] == true || isPrejoined && isPrejoined[0] == true){
                                 console.log("VO DAY CHU MAy?")
                                 if(data.isApproved){
-                                    console.log(isCompanionMode,  isCompanionMode[0]==true)
-                                    if(isCompanionMode && isCompanionMode[0]==true){
-                                        return res.render('companion', {roomId: roomId, isOwner, isCompanionMode: true})
-                                    }
                                     return res.render('index', {roomId: roomId, isOwner});
                                 }
                                 else{
@@ -151,6 +173,23 @@ class RoomController {
 
     async notfound(req, res, next){
         return res.render("notfound");
+    }
+
+    async getRoomsByDay(req, res, next){
+        try {
+            const { day } = req.body;
+            const userData = await userService.getUserByEmail('ngvhao172@gmail.com');
+            if(userData.status){
+                console.log(day);
+                const rooms = await roomService.getRoomsByCreatorIdAndWeekDay(day, userData.data.id);
+                if(rooms.status){
+                    return res.json(rooms.data);
+                }
+                return res.status(400).json(rooms.message);
+            }
+        } catch (error) {
+            return res.status(500).json("error:" + error);
+        }
     }
 
 }

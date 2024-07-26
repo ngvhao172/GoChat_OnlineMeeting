@@ -280,9 +280,13 @@
                             <span class="position-absolute top-0 righ-0 text-white fw-bold"
                                 style="font-size: smaller;" id="contributors-text-show">1</span>
                         </button>
-                        <button id="chatButton" class="buttons buttonsAction border-0" data-bs-toggle="tooltip"
+                        <button id="chatButton" class="buttons buttonsAction border-0 position-relative" data-bs-toggle="tooltip"
                             data-bs-placement="top" title="Chat"><i
-                                class="bi bi-chat-left-dots text-white fs-5"></i></button>
+                                class="bi bi-chat-left-dots text-white fs-5">
+                                </i>
+                            <span class="new-noti position-absolute top-0 righ-0 text-white fw-bold d-none"
+                                style="font-size: smaller;" id="new-message"></span>
+                            </button>
 
                         {{#ifEqual isOwner true}}  
                             <button id="controlButton" class="buttons buttonsAction border-0 me-4" data-bs-toggle="tooltip"
@@ -330,7 +334,7 @@
     </div>
     <div class="toast-container position-fixed bottom-0 end-0 pb-5 ps-3 mb-5 z-3">
         <div id="inviteToast" class="toast text-bg-success" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-body fw-bold" id="toast-body">
+            <div class="toast-body fw-bold" id="toast-body-invite">
                 Invite sent!
             </div>
         </div>
@@ -354,6 +358,14 @@
         <div id="warningToast" class="toast text-bg-warning" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-body text-white fw-bold" id="warningToastBody">
                 <i class="bi bi-exclamation-circle"></i> <span id="warningToastText">DEVICE ALREADY IN USE OR ACCESS DENIED. PROGRAM MIGHT BE BUGGED. TRY USING AN AVAILABLE DEVICE.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 pb-5 ps-3 mb-5 z-3">
+        <div id="removeToast" class="toast text-bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-body text-white fw-bold" id="removeToastBody">
+                <i class="bi bi-exclamation-circle"></i> <span id="removeToastText">YOU ARE BEING REMOVED FROM THIS MEETING AFTER <span id="secondRemovingText">3</span> SECONDS</span>
             </div>
         </div>
     </div>
@@ -396,7 +408,7 @@
         <div class="modal-content" style="min-height: 500px;">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Settings</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" id="closeSettingModalButton" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="container">
@@ -555,5 +567,32 @@
   </div>
 </div>
 {{/ifEqual}} 
+
+
+
+<!-- Remove Modal -->
+<div class="modal fade" id="blockUserModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Remove this user from meeting.</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+            <ul class="list-group">
+                <label class="list-group-item">
+                    <input class="form-check-input me-1" type="checkbox" value="" aria-label="..." id="blockUserInput">
+                        Block this user
+                </label>
+            </ul>
+      </div>
+      <input type="hidden" id="removeUserId">
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="removeUserButton">DO IT</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 </html>

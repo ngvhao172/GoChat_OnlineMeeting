@@ -1,4 +1,4 @@
-import { resizeVideo, addItem, updateUserList, getCurrentTime, resizeSharing, updateDots, stopDots, showDots, moveDivToPosition, moveDivToPositionWhenSpeaking, filterUsersByName, updateRequestorListUI, removeRequestorUi } from "./index.js";
+import { resizeVideo, addItem, getCurrentTime, resizeSharing, updateDots, stopDots, showDots, moveDivToPosition, moveDivToPositionWhenSpeaking, filterUsersByName, updateRequestorListUI, removeRequestorUi, moveDivToPositionGlobal } from "./index.js";
 
 import hark from "hark";
 
@@ -160,6 +160,7 @@ function updateUIVideo(userLeftId, username) {
 }
 
 function notifyUserLeft(username, isSharing) {
+    console.log(username);
     const toastBody = $("#toast-body");
     if (isSharing) {
         if (isSharing == true) {
@@ -202,6 +203,92 @@ function declineRequest(email){
     removeRequestorUi(email);
 }
 
+
+function removeUserFromMeeting(userId, isBlock){
+    console.log(userId, isBlock);
+    if(!userId || !userId.trim()){
+       return;
+    }
+    else{
+        ws.send(JSON.stringify({action: "removeUserFromMeeting", userId: id, roomId: roomId, userRemoveId: userId, isBlock: isBlock }))
+    }
+}
+
+$("#removeUserButton").on("click", function (){
+    let removeUserId = $("#removeUserId").val();
+    if(!removeUserId || !removeUserId.trim()){
+        return;
+    }
+    else{
+        let blockOption = $('#blockUserInput');
+        console.log(blockOption);
+        removeUserFromMeeting(removeUserId, blockOption.prop('checked'));
+    }
+});
+
+function muteUser(userId){
+    ws.send(JSON.stringify({action: "muteUser", userId: id, roomId: roomId, mutedUserId: userId}));
+}
+
+function updateUserList({users, clientId, filter, idUserLeft, ownerId}) {
+    const userListContainer = $("#userslist");
+    if(idUserLeft){
+        let userLeft = document.getElementById(`contributor-${idUserLeft}`);
+        if(userLeft){
+            userLeft.remove();
+            return;
+        }
+
+    }
+    users.forEach(user => {
+        let existedUser = document.getElementById(`contributor-${user.id}`);
+
+        if (!existedUser) {
+            const userDiv = `
+                <div class="row d-flex align-items-center pt-2 pb-2 contributor-showing" data-name="${user.name}" id="contributor-${user.id}">
+                    <div class="col-2 avatar"><img class="user-avatar" src="${user.avatar ? user.avatar: '/images/GoLogoNBg.png'}" alt="" srcset=""></div>
+                    <div class="col-6 p-0 fs-6 ps-2"><span>${user.name}${user.id === clientId ? ' (You) ' : '' } ${user.id === ownerId ? "<span class='fw-bold fs-6'>(Host)</span>" : ''}</span></div>
+                    <div class="col-2 text-center d-none mutedMic${user.id === clientId ? 'localVideo' : user.id}"><i class="bi bi-mic-mute"></i></div>
+                    <div class="col-2 text-center d-none micActive${user.id === clientId ? 'localVideo' : user.id}">
+                        <div class="mic-container muted-mic text-white fs-5 rounded-circle d-flex align-items-center justify-content-center">
+                            <div class="dot rounded-pill"></div>
+                            <div class="dot rounded-pill"></div>
+                            <div class="dot rounded-pill"></div>
+                        </div>
+                    </div>
+                    ${clientId == ownerId && user.id!=clientId?
+                    `<div class="ms-auto text-center col-2 p-0 dropstart">
+                        <button class="buttonOptions" id="dropdownMenuButton${user.id}" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-three-dots-vertical fs-5"></i>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton${user.id}" style="min-width:max-content; max-width:max-content">
+                            <li><a class="dropdown-item mute-button" id="mutedButton${user.id}" data-id=${user.id}>Mute</a></li>
+                            <li><a class="dropdown-item remove-button" data-id=${user.id} data-bs-toggle="modal" data-bs-target="#blockUserModal">Remove</a></li>
+                        </ul>
+                    </div>` : ''}
+                </div>
+            `;
+            userListContainer.append(userDiv);
+            if(user.id == clientId){
+                moveDivToPositionGlobal(`contributor-${user.id}`,0);
+            }
+        }
+    });
+    $(".mute-button").on("click", function() {
+        const targetId = $(this).data("id");
+        muteUser(targetId);
+    });
+
+    $(".remove-button").on("click", function() {
+        const targetId = $(this).data("id");
+        $('#removeUserId').val(targetId);
+    });
+
+
+    $("#contributors-number").text(users.length);
+    $("#contributors-text-show").text(users.length);
+}
+
 let requestorIds = [];
 
 function updateRequestorsList(requestingUsers){
@@ -225,7 +312,7 @@ function updateRequestorsList(requestingUsers){
 
             requestorIds.push(requestor.email);
         })
-         $(".accept-button").on("click", function() {
+        $(".accept-button").on("click", function() {
             const requestorId = $(this).data("id");
             acceptRequest(requestorId);
         });
@@ -414,13 +501,11 @@ let isCallbackCalled = false;
 // }
 async function getLocalStream() {
     try {
-        let audioStreamPromise = navigator.mediaDevices.getUserMedia({ audio: false });
-        // let audioStreamPromise = navigator.mediaDevices.getUserMedia({ audio: {
-        //     echoCancellation: true,
-        //     noiseSuppression: true,
-        //     sampleRate: 44100
-        // } });
-        let videoStreamPromise = navigator.mediaDevices.getUserMedia({ video: false });
+        let audioConstraints = localStorage.getItem("audioConstraints");
+        let videoConstraints = localStorage.getItem("videoConstraints");
+
+        let audioStreamPromise = navigator.mediaDevices.getUserMedia({ audio: audioConstraints ? JSON.parse(audioConstraints) : true });
+        let videoStreamPromise = navigator.mediaDevices.getUserMedia({ video: videoConstraints ? JSON.parse(videoConstraints) : true });
 
         let audioStream = null;
         let videoStream = null;
@@ -441,6 +526,49 @@ async function getLocalStream() {
             $("#warningToast").toast("show");
         }
 
+        // Create a combined stream if both streams are available
+        const combinedStream = new MediaStream();
+        if (audioStream) {
+            audioStream.getAudioTracks().forEach(track => combinedStream.addTrack(track));
+        }
+        if (videoStream) {
+            videoStream.getVideoTracks().forEach(track => combinedStream.addTrack(track));
+        }
+
+        window.localStream = combinedStream;
+        localVideo.srcObject = combinedStream;
+
+        const videoTrack = videoStream ? videoStream.getVideoTracks()[0] : null;
+        const audioTrack = audioStream ? audioStream.getAudioTracks()[0] : null;
+
+        audioParams = {
+            track: audioTrack,
+            ...audioParams
+        };
+
+        videoParams = {
+            track: videoTrack,
+            ...videoParams
+        };
+
+        if (videoTrack) {
+            addTrackToVideoElement(videoTrack, "localVideo");
+            let videoSettings = videoTrack.getSettings();
+            const videoDeviceId = videoSettings.deviceId;
+            videoConstraints = { deviceId: { exact: videoDeviceId } };
+            localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints));
+        }
+
+        if (audioTrack) {
+            addTrackToVideoElement(audioTrack, "localVideo");
+            let audioSettings = audioTrack.getSettings();
+            const audioDeviceId = audioSettings.deviceId;
+            audioConstraints = { deviceId: { exact: audioDeviceId } };
+            localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints));
+        }
+
+        console.log("GET LOCAL STREAM");
+
     } catch (error) {
         // Handle errors
         $("#warningToastText").text('ERROR GETTING LOCAL STREAM: ' + error + ", PROGRAM MIGHT BE BUGGED.");
@@ -448,6 +576,46 @@ async function getLocalStream() {
         console.error('Error getting local stream:', error);
     }
 }
+
+
+
+
+async function getVideoTrackReplace() {
+    let videoConstraints = localStorage.getItem("videoConstraints");
+    let constraints = { video: true };
+    if (videoConstraints) {
+        constraints.video = JSON.parse(videoConstraints)
+    }
+
+    let stream = await navigator.mediaDevices.getUserMedia(constraints);
+    let videoTrack = stream.getVideoTracks()[0];
+    return videoTrack;
+}
+
+async function getAudioTrackReplace() {
+    let audioConstraints = localStorage.getItem("audioConstraints");
+    let constraints = { audio: true };
+    if (audioConstraints) {
+        constraints.audio = JSON.parse(audioConstraints)
+    }
+
+    let stream = await navigator.mediaDevices.getUserMedia(constraints);
+    let audioTrack = stream.getAudioTracks()[0];
+    return audioTrack;
+}
+
+
+
+
+// async function initializeLocalStream() {
+//     try {
+//         await getLocalStream();
+//         console.log("GET LOCAL STREAM");
+//     } catch (error) {
+//         alert('Error getting local stream:', error)
+//         console.error('Error getting local stream:', error);
+//     }
+// }
 
 ws.onopen = async () => {
     try {
@@ -477,6 +645,8 @@ ws.onmessage = async (event) => {
         case 'leave':
             console.log("LEAVE: ", data);
             updateUserList({ users: data.users, idUserLeft: data.userLeftId });
+
+            updateUIVideo(data.userLeftId, data.username);
 
             notifyUserLeft(data.username, false);
 
@@ -661,15 +831,26 @@ ws.onmessage = async (event) => {
             enabledVideo(false, data.producerUserId);
             break;
         case 'muted':
-            enabledMic(false, data.producerUserId);
+            {
+                const muteButton = $(`#mutedButton${data.producerUserId}`);
+                if(muteButton){
+                    muteButton.addClass("d-none");
+                }
+                enabledMic(false, data.producerUserId);
+            }
             break;
         case 'unmuted':
+            const muteButton = $(`#mutedButton${data.producerUserId}`);
+            if(muteButton){
+                muteButton.removeClass("d-none");
+            }
             enabledMic(true, data.producerUserId);
             break;
         case 'message':
             console.log("MESSAGE: ", data);
             displayMessage(data.from, data.content, data.userId);
             lastMessageId = data.userId;
+            $("#new-message").removeClass("d-none");
             break;
         case 'stopSharing':
             const { producerUserId, roomId, username } = data;
@@ -682,11 +863,41 @@ ws.onmessage = async (event) => {
             notifyNewRequest(newUser.name, newUser.email, newUser.avatar);
             updateRequestorsList(requestingUsers);
             break;
+        case 'beingMuted':
+            if(audioProducer){
+                if(!audioProducer.paused){
+                    toggleButton("audio", micButton);
+                }
+            }
+            break;
         default:
             console.error('Unknown message action:', data.action);
 
     }
 };
+ws.onclose = function(event) {
+    console.log('WebSocket connection closed:', event);
+    console.log('Code:', event.code);
+    console.log('Reason:', event.reason);
+  
+    if(event.code == 1008){
+        $('#removeToast').toast("show");
+        let seconds = 3;
+        const interval = setInterval(function () {
+            $('#secondRemovingText').text(seconds.toString());
+            seconds--;
+            if (seconds < 0) {
+                clearInterval(interval); 
+                $('#removeToast').toast("hide");
+            }
+        }, 1000); 
+
+        setTimeout(() => {
+            window.location.href = "/" + roomId;
+        }, 3000);
+    }
+   alert(`WebSocket connection closed: ${event.reason}`);
+  };
 const createDevice = async () => {
     try {
         device = new mediasoupClient.Device();
@@ -769,16 +980,17 @@ const createSendTransport = async (params) => {
                 allProduce: allProduce,
                 isSharing: isSharing
             }));
-            setTimeout(() => {
+            const intervalId = setInterval(() => {
                 if (callbackId && !isCallbackCalled) {
                     callback(callbackId);
                     isCallbackCalled = true;
                     callbackId = null;
                     isSharing = false;
+                    clearInterval(intervalId);
                 } else {
                     console.log('Waiting for callbackId...');
                 }
-            }, 100);
+            }, 50); 
         } catch (error) {
             console.log(error);
             errback(error)
@@ -1402,6 +1614,7 @@ async function toggleButton(type, button) {
             const audioState = audioProducer.paused ? 'paused' : 'active';
             if (audioState == 'active') {
                 audioProducer.pause();
+                stream.getAudioTracks()[0].stop();
                 track.enabled = false;
                 button.addClass("bg-danger");
                 $("#micIcon").addClass("bi-mic-mute");
@@ -1414,7 +1627,47 @@ async function toggleButton(type, button) {
                 ws.send(JSON.stringify({ action: "muted", producerUserId: id, roomId: roomId }))
             }
             else {
+                let audioTrackReplace = await getAudioTrackReplace();
+                const audioTracks = stream.getAudioTracks();
+                if (audioTracks.length > 0) {
+                    stream.removeTrack(audioTracks[0]);
+                    stream.addTrack(audioTrackReplace);
+                } else {
+                    console.error('No video tracks found in local video stream.');
+                }
+                await audioProducer.replaceTrack({ track: audioTrackReplace });
                 audioProducer.resume();
+                ws.send(JSON.stringify({ action: "unmuted", producerUserId: id, roomId: roomId }))
+                let harkid = "localVideo";
+                if (harkInstances[harkid]) {
+                    console.log("EXISTS HARK INSTANCE")
+                    harkInstances[harkid].stop();
+                    harkInstances[harkid] = null;
+                    delete harkInstances[harkid];
+                }
+                console.log(harkInstances);
+                let audioStream = new MediaStream();
+                audioStream.addTrack(stream.getAudioTracks()[0]);
+                let options = {
+                    threshold: -70
+                };
+                harkInstances[harkid] = hark(audioStream, options);
+
+                harkInstances[harkid].on('speaking', () => {
+                    console.log(`${harkid} is speaking on track ${track.id}`);
+                    showDots(harkid);
+                    moveDivToPositionWhenSpeaking(harkid);
+                });
+
+                harkInstances[harkid].on('stopped_speaking', () => {
+                    console.log(`${harkid} speech stopped on track ${track.id}`);
+                    stopDots(harkid);
+                });
+                harkInstances[harkid].on('volume_change', (volume, threshold) => {
+                    //console.log(`Volume change: ${volume}, Threshold: ${threshold}`);
+
+                    updateDots(volume, harkid);
+                });
                 track.enabled = true;
                 button.removeClass("bg-danger");
                 $("#micIcon").removeClass("bi-mic-mute");
@@ -1422,7 +1675,6 @@ async function toggleButton(type, button) {
                 micDiv[0].classList.add("d-none");
                 micDiv[1].classList.add("d-none");
                 micDiv[2].classList.add("d-none");
-                ws.send(JSON.stringify({ action: "unmuted", producerUserId: id, roomId: roomId }))
             }
         }
         else {
@@ -1451,7 +1703,6 @@ async function toggleButton(type, button) {
                 ws.send(JSON.stringify({ action: "offCamera", producerUserId: id, roomId: roomId }))
             }
             else {
-                await videoProducer.resume();
                 // track.resume();
                 // getLocalStream();
                 let videoTrackReplace = await getVideoTrackReplace();
@@ -1463,6 +1714,7 @@ async function toggleButton(type, button) {
                     console.error('No video tracks found in local video stream.');
                 }
                 await videoProducer.replaceTrack({ track: videoTrackReplace });
+                await videoProducer.resume();
                 track.enabled = true;
                 button.removeClass("bg-danger");
                 $("#webcamIcon").removeClass("bi-camera-video-off");
@@ -1953,161 +2205,177 @@ function showLiOptions(ids) {
     }
 
     $("#changeSourceButton").on("click", async function () {
-        let stream = localVideo.srcObject;
-        const videoPreview = document.getElementById("videoPreview");
-        let videoPreviewStream = videoPreview.srcObject;
-        let videoTrackReplace = videoPreviewStream.getVideoTracks()[0];
-        let videoTracks;  
-        if(stream){
-            videoTracks = stream.getVideoTracks();
-        }
-        else{
-            stream = new MediaStream();
-        }
-        console.log(videoSrcChange);
-        console.log(videoTrackReplace);
-        if (videoSrcChange == true) {
-            //replace;
-            if (videoTracks) {
-                stream.removeTrack(videoTracks[0]);
-            } else {
-                console.log('No video tracks found in local video stream.');
+        try {
+            if(videoSrcChange==false && audioSrcChange==false){
+                stopBothPreviewStream();
+                return;
             }
-            videoTracks[0].stop();
-            stream.addTrack(videoTrackReplace);
-            videoParams.track = videoTrackReplace;
-            localVideo.srcObject = stream;
-            if(videoProducer){
-                await videoProducer.replaceTrack({ track: videoTrackReplace });
+            let stream = localVideo.srcObject;
+            const videoPreview = document.getElementById("videoPreview");
+            let videoPreviewStream = videoPreview.srcObject;
+            let videoTrackReplace = videoPreviewStream.getVideoTracks()[0];
+            let videoTracks;  
+
+            let audioTrackReplace = videoPreviewStream.getAudioTracks()[0];
+            let audioTracks;
+            if(stream){
+                videoTracks = stream.getVideoTracks();
+                audioTracks = stream.getAudioTracks();
             }
             else{
-                videoProducer = await producerTransport.produce(videoParams);
-
-                videoProducer.on('trackended', () => {
-                    console.log('track ended')
-            
-                    // close video track
-                })
-            
-                videoProducer.on('transportclose', () => {
-                    console.log('transport ended')
-            
-                    // close video track
-                }) 
-
-                // $("#divVideolocalVideo").removeClass("d-none");
-                // $("#divAlterlocalVideo").addClass("d-none");
-
-                toggleButtonWhenProducerNotFound("video", webcamButton, false, "localVideo");
-
+                stream = new MediaStream();
             }
-            
-            let track = videoTrackReplace;
-            let videoSettings = track.getSettings();
-            const videoDeviceId = videoSettings.deviceId;
-
-            let videoConstraints = { deviceId: { exact: videoDeviceId } };
-            localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
-            console.log("CHANGE MEDIA SOURCE")
-            console.log(videoConstraints);
-            videoPreview.srcObject = null;
-            videoSrcChange = false;
-        }
-
-        if (audioSrcChange == true) {
-            let audioTrackReplace = videoPreviewStream.getAudioTracks()[0];
-
-            let audioTracks = stream.getAudioTracks();
-            // if(!stream){
-            //     audioTracks = audioTrackReplace;
-            // }else{
-            //     audioTracks = 
-            // }
-            
-
-            //replace;
-            if (audioTracks.length > 0) {
-                audioTracks.forEach(track => {
-                    stream.removeTrack(track);
-                });
-                stream.addTrack(audioTrackReplace);
-
-                await audioProducer.replaceTrack({ track: audioTrackReplace });
-
-                let track = audioTrackReplace;
-                const audioSettings = track.getSettings();
-                const audioDeviceId = audioSettings.deviceId;
-
-                const audioConstraints = { deviceId: { exact: audioDeviceId } };
-                localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
-
-                let id = "localVideo";
-                if (harkInstances[id]) {
-                    console.log("EXISTS HARK INSTANCE")
-                    harkInstances[id].stop();
-                    harkInstances[id] = null;
-                    delete harkInstances[id];
+            console.log(videoSrcChange);
+            console.log(videoTrackReplace);
+            if (videoSrcChange == true) {
+                //replace;
+                if (videoTracks) {
+                    stream.removeTrack(videoTracks[0]);
+                    //
+                } else {
+                    console.log('No video tracks found in local video stream.');
                 }
-                console.log(harkInstances);
-                let audioStream = new MediaStream();
-                audioStream.addTrack(stream.getAudioTracks()[0]);
-                let options = {
-                    threshold: -70
-                };
-                harkInstances[id] = hark(audioStream, options);
+                videoTracks[0].stop();
+                if(audioSrcChange==false){
+                    audioTrackReplace.stop();
+                }
+                stream.addTrack(videoTrackReplace);
+                videoParams.track = videoTrackReplace;
+                localVideo.srcObject = stream;
+                if(videoProducer){
+                    await videoProducer.replaceTrack({ track: videoTrackReplace });
+                    const videoState = videoProducer.paused ? 'paused' : 'active';
+                    console.log(videoState)
+                    if (videoState == 'paused') {
+                        videoTrackReplace.stop();
+                    }
+                    const audioState = audioProducer.paused ? 'paused' : 'active';
+                    console.log(audioState)
+                    if (audioState == 'paused') {
+                        audioTrackReplace.stop();
+                    }
+                }
+                else{
+                    videoProducer = await producerTransport.produce(videoParams);
 
-                harkInstances[id].on('speaking', () => {
-                    console.log(`${id} is speaking on track ${track.id}`);
-                    showDots(id);
-                    moveDivToPositionWhenSpeaking(id);
-                });
+                    videoProducer.on('trackended', () => {
+                        console.log('track ended')
+                
+                        // close video track
+                    })
+                
+                    videoProducer.on('transportclose', () => {
+                        console.log('transport ended')
+                
+                        // close video track
+                    }) 
 
-                harkInstances[id].on('stopped_speaking', () => {
-                    console.log(`${id} speech stopped on track ${track.id}`);
-                    stopDots(id);
-                });
-                harkInstances[id].on('volume_change', (volume, threshold) => {
-                    //console.log(`Volume change: ${volume}, Threshold: ${threshold}`);
+                    // $("#divVideolocalVideo").removeClass("d-none");
+                    // $("#divAlterlocalVideo").addClass("d-none");
 
-                    updateDots(volume, id);
-                });
-            } else {
-                console.error('No video tracks found in local video stream.');
+                    toggleButtonWhenProducerNotFound("video", webcamButton, false, "localVideo");
+
+                }
+                
+                let track = videoTrackReplace;
+                let videoSettings = track.getSettings();
+                const videoDeviceId = videoSettings.deviceId;
+
+                let videoConstraints = { deviceId: { exact: videoDeviceId } };
+                localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
+                console.log("CHANGE MEDIA SOURCE")
+                console.log(videoConstraints);
+                videoSrcChange = false;
             }
+            if (audioSrcChange == true) {
+                //replace;
+                if (audioTracks.length > 0) {
+                    stream.removeTrack(audioTracks[0]);
+                    audioTracks[0].stop();
+                    if(videoSrcChange == false){
+                        videoTrackReplace.stop();
+                    }
+                    stream.addTrack(audioTrackReplace);
+                    localVideo.muted = true;
+                    localVideo.volume = 0;
 
-            audioSrcChange = false;
+                    await audioProducer.replaceTrack({ track: audioTrackReplace });
+
+                    const audioState = audioProducer.paused ? 'paused' : 'active';
+                    console.log(audioState)
+                    if (audioState == 'paused') {
+                        audioTrackReplace.stop();
+                    }
+                    const videoState = videoProducer.paused ? 'paused' : 'active';
+                    console.log(videoState)
+                    if (videoState == 'paused') {
+                        videoTrackReplace.stop();
+                    }
+                    let track = audioTrackReplace;
+                    const audioSettings = track.getSettings();
+                    const audioDeviceId = audioSettings.deviceId;
+
+                    const audioConstraints = { deviceId: { exact: audioDeviceId } };
+                    localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
+
+                    let id = "localVideo";
+                    if (harkInstances[id]) {
+                        console.log("EXISTS HARK INSTANCE")
+                        harkInstances[id].stop();
+                        harkInstances[id] = null;
+                        delete harkInstances[id];
+                    }
+                    console.log(harkInstances);
+                    let audioStream = new MediaStream();
+                    audioStream.addTrack(stream.getAudioTracks()[0]);
+                    let options = {
+                        threshold: -70
+                    };
+                    harkInstances[id] = hark(audioStream, options);
+
+                    harkInstances[id].on('speaking', () => {
+                        console.log(`${id} is speaking on track ${track.id}`);
+                        showDots(id);
+                        moveDivToPositionWhenSpeaking(id);
+                    });
+
+                    harkInstances[id].on('stopped_speaking', () => {
+                        console.log(`${id} speech stopped on track ${track.id}`);
+                        stopDots(id);
+                    });
+                    harkInstances[id].on('volume_change', (volume, threshold) => {
+                        //console.log(`Volume change: ${volume}, Threshold: ${threshold}`);
+
+                        updateDots(volume, id);
+                    });
+                } else {
+                    console.error('No video tracks found in local video stream.');
+                }
+
+                audioSrcChange = false;
+            }
+        } catch (error) {
+            console.log("error when change source: ", error);
         }
-
-
-
-
-        // const audioSettings = track.getSettings();
-        // const deviceId = settings.deviceId;
-
-        // let audioConstraints = { deviceId: { exact: deviceId } };
-        // localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
-        //replace;
-
-        // let stopStream = videoPreview.srcObject;
-        // let videoStopTracks = stopStream.getVideoTracks()[0]
-        // videoStopTracks.stop();
-        // let audioStopTracks = stopStream.getAudioTracks()[0]
-        // audioStopTracks.stop();
-
-
-        videoPreview.srcObject = null;
 
     });
 
     $("#changeSourceCloseButton").on("click", function () {
-        const videoPreview = document.getElementById("videoPreview");
-        // let stream = videoPreview.srcObject;
-        // let videoTracks = stream.getVideoTracks()[0]
-        // videoTracks.stop();
-        // let audioTracks = stream.getAudioTracks()[0]
-        // audioTracks.stop();
-        videoPreview.srcObject = null;
+        stopBothPreviewStream();
+    });
+    $("#closeSettingModalButton").on("click", function (){
+        stopBothPreviewStream();
     })
+    function stopBothPreviewStream(){
+        const videoPreview = document.getElementById("videoPreview");
+        let stream = videoPreview.srcObject;
+        let videoTracks = stream.getVideoTracks();
+        videoTracks.forEach(track => track.stop());
+        let audioTracks = stream.getAudioTracks();
+        //audioTracks.stop();
+        audioTracks.forEach(track => track.stop())
+        videoPreview.srcObject = null;
+    }
     let privateMeetingSwitch = document.getElementById('toggleSwitch');
     if(privateMeetingSwitch){
         privateMeetingSwitch.addEventListener('change', function() {
@@ -2164,8 +2432,6 @@ $("#inviteButton").on("click", function (){
 function sendInvites(){
     invitedUsers.forEach(email => {
         sendInvite(roomId, user.userEmail, email);
-
-
     });
     $("#inviteToast").toast("show");
     invitedUsers.forEach(email => {
@@ -2215,7 +2481,7 @@ function sendInvite(roomId, from, to) {
     } catch (error) {
         console.log("Error when sending invitation: ", error)
     }
-}
+};
 function getUserByContainingEmail(){
     let email = $("#input-invite").val();
     if(email.trim().length<5){
@@ -2323,7 +2589,6 @@ function inviteUser(email, checkbox, avatar) {
         });
     }
 }  
-
 
 
 

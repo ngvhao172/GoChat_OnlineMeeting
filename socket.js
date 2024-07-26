@@ -19,297 +19,347 @@ module.exports = async (httpServer, router) => {
   });
   wss.on('connection', ws => {
     ws.on('message', async message => {
-      const data = JSON.parse(message);
-      // const data = JSON.parse(message);
-      console.log("Data send to ws", data);
-      const { roomId, userId } = data;
+      try {
+        const data = JSON.parse(message);
+        // const data = JSON.parse(message);
+        console.log("Data send to ws", data);
+        const { roomId, userId } = data;
 
-      switch (data.action) {
-        case 'create':
-          {
-            if(!rooms[roomId]){
-              // lắng nghe âm thanh
-              // const audioLevelObserver = await router.createAudioLevelObserver({
-              //   maxEntries: 5,//tối đa 5 người được theo dõi 
-              //   threshold: -80, 
-              //   interval: 800 
-              // });
-              rooms[data.roomId] = {
-                users: {},
-                producers: {},
-                consumers: {},
-                ownerCreatedId: userId,
-                settings: {
-                  'private': false
-                },
-                approvedUsers: [data.email],
-                requestingUsers: [],
-                requestingUsersWs: {}
-                // audioLevelObserver: audioLevelObserver
-              };
+        switch (data.action) {
+          case 'create':
+            {
+              if (!rooms[roomId]) {
+                // lắng nghe âm thanh
+                // const audioLevelObserver = await router.createAudioLevelObserver({
+                //   maxEntries: 5,//tối đa 5 người được theo dõi 
+                //   threshold: -80, 
+                //   interval: 800 
+                // });
+                rooms[data.roomId] = {
+                  users: {},
+                  producers: {},
+                  consumers: {},
+                  ownerCreatedId: userId,
+                  settings: {
+                    'private': false
+                  },
+                  approvedUsers: [data.email],
+                  requestingUsers: [],
+                  requestingUsersWs: {},
+                  blockUsers: []
+                  // audioLevelObserver: audioLevelObserver
+                };
 
-              ws.send(JSON.stringify({
-                action: 'created',
-                status: true,
-                roomId: data.roomId,
-                message: "Room created"
-              }))
-            }
-            else{
-              ws.send(JSON.stringify({
-                action: 'created',
-                status: false,
-                roomId: data.roomId,
-                message: "Room already exists"
-              }))
-            }
-          }
-          break;
-        case 'join':
-          {
-            if (!rooms[data.roomId]) {
-              // rooms[data.roomId] = {
-              //   users: {},
-              //   producers: {},
-              //   consumers: {}
-              // };
-              ws.send(JSON.stringify({
-                action: 'join',
-                status: false,
-                roomId: data.roomId,
-                message: "Room not found"
-              }))
-              break;
-            }
-            if(rooms[data.roomId].settings["private"] == false){
-              if(!rooms[data.roomId].approvedUsers.includes(data.email)){
-                rooms[data.roomId].approvedUsers.push(data.email);
+                ws.send(JSON.stringify({
+                  action: 'created',
+                  status: true,
+                  roomId: data.roomId,
+                  message: "Room created"
+                }))
+              }
+              else {
+                ws.send(JSON.stringify({
+                  action: 'created',
+                  status: false,
+                  roomId: data.roomId,
+                  message: "Room already exists"
+                }))
               }
             }
-            if(rooms[data.roomId].approvedUsers.includes(data.email)){
-              rooms[data.roomId].users[data.userId] = { id: data.userId, ws, name: data.name, avatar: data.avatar, email: data.email, producerTransport: null, consumerTransports: {} };
-              rooms[data.roomId].consumers[data.userId] = {};
-
-              // console.log("Room", rooms[data.roomId]);
-
-              let users = [];
-              let usersObject = Object.values(rooms[data.roomId].users);
-              usersObject.forEach(user => {
-                users.push({ id: user.id, name: user.name, avatar: user.avatar });
-              });
-              sendBroadcast(data.roomId, { action: 'user-list', room: data.roomId, users: users, ownerId: rooms[data.roomId].ownerCreatedId, newUser: { name: data.name, id: data.userId } });
-            }
-            else{
-              //xin request
-              // rooms[roomId].requestingUsers.push(data.userId);
-              // const ownerWS = rooms[roomId].users[rooms[data.roomId].ownerId].ws;
-              // ownerWS.send(JSON.stringify({
-              //   action: 'newRequest',
-              //   newUser: { name: data.name, id: data.userId },
-              //   requestingUsers:  rooms[roomId].requestingUsers
-              // }
-              // ));
-              // ws.send(JSON.stringify({
-              //   action: 'waitingApproved'
-              // }
-              // ))
-              //USER NOT APPROVED
-              ws.send(JSON.stringify({
-                action: 'requestResponse',
-                isApproved: false
-              }));
-            }
-          }
-          break;
-        case 'settingsUpdate':
-          {
-            const { private, roomId, userId } = data;
-            if(userId == rooms[roomId].ownerCreatedId){
-              rooms[roomId].settings["private"] = private;
-            }
-          }
-          break;
-        case 'requestJoin':
-          {
-            if(rooms[data.roomId].approvedUsers.includes(data.email) || rooms[data.roomId].settings["private"] == false){
-              ws.send(JSON.stringify({
-                action: 'requestResponse',
-                isApproved: true
-            }));
-            }else{
-              const exists = rooms[roomId].requestingUsers.some(user => user.email === data.email);
-              if(!exists){
-                rooms[roomId].requestingUsers.push({ name: data.name, email: data.email });
+            break;
+          case 'join':
+            {
+              if (!rooms[data.roomId]) {
+                // rooms[data.roomId] = {
+                //   users: {},
+                //   producers: {},
+                //   consumers: {}
+                // };
+                ws.send(JSON.stringify({
+                  action: 'join',
+                  status: false,
+                  roomId: data.roomId,
+                  message: "Room not found"
+                }))
+                break;
               }
-              rooms[roomId].requestingUsersWs[data.email] = ws;
-              console.log(rooms[roomId]);
-              try{
-                const ownerWS = rooms[roomId].users[rooms[data.roomId].ownerCreatedId]["ws"];
-                  ownerWS.send(JSON.stringify({
-                    action: 'newRequest',
-                    newUser: { name: data.name, email: data.email },
-                    requestingUsers:  rooms[roomId].requestingUsers
-                  }
-                ));
-              }catch(e){
-                console.log(e);
+              if (rooms[data.roomId].settings["private"] == false) {
+                if (!rooms[data.roomId].approvedUsers.includes(data.email)) {
+                  rooms[data.roomId].approvedUsers.push(data.email);
+                }
+              }
+              if (rooms[data.roomId].approvedUsers.includes(data.email)) {
+                rooms[data.roomId].users[data.userId] = { id: data.userId, ws, name: data.name, avatar: data.avatar, email: data.email, producerTransport: null, consumerTransports: {} };
+                rooms[data.roomId].consumers[data.userId] = {};
+
+                // console.log("Room", rooms[data.roomId]);
+
+                let users = [];
+                let usersObject = Object.values(rooms[data.roomId].users);
+                usersObject.forEach(user => {
+                  users.push({ id: user.id, name: user.name, avatar: user.avatar });
+                });
+                sendBroadcast(data.roomId, { action: 'user-list', room: data.roomId, users: users, ownerId: rooms[data.roomId].ownerCreatedId, newUser: { name: data.name, id: data.userId } });
+              }
+              else {
+                //xin request
+                // rooms[roomId].requestingUsers.push(data.userId);
+                // const ownerWS = rooms[roomId].users[rooms[data.roomId].ownerId].ws;
+                // ownerWS.send(JSON.stringify({
+                //   action: 'newRequest',
+                //   newUser: { name: data.name, id: data.userId },
+                //   requestingUsers:  rooms[roomId].requestingUsers
+                // }
+                // ));
+                // ws.send(JSON.stringify({
+                //   action: 'waitingApproved'
+                // }
+                // ))
+                //USER NOT APPROVED
+                ws.send(JSON.stringify({
+                  action: 'requestResponse',
+                  isApproved: false
+                }));
               }
             }
-          }
-          break;
-        case 'acceptRequest':
-          {
-            const {roomId, email, id} = data;
-            if(id!= rooms[roomId].ownerCreatedId){
-              return;
-            }
-            if(!rooms[roomId].approvedUsers.includes(email)){
-              const requestorWs = rooms[roomId].requestingUsersWs[email];
-              if(requestorWs){
-                rooms[roomId].approvedUsers.push(email);
+            break;
+          case 'settingsUpdate':
+            {
+              const { private, roomId, userId } = data;
+              if (userId == rooms[roomId].ownerCreatedId) {
+                rooms[roomId].settings["private"] = private;
               }
-              //xoa khoi requesting list
-              //
-              // const index = rooms[roomId].requestingUsers.indexOf(requestorId);
-              // if (index !== -1) {
-              //     list.splice(index, 1);
-              // }
-              const updatedRequestingUsers = rooms[roomId].requestingUsers.filter(user => user.email !== email);
-              rooms[roomId].requestingUsers = updatedRequestingUsers;
-              console.log("REQUESTINGUSER:", rooms[roomId].requestingUsersWs);
-              //const requestorWs = rooms[roomId].requestingUsersWs[email];
-
-              if(requestorWs){
-                requestorWs.send(JSON.stringify({
+            }
+            break;
+          case 'requestJoin':
+            {
+              if (rooms[data.roomId].blockUsers.includes(data.email)) {
+                ws.send(JSON.stringify({
+                  action: 'requestResponse',
+                  isApproved: false
+                }));
+              }
+              if (rooms[data.roomId].approvedUsers.includes(data.email) || rooms[data.roomId].settings["private"] == false) {
+                ws.send(JSON.stringify({
                   action: 'requestResponse',
                   isApproved: true
                 }));
-
-                delete rooms[roomId].requestingUsersWs[email];
+              } else {
+                const exists = rooms[roomId].requestingUsers.some(user => user.email === data.email);
+                if (!exists) {
+                  rooms[roomId].requestingUsers.push({ name: data.name, email: data.email });
+                }
+                rooms[roomId].requestingUsersWs[data.email] = ws;
+                console.log(rooms[roomId]);
+                try {
+                  const ownerWS = rooms[roomId].users[rooms[data.roomId].ownerCreatedId]["ws"];
+                  ownerWS.send(JSON.stringify({
+                    action: 'newRequest',
+                    newUser: { name: data.name, email: data.email },
+                    requestingUsers: rooms[roomId].requestingUsers
+                  }
+                  ));
+                } catch (e) {
+                  console.log(e);
+                }
               }
             }
-          }
-          break;
-        case 'declineRequest':
-          {
-            try {
-              const {roomId, email, id} = data;
-              if(id!= rooms[roomId].ownerCreatedId){
+            break;
+          case 'acceptRequest':
+            {
+              const { roomId, email, id } = data;
+              if (id != rooms[roomId].ownerCreatedId) {
                 return;
               }
-              if(!rooms[roomId].approvedUsers.includes(email)){
+              if (!rooms[roomId].approvedUsers.includes(email)) {
+                const requestorWs = rooms[roomId].requestingUsersWs[email];
+                if (requestorWs) {
+                  rooms[roomId].approvedUsers.push(email);
+                }
                 //xoa khoi requesting list
                 //
                 // const index = rooms[roomId].requestingUsers.indexOf(requestorId);
                 // if (index !== -1) {
                 //     list.splice(index, 1);
                 // }
-                const updatedRequestingUsers = rooms[roomId].requestingUsers.filter(user => user.id !== email);
+                const updatedRequestingUsers = rooms[roomId].requestingUsers.filter(user => user.email !== email);
                 rooms[roomId].requestingUsers = updatedRequestingUsers;
-                const requestorWs = rooms[roomId].requestingUsersWs[email];
-                if(requestorWs){
+                console.log("REQUESTINGUSER:", rooms[roomId].requestingUsersWs);
+                //const requestorWs = rooms[roomId].requestingUsersWs[email];
+
+                if (requestorWs) {
                   requestorWs.send(JSON.stringify({
                     action: 'requestResponse',
-                    isApproved: false
+                    isApproved: true
                   }));
-  
+
                   delete rooms[roomId].requestingUsersWs[email];
-  
-                  console.log("REQUESTINGUSER:", rooms[roomId].requestingUsersWs);
                 }
-              } 
-            } catch (error) {
-              console.log(error);
-            }
-            break;
-          }
-        case 'inviteUser':
-          {
-            const {roomId, id, userEmailInvited} = data;
-            if(id!= rooms[roomId].ownerCreatedId){
-              return;
-            }
-            if(!rooms[roomId].approvedUsers.includes(userEmailInvited)){
-              rooms[roomId].approvedUsers.push(userEmailInvited);
-            }
-            console.log(rooms[roomId]);
-          }
-          break;
-        case 'getRtpCapabilities':
-          {
-            const rtpCapabilities = router.rtpCapabilities
-            ws.send(JSON.stringify({
-              action: 'getRtpCapabilities',
-              rtpCapabilities: rtpCapabilities,
-              userId: data.userId,
-              roomId: data.roomId
-            }
-            ));
-          }
-          break;
-        case 'producerNotProvided':
-          {
-            const {roomId, userId, kind, name} = data;
-            const avatar = rooms[roomId].users[userId].avatar;
-            console.log("ROOMSSSSSS");
-            console.log(rooms[roomId].users)
-            for (let id in rooms[roomId].users) {
-              if (id !== userId) {
-                console.log("PRODUCER MOI NE");
-                rooms[roomId].users[id].ws.send(JSON.stringify({
-                  action: 'producerNotProvided',
-                  kind: kind,
-                  producerUserId: userId,
-                  name: name,
-                  avatar: avatar,
-                  producerStatus: "off"
-                }));
               }
             }
             break;
-          }
-        case 'createProducerTransport':
-          {
-            const transport = await createWebRtcTransport(router);
-            console.log(rooms[roomId]);
-            rooms[roomId].users[userId].producerTransport = transport;
+          case 'declineRequest':
+            {
+              try {
+                const { roomId, email, id } = data;
+                if (id != rooms[roomId].ownerCreatedId) {
+                  return;
+                }
+                if (!rooms[roomId].approvedUsers.includes(email)) {
+                  //xoa khoi requesting list
+                  //
+                  // const index = rooms[roomId].requestingUsers.indexOf(requestorId);
+                  // if (index !== -1) {
+                  //     list.splice(index, 1);
+                  // }
+                  const updatedRequestingUsers = rooms[roomId].requestingUsers.filter(user => user.id !== email);
+                  rooms[roomId].requestingUsers = updatedRequestingUsers;
+                  const requestorWs = rooms[roomId].requestingUsersWs[email];
+                  if (requestorWs) {
+                    requestorWs.send(JSON.stringify({
+                      action: 'requestResponse',
+                      isApproved: false
+                    }));
 
-            ws.send(JSON.stringify({
-              action: 'producerTransportCreated',
-              id: transport.id,
-              iceParameters: transport.iceParameters,
-              iceCandidates: transport.iceCandidates,
-              dtlsParameters: transport.dtlsParameters,
-              userId: userId
-            }));
+                    delete rooms[roomId].requestingUsersWs[email];
+
+                    console.log("REQUESTINGUSER:", rooms[roomId].requestingUsersWs);
+                  }
+                }
+              } catch (error) {
+                console.log(error);
+              }
+              break;
+            }
+          case 'inviteUser':
+            {
+              const { roomId, id, userEmailInvited } = data;
+              if (id != rooms[roomId].ownerCreatedId) {
+                return;
+              }
+              if (!rooms[roomId].approvedUsers.includes(userEmailInvited)) {
+                rooms[roomId].approvedUsers.push(userEmailInvited);
+              }
+              console.log(rooms[roomId]);
+            }
+            break;
+          case 'removeUserFromMeeting':
+            {
+              const { roomId, userId, isBlock, userRemoveId } = data;
+              if (userId != rooms[roomId].ownerCreatedId) {
+                return ws.send(JSON.stringify({
+                  action: 'actionNotPermitted',
+                  message: "Warning close ws"
+                }
+                ));
+              }
+              const user = rooms[roomId].users[userRemoveId];
+              if (isBlock == true) {
+                if (!rooms[roomId].blockUsers.includes(userRemoveId)) {
+                  rooms[roomId].blockUsers.push(user.email);
+                  const updatedApprovedUsers = rooms[roomId].approvedUsers.filter(userEmail => userEmail !== user.email);
+                  rooms[roomId].approvedUsers = updatedApprovedUsers
+                }
+              }
+              user.ws.close(1008, "User are remove from meeting");
+            }
+            break;
+          case 'muteUser':
+            {
+              try {
+                const { userId, roomId, mutedUserId } = data;
+                if (userId != rooms[roomId].ownerCreatedId) {
+                  return ws.send(JSON.stringify({
+                    action: 'actionNotPermitted',
+                    message: "Warning close ws"
+                  }
+                  ));
+                }
+                const user = rooms[roomId].users[mutedUserId];
+                const ws = user.ws;
+                if (ws) {
+                  ws.send(JSON.stringify({ action: "beingMuted" }));
+                }
+              } catch (error) {
+                console.log("error when mute user: ", error);
+              }
+            }
+            break;
+          case 'getRtpCapabilities':
+            {
+              const rtpCapabilities = router.rtpCapabilities
+              ws.send(JSON.stringify({
+                action: 'getRtpCapabilities',
+                rtpCapabilities: rtpCapabilities,
+                userId: data.userId,
+                roomId: data.roomId
+              }
+              ));
+            }
+            break;
+          case 'producerNotProvided':
+            {
+              const { roomId, userId, kind, name } = data;
+              const avatar = rooms[roomId].users[userId].avatar;
+              console.log("ROOMSSSSSS");
+              console.log(rooms[roomId].users)
+              for (let id in rooms[roomId].users) {
+                if (id !== userId) {
+                  console.log("PRODUCER MOI NE");
+                  rooms[roomId].users[id].ws.send(JSON.stringify({
+                    action: 'producerNotProvided',
+                    kind: kind,
+                    producerUserId: userId,
+                    name: name,
+                    avatar: avatar,
+                    producerStatus: "off"
+                  }));
+                }
+              }
+              break;
+            }
+          case 'createProducerTransport':
+            {
+              const transport = await createWebRtcTransport(router);
+              console.log(rooms[roomId]);
+              rooms[roomId].users[userId].producerTransport = transport;
+
+              ws.send(JSON.stringify({
+                action: 'producerTransportCreated',
+                id: transport.id,
+                iceParameters: transport.iceParameters,
+                iceCandidates: transport.iceCandidates,
+                dtlsParameters: transport.dtlsParameters,
+                userId: userId
+              }));
 
 
-            let users = [];
+              let users = [];
               let usersObject = Object.values(rooms[data.roomId].users);
               usersObject.forEach(user => {
                 users.push({ id: user.id, name: user.name, avatar: user.avatar });
               });
               console.log(users);
               //Create consumers for the new user for all existing producers
-              
+
               users.forEach(async user => {
                 if (user.id != userId) {
                   console.log("USERID:", user.id);
                   let producer = rooms[roomId].producers[user.id];
                   // console.log("PRODUCERS:", producer)
-                  if(producer){
+                  if (producer) {
                     if (!rooms[roomId].consumers[userId][producer.id]) {
                       //tao consumer transport//
                       let transport;
-                      if(rooms[roomId].users[userId].consumerTransports[user.id]){
+                      if (rooms[roomId].users[userId].consumerTransports[user.id]) {
                         transport = rooms[roomId].users[userId].consumerTransports[user.id]
                       }
-                      else{
+                      else {
                         transport = await createWebRtcTransport(router);
                         rooms[roomId].users[userId].consumerTransports[user.id] = transport
                       }
                       // gui ve client tao consumer transport thanh cong
-                      if(producer["video"]){
+                      if (producer["video"]) {
                         ws.send(JSON.stringify({
                           action: 'consumerTransportCreated',
                           id: transport.id,
@@ -321,7 +371,7 @@ module.exports = async (httpServer, router) => {
                           producerStatus: producer["video"].status
                         }));
                       }
-                      else{
+                      else {
                         ws.send(JSON.stringify({
                           action: 'producerNotProvided',
                           kind: "video",
@@ -332,7 +382,7 @@ module.exports = async (httpServer, router) => {
                         }));
                       }
                       // console.log(producer["video"].status);//
-                      if(producer["audio"]){
+                      if (producer["audio"]) {
                         console.log("AUDIO PRODUCER ON SERVER SIDE: ", producer["audio"].id)
                         ws.send(JSON.stringify({
                           action: 'consumerTransportCreated',
@@ -345,7 +395,7 @@ module.exports = async (httpServer, router) => {
                           producerStatus: producer["audio"].status
                         }));
                       }
-                      else{
+                      else {
                         ws.send(JSON.stringify({
                           action: 'producerNotProvided',
                           kind: "audio",
@@ -355,7 +405,7 @@ module.exports = async (httpServer, router) => {
                           producerStatus: "off"
                         }));
                       }
-                      if(producer["sharing"]){
+                      if (producer["sharing"]) {
                         ws.send(JSON.stringify({
                           action: 'consumerTransportCreated',
                           id: transport.id,
@@ -369,7 +419,7 @@ module.exports = async (httpServer, router) => {
                       }
                     }
                   }
-                  else{
+                  else {
                     ws.send(JSON.stringify({
                       action: 'producerNotProvided',
                       kind: "video",
@@ -386,299 +436,309 @@ module.exports = async (httpServer, router) => {
                       avatar: user.avatar,
                       producerStatus: "off"
                     }));
-                    
+
                   }
                 }
               });
-          }
-          break;
-
-        case 'connectProducerTransport':
-          {
-            const { dtlsParameters } = data;
-            const transport = rooms[roomId].users[userId].producerTransport;
-            if (transport.dtlsState === 'connected') {
-              console.log("transport already connected")
             }
-            else {
-              await rooms[roomId].users[userId].producerTransport.connect({ dtlsParameters }).then(() => {
-                console.log('Producer transport connected');
-              }).catch(error => {
-                console.error('Error connecting consumer transport:', error);
-              });;
-            }
-            ws.send(JSON.stringify({ action: 'producerTransportConnected' }));
-          }
-          break;
+            break;
 
-        case 'produce':
-          {
-            // console.log(rooms[roomId]);
-            const { kind, rtpParameters, appData, allProduce, isSharing } = data;
-            const transport = rooms[roomId].users[userId].producerTransport;
-            const producer = await transport.produce({ kind, rtpParameters });
-            if (!rooms[roomId].producers[userId]) {
-              rooms[roomId].producers[userId] = {};
-            }
-            if(isSharing == true){
-              rooms[roomId].producers[userId]["sharing"] = producer;
-            }
-            else{
-              rooms[roomId].producers[userId][kind] = producer;
-            }
-            console.log("ROOM after produce", rooms[roomId]);
-
-
-            ws.send(JSON.stringify({ action: 'produced', id: producer.id, kind: kind }));
-            // thêm vào audio observer
-            // if(kind == 'audio'){
-            //   rooms[roomId].audioLevelObserver.addProducer({ producerId: producer.id });
-            // } 
-
-
-            for (let id in rooms[roomId].users) {
-              if (id !== userId) {
-                console.log("PRODUCER MOI NE");
-                rooms[roomId].users[id].ws.send(JSON.stringify({
-                  action: 'newProducer',
-                  producerId: producer.id,
-                  roomId: roomId,
-                  kind: producer.kind,
-                  producerUserId: userId,
-                  isSharing: isSharing
-                }));
+          case 'connectProducerTransport':
+            {
+              const { dtlsParameters } = data;
+              const transport = rooms[roomId].users[userId].producerTransport;
+              if (transport.dtlsState === 'connected') {
+                console.log("transport already connected")
               }
-            }
-            console.log("ALL PRODUCE:", allProduce);
-            // khi ca audio va video dc gui thanh cong -> moi tien hanh tao cac consumer transport -> gui toi client moi join
-            if (allProduce) {
-              
-            };
-          }
-          break;
-
-        case 'createConsumerTransport':
-          {
-            const { producerId, producerUserId } = data;
-            let transport;
-            if (rooms[roomId].users[userId].consumerTransports[producerUserId]) {
-              transport = rooms[roomId].users[userId].consumerTransports[producerUserId];
-            }
-            else {
-              transport = await createWebRtcTransport(router);
-              rooms[roomId].users[userId].consumerTransports[producerUserId] = transport;
-            }
-            // console.log("ROOM after createConsumerTransport", rooms[roomId]);
-
-            ws.send(JSON.stringify({
-              action: 'consumerTransportCreated',
-              id: transport.id,
-              iceParameters: transport.iceParameters,
-              iceCandidates: transport.iceCandidates,
-              dtlsParameters: transport.dtlsParameters,
-              producerId: producerId,
-              producerUserId: producerUserId,
-            }));
-          }
-          break;
-
-        case 'connectConsumerTransport':
-          {
-            const { dtlsParameters, producerId, producerUserId } = data;
-            const transport = rooms[roomId].users[userId].consumerTransports[producerUserId];
-            // console.log("transport.dtlsState: ", transport.dtlsState)
-            if (transport.dtlsState === 'new') {
-              await rooms[roomId].users[userId].consumerTransports[producerUserId].connect({ dtlsParameters }).then(() => {
-                console.log('Consumer transport connected');
-              }).catch(error => {
-                console.error('Error connecting consumer transport:', error);
-              });
-            }
-            else {
-              // await rooms[roomId].users[userId].consumerTransports[producerUserId].connect({ dtlsParameters }).then(() => {
-              //   console.log('Consumer transport connected');
-              // }).catch(error => {
-              //   console.error('Error connecting consumer transport:', error);
-              // });
-              console.error('consumer transport is already connected');
-            }
-            ws.send(JSON.stringify({ action: 'consumerTransportConnected', producerId }));
-          }
-          break;
-
-        case 'consume':
-          {
-            const { producerUserId, producerId, rtpCapabilities, producerStatus } = data;
-            if (router.canConsume({ producerId, rtpCapabilities })) {
-              console.log(rooms[roomId])
-              console.log(userId, producerUserId)
-              const transport = rooms[roomId].users[userId].consumerTransports[producerUserId];
-              const consumer = await transport.consume({ producerId, rtpCapabilities, paused: true });
-              rooms[roomId].consumers[userId][producerId] = consumer;
-              const name = rooms[roomId].users[producerUserId].name;
-              const avatar = rooms[roomId].users[producerUserId].avatar;
-
-              // console.log("ROOM AFTER CONSUMER:", rooms[roomId]);
-              const isSharingProducer = rooms[roomId].producers[producerUserId]["sharing"];
-              console.log(producerUserId)
-              console.log(isSharingProducer)
-              if(isSharingProducer !=null && isSharingProducer.id == producerId){
-                ws.send(JSON.stringify({
-                  action: 'consumed',
-                  id: consumer.id,
-                  producerId,
-                  kind: consumer.kind,
-                  rtpParameters: consumer.rtpParameters,
-                  producerUserId: producerUserId,
-                  name: name,
-                  avatar: avatar,
-                  producerStatus: producerStatus,
-                  isSharing: true,
-                  roomId: roomId
-                }));
+              else {
+                await rooms[roomId].users[userId].producerTransport.connect({ dtlsParameters }).then(() => {
+                  console.log('Producer transport connected');
+                }).catch(error => {
+                  console.error('Error connecting consumer transport:', error);
+                });;
               }
-              else{
-                console.log("AUDIO CONSUMER ON SERVER SIDE: ", producerId)
-                ws.send(JSON.stringify({
-                  action: 'consumed',
-                  id: consumer.id,
-                  producerId,
-                  kind: consumer.kind,
-                  rtpParameters: consumer.rtpParameters,
-                  producerUserId: producerUserId,
-                  name: name,
-                  avatar: avatar,
-                  producerStatus: producerStatus,
-                  roomId: roomId
-                }));
-              }
+              ws.send(JSON.stringify({ action: 'producerTransportConnected' }));
             }
-            else {
+            break;
+
+          case 'produce':
+            {
+              // console.log(rooms[roomId]);
+              const { kind, rtpParameters, appData, allProduce, isSharing } = data;
+              const transport = rooms[roomId].users[userId].producerTransport;
+              const producer = await transport.produce({ kind, rtpParameters });
+              if (!rooms[roomId].producers[userId]) {
+                rooms[roomId].producers[userId] = {};
+              }
+              if (isSharing == true) {
+                rooms[roomId].producers[userId]["sharing"] = producer;
+              }
+              else {
+                rooms[roomId].producers[userId][kind] = producer;
+              }
+              console.log("ROOM after produce", rooms[roomId]);
+
+
+              ws.send(JSON.stringify({ action: 'produced', id: producer.id, kind: kind }));
+              // thêm vào audio observer
+              // if(kind == 'audio'){
+              //   rooms[roomId].audioLevelObserver.addProducer({ producerId: producer.id });
+              // } 
+
+
+              for (let id in rooms[roomId].users) {
+                if (id !== userId) {
+                  console.log("PRODUCER MOI NE");
+                  rooms[roomId].users[id].ws.send(JSON.stringify({
+                    action: 'newProducer',
+                    producerId: producer.id,
+                    roomId: roomId,
+                    kind: producer.kind,
+                    producerUserId: userId,
+                    isSharing: isSharing
+                  }));
+                }
+              }
+              console.log("ALL PRODUCE:", allProduce);
+              // khi ca audio va video dc gui thanh cong -> moi tien hanh tao cac consumer transport -> gui toi client moi join
+              if (allProduce) {
+
+              };
+            }
+            break;
+
+          case 'createConsumerTransport':
+            {
+              const { producerId, producerUserId } = data;
+              let transport;
+              if (rooms[roomId].users[userId].consumerTransports[producerUserId]) {
+                transport = rooms[roomId].users[userId].consumerTransports[producerUserId];
+              }
+              else {
+                transport = await createWebRtcTransport(router);
+                rooms[roomId].users[userId].consumerTransports[producerUserId] = transport;
+              }
+              // console.log("ROOM after createConsumerTransport", rooms[roomId]);
+
               ws.send(JSON.stringify({
-                action: 'consumed',
-                message: 'cant consume'
+                action: 'consumerTransportCreated',
+                id: transport.id,
+                iceParameters: transport.iceParameters,
+                iceCandidates: transport.iceCandidates,
+                dtlsParameters: transport.dtlsParameters,
+                producerId: producerId,
+                producerUserId: producerUserId,
               }));
             }
-          }
-          break;
-        case 'consumer-resume':
-          {
-            console.log(rooms[roomId]);
+            break;
 
-            let consumer = rooms[roomId].consumers[userId][data.id]
-            console.log("Consumer for resume:", consumer.id)
-            // console.log(consumer);
-            if (consumer) {
-              await consumer.resume()
+          case 'connectConsumerTransport':
+            {
+              const { dtlsParameters, producerId, producerUserId } = data;
+              const transport = rooms[roomId].users[userId].consumerTransports[producerUserId];
+              // console.log("transport.dtlsState: ", transport.dtlsState)
+              if (transport.dtlsState === 'new') {
+                await rooms[roomId].users[userId].consumerTransports[producerUserId].connect({ dtlsParameters }).then(() => {
+                  console.log('Consumer transport connected');
+                }).catch(error => {
+                  console.error('Error connecting consumer transport:', error);
+                });
+              }
+              else {
+                // await rooms[roomId].users[userId].consumerTransports[producerUserId].connect({ dtlsParameters }).then(() => {
+                //   console.log('Consumer transport connected');
+                // }).catch(error => {
+                //   console.error('Error connecting consumer transport:', error);
+                // });
+                console.error('consumer transport is already connected');
+              }
+              ws.send(JSON.stringify({ action: 'consumerTransportConnected', producerId }));
             }
-          }
-          break;
-        case 'message':
-          {
-            // console.log(rooms[roomId]);
-            const sendUser = rooms[roomId].users[data.userId];
-            data.from = sendUser.name;
-            sendBroadcast(data.roomId, data, data.userId);
-          }
-          break;
-        case 'onCamera':
-          {
-            // const { producerUserId, roomId } = data;
-            // const videoProducer = rooms[roomId].producers[producerUserId]["video"];
-            // videoProducer.resume();
-            // console.log("Camera ON");
-            const { producerUserId, roomId } = data;
-            let producer = rooms[roomId].producers[producerUserId]["video"];
-            producer.status = "on";
-            sendBroadcast(roomId, data, producerUserId)
-          }
-          break;
-        case 'offCamera':
-          {
-            const { producerUserId, roomId } = data;
-            let producer = rooms[roomId].producers[producerUserId]["video"];
-            producer.status = "off";
-            sendBroadcast(roomId, data, producerUserId)
-            // const videoProducer = rooms[roomId].producers[producerUserId]["video"];
-            // videoProducer.pause();
-            // console.log("Camera OFF");
-          }
-          break;
-        case 'muted':
-          {
-            const { producerUserId, roomId } = data;
-            let producer = rooms[roomId].producers[producerUserId]["audio"];
-            producer.status = "off";
-            // handleProducerStop(roomId, producer, producerUserId);
-            sendBroadcast(roomId, data, producerUserId)
-            // const { producerUserId, roomId } = data;
-            // const audioProducer = rooms[roomId].producers[producerUserId]["audio"];
-            // audioProducer.pause();
-          }
-          break;
-        case 'unmuted':
-          {
-            const { producerUserId, roomId } = data;
-            let producer = rooms[roomId].producers[producerUserId]["audio"];
-            producer.status = "on";
-            sendBroadcast(roomId, data, producerUserId)
-            // handleProducerStop(roomId, producer, producerUserId);
-            // handleProducerStart(roomId, producer, producerUserId);
-            // const { producerUserId, roomId } = data;
-            // const audioProducer = rooms[roomId].producers[producerUserId]["audio"];
-            // audioProducer.resume();
-          }
-          break;
-        // case 'sharing':
-        //   {
-        //     const { producerUserId, roomId } = data;
-        //     let producer = rooms[roomId].producers[producerUserId]["audio"];
-        //     producer.status = "on";
-        //     sendBroadcast(roomId, data, producerUserId)
-        //     // const { producerUserId, roomId } = data;
-        //     // const audioProducer = rooms[roomId].producers[producerUserId]["audio"];
-        //     // audioProducer.resume();
-        //   }
-        //   break;
-        case 'stopSharing':
-          {
-            const {producerUserId, roomId} = data;
-            let sharingProducer = rooms[roomId].producers[producerUserId]["sharing"];
-            if(sharingProducer){
-              delete rooms[roomId].producers[producerUserId]["sharing"];
-              const room = rooms[roomId];
-              for (let userId in room.users) {
-                delete room.consumers[userId][sharingProducer.id];
-                delete room.consumers[userId][sharingProducer.id];
+            break;
+
+          case 'consume':
+            {
+              const { producerUserId, producerId, rtpCapabilities, producerStatus } = data;
+              if (router.canConsume({ producerId, rtpCapabilities })) {
+                console.log(rooms[roomId])
+                console.log(userId, producerUserId)
+                const transport = rooms[roomId].users[userId].consumerTransports[producerUserId];
+                const consumer = await transport.consume({ producerId, rtpCapabilities, paused: true });
+                rooms[roomId].consumers[userId][producerId] = consumer;
+                const name = rooms[roomId].users[producerUserId].name;
+                const avatar = rooms[roomId].users[producerUserId].avatar;
+
+                // console.log("ROOM AFTER CONSUMER:", rooms[roomId]);
+                const isSharingProducer = rooms[roomId].producers[producerUserId]["sharing"];
+                console.log(producerUserId)
+                console.log(isSharingProducer)
+                if (isSharingProducer != null && isSharingProducer.id == producerId) {
+                  ws.send(JSON.stringify({
+                    action: 'consumed',
+                    id: consumer.id,
+                    producerId,
+                    kind: consumer.kind,
+                    rtpParameters: consumer.rtpParameters,
+                    producerUserId: producerUserId,
+                    name: name,
+                    avatar: avatar,
+                    producerStatus: producerStatus,
+                    isSharing: true,
+                    roomId: roomId
+                  }));
+                }
+                else {
+                  console.log("AUDIO CONSUMER ON SERVER SIDE: ", producerId)
+                  ws.send(JSON.stringify({
+                    action: 'consumed',
+                    id: consumer.id,
+                    producerId,
+                    kind: consumer.kind,
+                    rtpParameters: consumer.rtpParameters,
+                    producerUserId: producerUserId,
+                    name: name,
+                    avatar: avatar,
+                    producerStatus: producerStatus,
+                    roomId: roomId
+                  }));
+                }
+              }
+              else {
+                ws.send(JSON.stringify({
+                  action: 'consumed',
+                  message: 'cant consume'
+                }));
               }
             }
-            sendBroadcast(roomId, data, producerUserId)
             break;
-          }
-        case 'check-room-existed':
-          {
-            // console.log(data);
-            if(roomId == "favicon.ico"){
+          case 'consumer-resume':
+            {
+              console.log(rooms[roomId]);
+
+              let consumer = rooms[roomId].consumers[userId][data.id]
+              console.log("Consumer for resume:", consumer.id)
+              // console.log(consumer);
+              if (consumer) {
+                await consumer.resume()
+              }
+            }
+            break;
+          case 'message':
+            {
+              // console.log(rooms[roomId]);
+              const sendUser = rooms[roomId].users[data.userId];
+              data.from = sendUser.name;
+              sendBroadcast(data.roomId, data, data.userId);
+            }
+            break;
+          case 'onCamera':
+            {
+              // const { producerUserId, roomId } = data;
+              // const videoProducer = rooms[roomId].producers[producerUserId]["video"];
+              // videoProducer.resume();
+              // console.log("Camera ON");
+              const { producerUserId, roomId } = data;
+              let producer = rooms[roomId].producers[producerUserId]["video"];
+              producer.status = "on";
+              sendBroadcast(roomId, data, producerUserId)
+            }
+            break;
+          case 'offCamera':
+            {
+              const { producerUserId, roomId } = data;
+              let producer = rooms[roomId].producers[producerUserId]["video"];
+              producer.status = "off";
+              sendBroadcast(roomId, data, producerUserId)
+              // const videoProducer = rooms[roomId].producers[producerUserId]["video"];
+              // videoProducer.pause();
+              // console.log("Camera OFF");
+            }
+            break;
+          case 'muted':
+            {
+              const { producerUserId, roomId } = data;
+              let producer = rooms[roomId].producers[producerUserId]["audio"];
+              producer.status = "off";
+              // handleProducerStop(roomId, producer, producerUserId);
+              sendBroadcast(roomId, data, producerUserId)
+              // const { producerUserId, roomId } = data;
+              // const audioProducer = rooms[roomId].producers[producerUserId]["audio"];
+              // audioProducer.pause();
+            }
+            break;
+          case 'unmuted':
+            {
+              const { producerUserId, roomId } = data;
+              let producer = rooms[roomId].producers[producerUserId]["audio"];
+              producer.status = "on";
+              sendBroadcast(roomId, data, producerUserId)
+              // handleProducerStop(roomId, producer, producerUserId);
+              // handleProducerStart(roomId, producer, producerUserId);
+              // const { producerUserId, roomId } = data;
+              // const audioProducer = rooms[roomId].producers[producerUserId]["audio"];
+              // audioProducer.resume();
+            }
+            break;
+          // case 'sharing':
+          //   {
+          //     const { producerUserId, roomId } = data;
+          //     let producer = rooms[roomId].producers[producerUserId]["audio"];
+          //     producer.status = "on";
+          //     sendBroadcast(roomId, data, producerUserId)
+          //     // const { producerUserId, roomId } = data;
+          //     // const audioProducer = rooms[roomId].producers[producerUserId]["audio"];
+          //     // audioProducer.resume();
+          //   }
+          //   break;
+          case 'stopSharing':
+            {
+              const { producerUserId, roomId } = data;
+              let sharingProducer = rooms[roomId].producers[producerUserId]["sharing"];
+              if (sharingProducer) {
+                delete rooms[roomId].producers[producerUserId]["sharing"];
+                const room = rooms[roomId];
+                for (let userId in room.users) {
+                  delete room.consumers[userId][sharingProducer.id];
+                  delete room.consumers[userId][sharingProducer.id];
+                }
+              }
+              sendBroadcast(roomId, data, producerUserId)
               break;
             }
-            console.log(rooms);
-            if (!rooms[roomId]) {
-              ws.send(JSON.stringify({ action: 'checked-result', roomId: roomId, exists: false,}));
-            }
-            else {
-              let isApproved = rooms[roomId].approvedUsers.includes(data.email);
-              let isPrivateRoom = rooms[roomId].settings["private"];
-              if(isPrivateRoom == false){
-                isApproved = true;
+          case 'check-room-existed':
+            {
+              // console.log(data);
+              if (roomId == "favicon.ico") {
+                break;
               }
-              console.log(rooms[roomId].users.size);
-              ws.send(JSON.stringify({ action: 'checked-result', roomId: roomId, exists: true, 
-                usersNumber: Object.keys(rooms[roomId].users).length, ownerId: rooms[roomId].ownerCreatedId, isApproved: isApproved}))
+              console.log(rooms);
+              if (!rooms[roomId]) {
+                ws.send(JSON.stringify({ action: 'checked-result', roomId: roomId, exists: false, }));
+              }
+              else {
+                let isBlocked = rooms[roomId].blockUsers.includes(data.email);
+                if (isBlocked) {
+                  ws.send(JSON.stringify({ action: 'checked-result', roomId: roomId, exists: true, isBlocked: true }))
+                  break;
+                }
+                let isApproved = rooms[roomId].approvedUsers.includes(data.email);
+                let isPrivateRoom = rooms[roomId].settings["private"];
+                if (isPrivateRoom == false) {
+                  isApproved = true;
+                }
+                console.log(rooms[roomId].users.size);
+                ws.send(JSON.stringify({
+                  action: 'checked-result', roomId: roomId, exists: true,
+                  usersNumber: Object.keys(rooms[roomId].users).length, ownerId: rooms[roomId].ownerCreatedId, isApproved: isApproved
+                }))
+              }
             }
-          }
-          break;
-        default:
-          ws.send(JSON.stringify({ action: 'error', message: 'Unknown message action' }));
+            break;
+          default:
+            ws.send(JSON.stringify({ action: 'error', message: 'Unknown message action' }));
+        }
+      } catch (error) {
+        console.log("error when connecting to ws: ", error)
       }
     });
 
@@ -706,15 +766,15 @@ module.exports = async (httpServer, router) => {
             // } catch (error) {
             //   console.log(error);
             // }
-            if(room.producers[userId]){
-              if(room.producers[userId]['video']){
+            if (room.producers[userId]) {
+              if (room.producers[userId]['video']) {
                 producerVideoId = room.producers[userId]['video'].id;
               }
-              if(room.producers[userId]['audio']){
+              if (room.producers[userId]['audio']) {
                 producerAudioId = room.producers[userId]['audio'].id;
               }
-  
-              if(room.producers[userId]['sharing']){
+
+              if (room.producers[userId]['sharing']) {
                 producerSharingId = room.producers[userId]['sharing'].id;
               }
             }
@@ -728,17 +788,17 @@ module.exports = async (httpServer, router) => {
                 // console.log(producerSharingId)
               }
             }
-            if(producerAudioId){
+            if (producerAudioId) {
               for (let id in room.users) {
                 delete room.consumers[id][producerAudioId];
                 // console.log("PRODUCER SHARING: ", room.producers[userId]['sharing'].id);
                 // console.log(producerSharingId)
               }
             }
-            if(producerSharingId){
-              sendBroadcast(roomId, {action: "stopSharing", producerUserId: userId, roomId: roomId, username: room.users[userId].name});
-              for(let id in room.users){
-                if(room.producers[userId]['sharing']!=null){
+            if (producerSharingId) {
+              sendBroadcast(roomId, { action: "stopSharing", producerUserId: userId, roomId: roomId, username: room.users[userId].name });
+              for (let id in room.users) {
+                if (room.producers[userId]['sharing'] != null) {
                   delete room.consumers[userId][producerSharingId];
                 }
               }

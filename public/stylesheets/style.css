@@ -124,7 +124,16 @@ body {
   border-radius: 25px;
   background-color: #d5d7d8;
 }
-
+.buttonOptions:hover{
+  background-color: #d5d7d8;
+}
+.buttonOptions{
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: transparent;
+  border: none;
+}
 .buttonsClose,
 .buttonsAction {
   background-color: transparent;
@@ -366,4 +375,14 @@ p {
   height: 28px;
   width: 28px;
   object-fit: contain;
+}
+
+
+.new-noti {
+  margin-top: 5px;
+  width: 10px;
+  height: 10px;
+  background-color: green;
+  border-radius: 50%;
+  border: 1px solid white;
 }

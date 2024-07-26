@@ -11,6 +11,8 @@ const accountController = require('../controllers/AccountController');
 
 router.post('/createMeeting', roomController.createRoom);
 
+router.post('/shareScreen', roomController.shareScreen);
+
 router.get('/profile', userController.index)
 
 router.post('/profile', userController.updateProfile)
@@ -29,7 +31,9 @@ router.post('/getUserByContainingEmail', userController.getUserByContainingEmail
 
 router.post('/deleteUsers', userController.deleteUserByUserEmail);
 
-router.post('/changePassword', accountController.changePassword)
+router.post('/getRoomsByDay', roomController.getRoomsByDay)
+
+router.post('/changePassword', accountController.changePassword);
 
 router.get('/notfound', roomController.notfound)
 

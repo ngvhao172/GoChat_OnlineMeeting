@@ -26,6 +26,7 @@
     "https": "^1.0.0",
     "mediasoup": "^3.14.7",
     "mediasoup-client": "^3.7.10",
+    "moment-timezone": "^0.5.45",
     "morgan": "~1.9.1",
     "multiparty": "^4.2.3",
     "nodemailer": "^6.9.14",

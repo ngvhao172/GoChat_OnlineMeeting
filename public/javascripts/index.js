@@ -288,51 +288,6 @@ export function filterUsersByName(nameFilter) {
 }
 
 
-
-export function updateUserList({users, clientId, filter, idUserLeft, ownerId}) {
-    const userListContainer = $("#userslist");
-    if(idUserLeft){
-        let userLeft = document.getElementById(`contributor-${idUserLeft}`);
-        if(userLeft){
-            userLeft.remove();
-            return;
-        }
-
-    }
-    users.forEach(user => {
-        let existedUser = document.getElementById(`contributor-${user.id}`);
-
-        if (!existedUser) {
-            const userDiv = `
-                <div class="row d-flex align-items-center pt-2 pb-2 contributor-showing" data-name="${user.name}" id="contributor-${user.id}">
-                    <div class="col-2 avatar"><img class="user-avatar" src="${user.avatar ? user.avatar: '/images/GoLogoNBg.png'}" alt="" srcset=""></div>
-                    <div class="col-6 p-0 fs-6 ps-2"><span>${user.name}${user.id === clientId ? ' (You) ' : '' } ${user.id === ownerId ? "<span class='fw-bold fs-6'>(Host)</span>" : ''}</span></div>
-                    <div class="col-2 text-center d-none mutedMic${user.id === clientId ? 'localVideo' : user.id}"><i class="bi bi-mic-mute"></i></div>
-                    <div class="col-2 text-center d-none micActive${user.id === clientId ? 'localVideo' : user.id}">
-                        <div class="mic-container muted-mic text-white fs-5 rounded-circle d-flex align-items-center justify-content-center">
-                            <div class="dot rounded-pill"></div>
-                            <div class="dot rounded-pill"></div>
-                            <div class="dot rounded-pill"></div>
-                        </div>
-                    </div>
-                    <div class="ms-auto col-2 p-0">
-                        <button class="buttons buttonsClose">
-                            <i class="bi bi-three-dots-vertical fs-5"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-            userListContainer.append(userDiv);
-            if(user.id == clientId){
-                moveDivToPositionGlobal(`contributor-${user.id}`,1);
-            }
-        }
-    });
-
-    $("#contributors-number").text(users.length);
-    $("#contributors-text-show").text(users.length);
-}
-
 export function resizeSharing(){
     const container = document.querySelector('.sharing-container');
 
@@ -595,9 +550,11 @@ peopleButtonOnMobile.addEventListener('click', function () {
 });
 
 chatButton.addEventListener('click', function () {
+    $("#new-message").addClass("d-none");
     toggleContainer(chatContainer, isActionContainerOpenGlobal);
 });
 chatButtonOnMobile.addEventListener('click', function () {
+    $("#new-message").addClass("d-none");
     toggleContainer(chatContainer, isActionContainerOpenGlobal);
 });
 

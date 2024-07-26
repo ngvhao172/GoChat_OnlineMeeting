@@ -28,7 +28,7 @@
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
-       
+
     }
 
     .icon-container {
@@ -165,6 +165,37 @@
         color: white;
     }
 
+    .tab button {
+        display: block;
+        background-color: inherit;
+        color: gray;
+        padding: 10px;
+        width: 100%;
+        border: none;
+        outline: none;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.3s;
+        font-size: 17px;
+    }
+
+    .tab button:hover {
+        background-color: #f7f6f6;
+        border-left: 5px solid #fbe3a7;
+    }
+
+    .tab button.active {
+        color: #FBB040;
+        font-weight: 600;
+        border-left: 5px solid #fbc02d;
+        background-color: #efeeee;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+
     @media only screen and (max-width: 600px) {
 
         .right-box {
@@ -188,6 +219,7 @@
         border: 1px solid black;
         transition: background-color 0.3s, border 0.3s;
     }
+
     li {
         cursor: pointer;
     }
@@ -221,7 +253,8 @@
                             <span class="new-noti d-none" id="new-noti-green"></span>
                         </div>
                     </button>
-                    <ul class="dropdown-menu" aria-labelledby="noticDropdown" onclick="getPermission()" id="ulInvitations" style="overflow-y: auto; max-height: 300px">
+                    <ul class="dropdown-menu" aria-labelledby="noticDropdown" onclick="getPermission()"
+                        id="ulInvitations" style="overflow-y: auto; max-height: 300px">
                         <li class="px-3 py-2" id="emptyNotiLi">
                             <div class="d-flex align-items-center">
                                 <div>
@@ -235,7 +268,8 @@
                             <div class="d-flex align-items-center">
                                 <div>
                                     <span id="permissionText">
-                                        Notification need permission to show and <br> private browser do not support notifications.
+                                        Notification need permission to show and <br> private browser do not support
+                                        notifications.
                                     </span>
                                 </div>
                             </div>
@@ -297,10 +331,10 @@
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
                             <div class="profile-pic" data-bs-toggle="tooltip" data-bs-placement="bottom"
-                            title="Profile">
+                                title="Profile">
                                 {{#if user.avatar}}
-                                <img src="{{user.avatar}}" height="30" class="rounded-circle"
-                                    alt="Profile Picture" referrerpolicy="no-referrer">
+                                <img src="{{user.avatar}}" height="30" class="rounded-circle" alt="Profile Picture"
+                                    referrerpolicy="no-referrer">
                                 {{else}}
                                 <img src="images/GoLogoNBg.png" height="30" alt="Profile Picture">
                                 {{/if}}
@@ -327,7 +361,8 @@
                             <li><a class="dropdown-item" href="/profile"><i class="bi bi-person-fill pe-2"></i></i>
                                     Account</a>
                             </li>
-                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#settingModal"><i class="bi bi-gear-fill pe-2"></i> Setting</a>
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                    data-bs-target="#settingModal"><i class="bi bi-gear-fill pe-2"></i> Setting</a>
                             </li>
                             <li>
                                 <hr class="dropdown-divider">
@@ -403,183 +438,190 @@
                     </div>
                 </div> --}}
                 <div class="card-meet">
-                    <div class="meeting-schedule" style="overflow-y: auto; height: 450px">
+                    <div class="meeting-schedule" id="meeting-schedule" style="overflow-y: auto; height: 450px">
+                        <div class="card m-2 d-none" id="freeDiv">
+                            <div class="card-body p-2">
+                                <div class="d-flex justify-content-between">
+                                    <small class="card-text text-black align-self-center">You are free today. Yahoooo!!!!</small>
+                                </div>
+                            </div>
+                        </div>
+                        {{!-- <div class="card m-2">
+                            <div class="card-body p-2">
+                                <div class="d-flex justify-content-between">
+                                    <small class="card-text text-danger">Now
+                                    </small>
+                                    <div class="dropdown">
+                                        <i class="bi bi-three-dots-vertical" id="dropdownMenuButton"
+                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <a class="dropdown-item" href="#">Edit</a>
+                                            <a class="dropdown-item" href="#">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h6 class="card-title">Nhat Quynh Pham's meeting</h6>
+                                <a href="#" class="btn btn-primary btn-sm">Join</a>
+                                <small class="card-text text-secondary">Jun 26 11h:30PM - Jun 27 12h:00AM
+                                </small>
+
+                            </div>
+                        </div>
                         <div class="card m-2">
-                        <div class="card-body p-2">
-                            <div class="d-flex justify-content-between">
-                                <small class="card-text text-danger">Now
-                                </small>
-                                <div class="dropdown">
-                                    <i class="bi bi-three-dots-vertical" id="dropdownMenuButton"
-                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <a class="dropdown-item" href="#">Edit</a>
-                                        <a class="dropdown-item" href="#">Delete</a>
+                            <div class="card-body p-2">
+                                <div class="d-flex justify-content-between">
+                                    <small class="card-text text-danger">Now
+                                    </small>
+                                    <div class="dropdown">
+                                        <i class="bi bi-three-dots-vertical" id="dropdownMenuButton"
+                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <a class="dropdown-item" href="#">Edit</a>
+                                            <a class="dropdown-item" href="#">Delete</a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <h6 class="card-title">Nhat Quynh Pham's meeting</h6>
-                            <a href="#" class="btn btn-primary btn-sm">Join</a>
-                            <small class="card-text text-secondary">Jun 26 11h:30PM - Jun 27 12h:00AM
-                            </small>
-
-                        </div>
-                    </div>
-                    <div class="card m-2">
-                        <div class="card-body p-2">
-                            <div class="d-flex justify-content-between">
-                                <small class="card-text text-danger">Now
+                                <h6 class="card-title">Nhat Quynh Pham's meeting</h6>
+                                <a href="#" class="btn btn-primary btn-sm">Join</a>
+                                <small class="card-text text-secondary">Jun 26 11h:30PM - Jun 27 12h:00AM
                                 </small>
-                                <div class="dropdown">
-                                    <i class="bi bi-three-dots-vertical" id="dropdownMenuButton"
-                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <a class="dropdown-item" href="#">Edit</a>
-                                        <a class="dropdown-item" href="#">Delete</a>
+
+                            </div>
+                        </div>
+                        <div class="card m-2">
+                            <div class="card-body p-2">
+                                <div class="d-flex justify-content-between">
+                                    <small class="card-text text-danger">Now
+                                    </small>
+                                    <div class="dropdown">
+                                        <i class="bi bi-three-dots-vertical" id="dropdownMenuButton"
+                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <a class="dropdown-item" href="#">Edit</a>
+                                            <a class="dropdown-item" href="#">Delete</a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <h6 class="card-title">Nhat Quynh Pham's meeting</h6>
-                            <a href="#" class="btn btn-primary btn-sm">Join</a>
-                            <small class="card-text text-secondary">Jun 26 11h:30PM - Jun 27 12h:00AM
-                            </small>
-
-                        </div>
-                    </div>
-                    <div class="card m-2">
-                        <div class="card-body p-2">
-                            <div class="d-flex justify-content-between">
-                                <small class="card-text text-danger">Now
+                                <h6 class="card-title">Nhat Quynh Pham's meeting</h6>
+                                <a href="#" class="btn btn-primary btn-sm">Join</a>
+                                <small class="card-text text-secondary">Jun 26 11h:30PM - Jun 27 12h:00AM
                                 </small>
-                                <div class="dropdown">
-                                    <i class="bi bi-three-dots-vertical" id="dropdownMenuButton"
-                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <a class="dropdown-item" href="#">Edit</a>
-                                        <a class="dropdown-item" href="#">Delete</a>
+
+                            </div>
+                        </div>
+                        <div class="card m-2">
+                            <div class="card-body p-2">
+                                <div class="d-flex justify-content-between">
+                                    <small class="card-text text-danger">Now
+                                    </small>
+                                    <div class="dropdown">
+                                        <i class="bi bi-three-dots-vertical" id="dropdownMenuButton"
+                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <a class="dropdown-item" href="#">Edit</a>
+                                            <a class="dropdown-item" href="#">Delete</a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <h6 class="card-title">Nhat Quynh Pham's meeting</h6>
-                            <a href="#" class="btn btn-primary btn-sm">Join</a>
-                            <small class="card-text text-secondary">Jun 26 11h:30PM - Jun 27 12h:00AM
-                            </small>
-
-                        </div>
-                    </div>
-                    <div class="card m-2">
-                        <div class="card-body p-2">
-                            <div class="d-flex justify-content-between">
-                                <small class="card-text text-danger">Now
+                                <h6 class="card-title">Nhat Quynh Pham's meeting</h6>
+                                <a href="#" class="btn btn-primary btn-sm">Join</a>
+                                <small class="card-text text-secondary">Jun 26 11h:30PM - Jun 27 12h:00AM
                                 </small>
-                                <div class="dropdown">
-                                    <i class="bi bi-three-dots-vertical" id="dropdownMenuButton"
-                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <a class="dropdown-item" href="#">Edit</a>
-                                        <a class="dropdown-item" href="#">Delete</a>
+
+                            </div>
+                        </div>
+                        <div class="card m-2">
+                            <div class="card-body p-2">
+                                <div class="d-flex justify-content-between">
+                                    <small class="card-text text-danger">Now
+                                    </small>
+                                    <div class="dropdown">
+                                        <i class="bi bi-three-dots-vertical" id="dropdownMenuButton"
+                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <a class="dropdown-item" href="#">Edit</a>
+                                            <a class="dropdown-item" href="#">Delete</a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <h6 class="card-title">Nhat Quynh Pham's meeting</h6>
-                            <a href="#" class="btn btn-primary btn-sm">Join</a>
-                            <small class="card-text text-secondary">Jun 26 11h:30PM - Jun 27 12h:00AM
-                            </small>
-
-                        </div>
-                    </div>
-                    <div class="card m-2">
-                        <div class="card-body p-2">
-                            <div class="d-flex justify-content-between">
-                                <small class="card-text text-danger">Now
+                                <h6 class="card-title">Nhat Quynh Pham's meeting</h6>
+                                <a href="#" class="btn btn-primary btn-sm">Join</a>
+                                <small class="card-text text-secondary">Jun 26 11h:30PM - Jun 27 12h:00AM
                                 </small>
-                                <div class="dropdown">
-                                    <i class="bi bi-three-dots-vertical" id="dropdownMenuButton"
-                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <a class="dropdown-item" href="#">Edit</a>
-                                        <a class="dropdown-item" href="#">Delete</a>
+
+                            </div>
+                        </div>
+                        <div class="card m-2">
+                            <div class="card-body p-2">
+                                <div class="d-flex justify-content-between">
+                                    <small class="card-text text-danger">Now
+                                    </small>
+                                    <div class="dropdown">
+                                        <i class="bi bi-three-dots-vertical" id="dropdownMenuButton"
+                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <a class="dropdown-item" href="#">Edit</a>
+                                            <a class="dropdown-item" href="#">Delete</a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <h6 class="card-title">Nhat Quynh Pham's meeting</h6>
-                            <a href="#" class="btn btn-primary btn-sm">Join</a>
-                            <small class="card-text text-secondary">Jun 26 11h:30PM - Jun 27 12h:00AM
-                            </small>
-
-                        </div>
-                    </div>
-                    <div class="card m-2">
-                        <div class="card-body p-2">
-                            <div class="d-flex justify-content-between">
-                                <small class="card-text text-danger">Now
+                                <h6 class="card-title">Nhat Quynh Pham's meeting</h6>
+                                <a href="#" class="btn btn-primary btn-sm">Join</a>
+                                <small class="card-text text-secondary">Jun 26 11h:30PM - Jun 27 12h:00AM
                                 </small>
-                                <div class="dropdown">
-                                    <i class="bi bi-three-dots-vertical" id="dropdownMenuButton"
-                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <a class="dropdown-item" href="#">Edit</a>
-                                        <a class="dropdown-item" href="#">Delete</a>
+
+                            </div>
+                        </div>
+                        <div class="card m-2">
+                            <div class="card-body p-2">
+                                <div class="d-flex justify-content-between">
+                                    <small class="card-text text-danger">Now
+                                    </small>
+                                    <div class="dropdown">
+                                        <i class="bi bi-three-dots-vertical" id="dropdownMenuButton"
+                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <a class="dropdown-item" href="#">Edit</a>
+                                            <a class="dropdown-item" href="#">Delete</a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <h6 class="card-title">Nhat Quynh Pham's meeting</h6>
-                            <a href="#" class="btn btn-primary btn-sm">Join</a>
-                            <small class="card-text text-secondary">Jun 26 11h:30PM - Jun 27 12h:00AM
-                            </small>
-
-                        </div>
-                    </div>
-                    <div class="card m-2">
-                        <div class="card-body p-2">
-                            <div class="d-flex justify-content-between">
-                                <small class="card-text text-danger">Now
+                                <h6 class="card-title">Nhat Quynh Pham's meeting</h6>
+                                <a href="#" class="btn btn-primary btn-sm">Join</a>
+                                <small class="card-text text-secondary">Jun 26 11h:30PM - Jun 27 12h:00AM
                                 </small>
-                                <div class="dropdown">
-                                    <i class="bi bi-three-dots-vertical" id="dropdownMenuButton"
-                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <a class="dropdown-item" href="#">Edit</a>
-                                        <a class="dropdown-item" href="#">Delete</a>
+
+                            </div>
+                        </div> --}}
+                        {{!-- <div class="card m-2">
+                            <div class="card-body p-2">
+                                <div class="d-flex justify-content-between">
+                                    <small class="card-text text-danger">1 minutes
+                                    </small>
+                                    <div class="dropdown">
+                                        <i class="bi bi-three-dots-vertical" id="dropdownMenuButton"
+                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <a class="dropdown-item" href="#">Edit</a>
+                                            <a class="dropdown-item" href="#">Delete</a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <h6 class="card-title">Nhat Quynh Pham's meeting</h6>
-                            <a href="#" class="btn btn-primary btn-sm">Join</a>
-                            <small class="card-text text-secondary">Jun 26 11h:30PM - Jun 27 12h:00AM
-                            </small>
-
-                        </div>
-                    </div>
-                    <div class="card m-2">
-                        <div class="card-body p-2">
-                            <div class="d-flex justify-content-between">
-                                <small class="card-text text-danger">1 minutes
+                                <h6 class="card-title">Nhat Quynh Pham's meeting</h6>
+                                <a href="#" class="btn btn-primary btn-sm">Start</a>
+                                <small class="card-text text-secondary">Jun 26 11h:30PM - Jun 27 12h:00AM
                                 </small>
-                                <div class="dropdown">
-                                    <i class="bi bi-three-dots-vertical" id="dropdownMenuButton"
-                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <a class="dropdown-item" href="#">Edit</a>
-                                        <a class="dropdown-item" href="#">Delete</a>
-                                    </div>
-                                </div>
+
                             </div>
-
-                            <h6 class="card-title">Nhat Quynh Pham's meeting</h6>
-                            <a href="#" class="btn btn-primary btn-sm">Start</a>
-                            <small class="card-text text-secondary">Jun 26 11h:30PM - Jun 27 12h:00AM
-                            </small>
-
-                        </div>
-                    </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>
@@ -684,116 +726,64 @@
             </div>
         </div>
     </div>
-    {{!-- Setting modal --}}
-    <div class="modal fade" id="settingModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content" style="min-height: 500px;">
+
+    <div class="modal fade" id="settingModal" tabindex="-1" aria-labelledby="settingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Settings</h5>
-                    <button type="button" class="btn-close" id="closeModal" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="settingModalLabel">Settings</h5>
+                    <button type="button" class="btn-close btn-light" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-4">
-                                <div class="list-group" id="list-tab" role="tablist">
-                                    <a class="list-group-item list-group-item-action active" id="list-profile-list"
-                                        data-bs-toggle="list" href="#list-profile" role="tab"
-                                        aria-controls="list-profile"><i class="bi bi-camera"></i>&ensp; Video</a>
-                                    <a class="list-group-item list-group-item-action" id="list-home-list"
-                                        data-bs-toggle="list" href="#list-home" role="tab" aria-controls="list-home"><i
-                                            class="bi bi-mic"></i>&ensp; Microphone</a>
+                    <div class="row">
+                        <div class="col-3">
+                            <div class="tab">
+                                <div class="tab-indicator">
+
+                                </div>
+                                <button class="tablinks" onclick="openCity(event, 'Camera')"
+                                    id="defaultOpen">Camera</button>
+                                <button class="tablinks" onclick="openCity(event, 'Audio')">Audio</button>
+                            </div>
+                        </div>
+                        <div class="col-9">
+                            <div id="Camera" class="tabcontent">
+                                <div class="">
+                                    <h6>Camera Check</h6>
+                                    <div class="col-lg-7">
+                                        <div class="selectors">
+                                            <label for="videoInputSelect">Camera: </label>
+                                            <select id="videoInputSelect"></select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-5">
+                                        <br>
+                                        <video id="video" height="150" autoplay></video>
+
+                                    </div>
 
                                 </div>
                             </div>
-                            <div class="col-8">
-                                <div class="tab-content" id="nav-tabContent">
-                                    <div class="tab-pane fade show active" id="list-profile" role="tabpanel"
-                                        aria-labelledby="list-profile-list">
-                                        <div class="container">
-                                            <div class="row">
-                                                <div class="col">
-                                                    <div class="row">
-                                                        <p class="fw-bold text-primary">Video</p>
-                                                    </div>
-                                                    <div class="row pt-2">
-                                                        <div class="col text-start me-2 btn-group dropdown">
-                                                            <button id="cameraButtonDropdown"
-                                                                class="device-options d-flex bg-transparent rounded-pill align-items-center dropdown-toggle"
-                                                                data-bs-toggle="dropdown" aria-expanded="false"
-                                                                style="max-width: 200px;">
-                                                                <i class="bi bi-camera-video fs-5 pe-2"></i>
-                                                                <p class="device-options p-0 m-0 text-center border-0"
-                                                                    id="cameraCurrent">Camera</p>
-                                                            </button>
-                                                            <ul class="dropdown-menu" id="cameraDropdownMenu"></ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <video id="videoPreview" autoplay disablePictureInPicture
-                                                        height="100" style="width:100%; border-radius: 5px;"></video>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="tab-pane fade" id="list-home" role="tabpanel"
-                                        aria-labelledby="list-home-list">
-                                        <div class="container">
-                                            <div class="row">
-                                                <p class="fw-bold text-primary">Micro</p>
-                                            </div>
-                                            <div class="row pt-2">
-                                                <div class="col">
-                                                    <div class="row">
-                                                        <div class="col text-start me-2 btn-group dropdown">
-                                                            <button id="micButtonDropdown"
-                                                                class="device-options bg-transparent d-flex rounded-pill align-items-center dropdown-toggle"
-                                                                data-bs-toggle="dropdown" aria-expanded="false"
-                                                                style="max-width: 200px; height: 40px">
-                                                                <i class="bi bi-mic fs-5 pe-2"></i>
-                                                                <p class="device-options p-0 m-0 text-center border-0"
-                                                                    id="microphoneCurrent">Microphone
-                                                                </p>
-                                                            </button>
-                                                            <ul class="dropdown-menu" id="micDropdownMenu"></ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {{!-- <div class="col">
-                                                    <div
-                                                        class="mic-container d-flex justify-content-center align-items-center micActivevideoPreview">
-                                                        <div class="dot rounded-pill"></div>
-                                                        <div class="dot rounded-pill"></div>
-                                                        <div class="dot rounded-pill"></div>
-                                                    </div>
-                                                </div> --}}
-                                            </div>
-                                            <div class="row mt-2">
-                                                <div class="col">
-                                                    <button id="start-record-btn" class="btn btn-primary">Start
-                                                        Recording
-                                                    </button>
-                                                    <button id="stop-record-btn" class="btn btn-primary" disabled>Stop
-                                                        Recording</button>
-                                                </div>
-                                                <br>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col">
-                                                    <h6>Loudspeaker</h6>
-                                                    <button class="btn btn-primary" id="play-back-btn" disabled>Play
-                                                        Back</button>
-                                                    <div id="output" class="d-none">
-                                                        <p>Recording...</p>
-                                                    </div>
-                                                    <div id="output2" class="d-none">
-                                                        <p>Playing...</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                            <div id="Audio" class="tabcontent">
+                                <h6>Audio Test</h6>
+                                <div class="selectors mb-2">
+                                    <label for="audioInputSelect">Micro:</label>
+                                    <select id="audioInputSelect"></select>
+                                </div>
+                                <button id="start-record-btn" class="btn btn-primary">Start
+                                    Recording</button>
+                                <button id="stop-record-btn" class="btn btn-primary" disabled>Stop
+                                    Recording</button>
+                                <br>
+                                <br>
+                                <h6>Loudspeaker</h6>
+                                <button class="btn btn-primary" id="play-back-btn" disabled>Play Back</button>
+                                <div id="output" class="hidden">
+                                    <p>Recording...</p>
+                                </div>
+                                <div id="output2" class="hidden">
+                                    <p>Playing...</p>
                                 </div>
                             </div>
                         </div>
@@ -808,24 +798,108 @@
             </div>
         </div>
     </div>
+    {{!-- Setting modal --}}
 </body>
 <script>
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     })
-    function joinRoom(roomId){
+    function joinRoom(roomId) {
         window.location.href = `/${roomId.toString()}`
     }
 
-    $(document).ready(function (){
+    const intervalIds = {};
+    let today = new Date();
+    console.log(today);
+
+    function formatDateToYYYYMMDD(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); 
+        const day = String(date.getDate()).padStart(2, '0');
+
+        return `${year}-${month}-${day}`;
+    }
+    today = formatDateToYYYYMMDD(today)
+    console.log(today);
+
+    getSchedule(today);
+
+    $('#datetime3').on("change", function(){
+        console.log($("#datetime3").val());
+        Array.from(intervalIds).forEach(id => {
+            clearInterval(intervalIds[id]);
+        })
+        getSchedule($("#datetime3").val());
+    })
+    //getSchedule()
+    function getSchedule(date){
+        let day = date;
+        $.ajax({
+            url: '/getRoomsByDay',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                day: day
+            }),
+            success: function (response) {
+                let data = response;
+               $('#meeting-schedule > div').slice(1).remove();
+               if(data.length == 0){
+                    $('#freeDiv').removeClass("d-none");
+                    return;
+               }
+               $('#freeDiv').addClass("d-none");
+               console.log(data)
+               data.forEach(room => {
+                    const newSchedule = `
+                        <div class="card m-2">
+                            <div class="card-body p-2">
+                                <div class="d-flex justify-content-between">
+                                    <small class="card-text text-danger" id="${room.roomId}">${(room.endAt && room.startAt) ? (room.endAt) : 'Now' }
+                                    </small>
+                                    <div class="dropdown">
+                                        <i class="bi bi-three-dots-vertical" id="dropdownMenuButton"
+                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <a class="dropdown-item" href="#">Edit</a>
+                                            <a class="dropdown-item" href="#">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h6 class="card-title">${room.roomName}</h6>
+                                <a href="/${room.roomId}" class="btn btn-primary btn-sm">Join</a>
+                                <small class="card-text text-secondary">${(room.startAt) ? formateDateTime(room.startAt) : '--' }  -  ${(room.endAt) ? formateDateTime(room.endAt) : '--' }
+                                </small>
+                            </div>
+                        </div>
+                    `
+                    $('#meeting-schedule').append(newSchedule);
+
+                    const roomId = room.roomId;
+                    intervalIds[roomId]  = setInterval(() => {
+                        updateTimeInterval(room.startAt, room.endAt, roomId);
+                    }, 60000);
+                    updateTimeInterval(room.startAt, room.endAt, roomId);
+               })
+            },
+            error: function (xhr, status, error) {
+                console.error('Send error:', xhr.responseText);
+            }
+        });
+    }
+
+    $(document).ready(function () {
+
+        //getSchedule();
         //localStorage.clear();
         const storedDataArrayString = localStorage.getItem('invitations');
 
         const storedDataArray = storedDataArrayString ? JSON.parse(storedDataArrayString) : []
-        if(storedDataArray.length>0){
+        if (storedDataArray.length > 0) {
             const check = storedDataArray[0];
-            if(check.to != "{{user.userEmail}}"){
+            if (check.to != "{{user.userEmail}}") {
                 return;
             }
             $("#emptyNotiLi").addClass("d-none");
@@ -852,7 +926,7 @@
     var refreshing;
     const newMessage = localStorage.getItem('newMessage');
     console.log(newMessage)
-    if(newMessage=="true"){
+    if (newMessage == "true") {
         $("#new-noti-green").removeClass("d-none");
     }
     if (navigator.serviceWorker) {
@@ -860,8 +934,8 @@
             if (event.data && event.data.type === 'push-notification') {
                 const data = event.data.data;
                 console.log("Received data from Service Worker:", data);
-                const {from, roomId, to, fromUserAvatar} = data;
-                if(to!="{{user.userEmail}}"){
+                const { from, roomId, to, fromUserAvatar } = data;
+                if (to != "{{user.userEmail}}") {
                     return;
                 }
                 $("#new-noti-green").removeClass("d-none");
@@ -879,7 +953,7 @@
                 const date = formattedDate
                 const time = formattedTime
 
-                storedDataArray.unshift({from, roomId, to, fromUserAvatar, date, time} );
+                storedDataArray.unshift({ from, roomId, to, fromUserAvatar, date, time });
                 localStorage.setItem('invitations', JSON.stringify(storedDataArray));
 
                 const div = `
@@ -896,7 +970,7 @@
                     </li>
                 `;
                 const ul = document.getElementById("ulInvitations");
-                ul.insertAdjacentHTML('afterbegin', div); 
+                ul.insertAdjacentHTML('afterbegin', div);
 
                 //updateUIWithNotification(data);
             }
@@ -909,7 +983,7 @@
     async function checkAndRegisterForPushNotifications(registration) {
         try {
             const subscription = await registration.pushManager.getSubscription();
-           if (subscription) {
+            if (subscription) {
                 console.log("Client is already subscribed:", subscription);
                 try {
                     const getSub = await getSubscription(subscription.endpoint);
@@ -932,29 +1006,29 @@
         }
     }
     async function registerForPushNotifications(registration) {
-    try {
-        const subscription = await registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array("BCGeLzc1iyki17jIBjFxi351V6ttBrrBNpimnbw8mifWJG8x92l0G5s1fr4H2XtBjQ60rwxkd2rvjt-4TqvNqng")
-        });
-        const response = await saveSubscription(subscription)
-        console.log(response)
+        try {
+            const subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array("BCGeLzc1iyki17jIBjFxi351V6ttBrrBNpimnbw8mifWJG8x92l0G5s1fr4H2XtBjQ60rwxkd2rvjt-4TqvNqng")
+            });
+            const response = await saveSubscription(subscription)
+            console.log(response)
 
-        window.location.reload();
-        navigator.serviceWorker.addEventListener('controllerchange',
-            function () {
-                if (refreshing) return;
-                refreshing = true;
-                window.location.reload();
-            })
+            window.location.reload();
+            navigator.serviceWorker.addEventListener('controllerchange',
+                function () {
+                    if (refreshing) return;
+                    refreshing = true;
+                    window.location.reload();
+                })
 
-        console.log("Push subscription registered successfully:", subscription);
-    } catch (error) {
-        console.error('Failed to subscribe to push notifications:', error);
-        $("#emptyNotiLi").addClass("d-none");
-        $("#blockNotiLi").removeClass("d-none");
+            console.log("Push subscription registered successfully:", subscription);
+        } catch (error) {
+            console.error('Failed to subscribe to push notifications:', error);
+            $("#emptyNotiLi").addClass("d-none");
+            $("#blockNotiLi").removeClass("d-none");
+        }
     }
-}
 
 
     const checkPermission = () => {
@@ -1006,16 +1080,16 @@
     }
 
     const getSubscription = async (endpoint) => {
-    const response = await fetch('/getSubscription', {
-        method: 'POST',  
-        headers: { 'Content-Type': "application/json" },  
-        body: JSON.stringify({
-            endpoint: endpoint,
-            userEmail: "{{user.userEmail}}" 
-        })
-    });
-    return response.json(); 
-}
+        const response = await fetch('/getSubscription', {
+            method: 'POST',
+            headers: { 'Content-Type': "application/json" },
+            body: JSON.stringify({
+                endpoint: endpoint,
+                userEmail: "{{user.userEmail}}"
+            })
+        });
+        return response.json();
+    }
 
 
     async function requestNotificationPermission() {
@@ -1132,6 +1206,87 @@
 
         var time = setTimeout(function () { startTime() }, 500);
     }
+
+    function updateTimeInterval(start, end, id) {
+        let now = new Date();
+
+        if (start) {
+            start = new Date(start);
+        }
+        if (end) {
+            end = new Date(end);
+        }
+
+       function formatTimeDifference(milliseconds) {
+            let totalMinutes = Math.floor(milliseconds / (1000 * 60));
+            
+            let days = Math.floor(totalMinutes / (60 * 24));
+            let hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+            let minutes = totalMinutes % 60;
+            
+            let result = '';
+            if (days > 0) {
+                result += `${days} days `;
+            }
+            if (hours > 0) {
+                result += `${hours} hours `;
+            }
+            result += `${minutes} minutes`;
+            
+            return result.trim();
+        }
+        const element = document.getElementById(id);
+
+        if (element) {
+            if(!start){
+                element.textContent = '---';
+                clearInterval(intervalIds[id]);; 
+            }
+            else if (now > start) {
+                if(end){
+                    if(now < end){
+                        const minutes = formatTimeDifference(now - start);
+                        element.textContent = `Now`;
+                    }
+                    else{
+                        element.textContent = 'End';
+                        clearInterval(intervalIds[id]);
+                    }
+                }
+                else{
+                    element.textContent = 'Now';
+                    clearInterval(intervalIds[id]);; 
+                }
+            } else if (now < start) {
+                const minutes = formatTimeDifference(start - now);
+                element.textContent = `Start in ${minutes}`;
+            }
+        } else {
+            console.error(`Không tìm thấy thẻ với id ${id}`);
+        }
+    }
+
+    function formateDateTime(datetime){
+        datetime = new Date(datetime)
+        console.log(datetime);
+        let formatted = '';
+        var hr = datetime.getHours();
+        var min = datetime.getMinutes();
+        let ap = (hr < 12) ? "<span>AM</span>" : "<span>PM</span>";
+        hr = (hr == 0) ? 12 : hr;
+        hr = (hr > 12) ? hr - 12 : hr;
+        hr = checkTime(hr);
+        min = checkTime(min);
+        time = hr + ":" + min + ap
+        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        var curDay = datetime.getDate();
+        var curMonth = months[datetime.getMonth()];
+        var curYear = datetime.getFullYear();
+        var date = curMonth + " " + curDay + " "
+
+        formatted = date + time;
+        return formatted;
+    }
     function checkTime(i) {
         if (i < 10) {
             i = "0" + i;
@@ -1180,170 +1335,71 @@
         toggleScheButton();
     });
 
-    let videoSrcChange = false;
-    let audioSrcChange = false;
-
-    $("#settingsButton").on("click", function () {
-        const videoPreview = document.getElementById('videoPreview');
-        let audioConstraints = localStorage.getItem("audioConstraints");
-        let videoConstraints = localStorage.getItem("videoConstraints");
-        console.log(audioConstraints, videoConstraints)
-        let constraints = { video: true, audio: true };
-        if (audioConstraints) {
-            constraints.audio = JSON.parse(audioConstraints)
+    function openCity(evt, cityName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
         }
-        if (videoConstraints) {
-            constraints.video = JSON.parse(videoConstraints)
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
         }
-        console.log(constraints)
-        //const devices = await navigator.mediaDevices.enumerateDevices();
-        checkDeviceConstraints(audioConstraints, videoConstraints).then(async result => {
-            console.log('Audio device exists:', result.audioDeviceExists);
-            console.log('Video device exists:', result.videoDeviceExists);
-            if (!result.audioDeviceExists) {
-                constraints.audio = true;
-            }
-            if (!result.videoDeviceExists) {
-                constraints.video = true;
-            }
-            console.log(constraints)
-
-            let audioStreamPromise = navigator.mediaDevices.getUserMedia({ audio: audioConstraints ? JSON.parse(audioConstraints) : true });
-            let videoStreamPromise = navigator.mediaDevices.getUserMedia({ video: videoConstraints ? JSON.parse(videoConstraints) : true });
-
-            let audioStream = null;
-            let videoStream = null;
-
-            try {
-                audioStream = await audioStreamPromise;
-            } catch (error) {
-                disableButton("audio", micButton);
-                console.warn('Audio permission denied or other issue:', error);
-            }
-            try {
-                videoStream = await videoStreamPromise;
-            } catch (error) {
-                disableButton("video", webcamButton);
-                console.warn('Video permission denied or other issue:', error);
-            }
-
-            // Create a combined stream if both streams are available
-            const combinedStream = new MediaStream();
-            if (audioStream) {
-                audioStream.getAudioTracks().forEach(track => combinedStream.addTrack(track));
-            }
-            if (videoStream) {
-                videoStream.getVideoTracks().forEach(track => combinedStream.addTrack(track));
-            }
-            videoPreview.srcObject = combinedStream;
-            videoPreview.play();
-            const videoTrack = combinedStream.getVideoTracks()[0];
-            const audioTrack = combinedStream.getAudioTracks()[0];
-
-            if (videoTrack) {
-                console.log('Video Track Device ID:', videoTrack.label);
-
-                $("#cameraCurrent").text(videoTrack.label);
-
-                let dropdownMenu = document.getElementById("cameraDropdownMenu");
-
-                const items = dropdownMenu.querySelectorAll('.dropdown-item');
-                items.forEach(item => {
-                    console.log(item.textContent)
-                    if (item.textContent.trim() === videoTrack.label) {
-                        item.classList.add('active');
-                    }
-                });
-
-            }
-            if (audioTrack) {
-                console.log('Audio Track Device ID:', audioTrack.label);
-
-                $("#microphoneCurrent").text(audioTrack.label);
-
-                let dropdownMenu = document.getElementById("micDropdownMenu");
-
-                const items = dropdownMenu.querySelectorAll('.dropdown-item');
-                items.forEach(item => {
-                    if (item.textContent.trim() === audioTrack.label) {
-                        item.classList.add('active');
-                    }
-                });
-            }
-        })
-            .catch(function (error) {
-
-                console.error('Error when accessing devices:', error);
-                //constraints = {video: true, audio: true};
-
-            });
-    })
-    async function populateDropdown(dropdownId, devices, buttonId) {
-        const dropdownMenu = document.getElementById(dropdownId);
-        dropdownMenu.innerHTML = '';
-
-        devices.forEach(device => {
-            const li = document.createElement('li');
-            const a = document.createElement('a');
-            a.className = 'dropdown-item';
-            a.href = '#';
-            a.textContent = device.label || `Thiết bị không có tên (${device.deviceId})`;
-            a.dataset.deviceId = device.deviceId;
-
-            a.addEventListener('click', async function (event) {
-                event.preventDefault();
-
-                const button = document.getElementById(buttonId);
-                const buttonLabel = button.querySelector('p');
-                buttonLabel.textContent = this.textContent;
-
-                const items = dropdownMenu.querySelectorAll('.dropdown-item');
-                items.forEach(item => item.classList.remove('active'));
-                this.classList.add('active');
-
-                await changeMediaDevice(devices[0].kind, this.dataset.deviceId);
-            });
-
-            li.appendChild(a);
-            dropdownMenu.appendChild(li);
-        });
+        document.getElementById(cityName).style.display = "block";
+        evt.currentTarget.className += " active";
     }
-    async function getUserMediaWithConstraints(audioConstraints, videoConstraints) {
+    document.getElementById("defaultOpen").click();
+
+    //camera
+    const videoElement = document.getElementById('video');
+    const videoInputSelect = document.getElementById('videoInputSelect');
+
+    const audioInputSelect = document.getElementById('audioInputSelect');
+
+    async function checkVideoDeviceConstraints(videoConstraints) {
         try {
-            const constraints = {};
-            if (audioConstraints) {
-                constraints.audio = audioConstraints;
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const videoInputs = devices.filter(device => device.kind === 'videoinput');
+            videoInputSelect.innerHTML = '';
+            videoInputs.forEach(deviceInfo => {
+                if (deviceInfo.kind === 'videoinput') {
+                    const option = document.createElement('option');
+                    option.value = deviceInfo.deviceId;
+                    option.text = deviceInfo.label || `Camera ${videoInputSelect.length + 1}`;
+                    videoInputSelect.appendChild(option);
+                }
+            });
+            videoConstraints = JSON.parse(videoConstraints);
+            let videoDeviceExists
+            if (videoConstraints && videoConstraints.deviceId) {
+                videoDeviceExists = devices.some(device =>
+                    device.kind === 'videoinput' && device.deviceId === videoConstraints.deviceId.exact
+                )
             }
-            if (videoConstraints) {
-                constraints.video = videoConstraints;
+            else {
+                videoDeviceExists = false;
             }
-            const stream = await navigator.mediaDevices.getUserMedia(constraints);
-            return stream;
+
+            return videoDeviceExists;
         } catch (error) {
-            console.error('Lỗi khi lấy media stream:', error);
+            console.error("Error checking device constraints:", error);
+            return false;
         }
     }
-    async function checkDeviceConstraints(audioConstraints, videoConstraints) {
+    async function checkAudioDeviceConstraints(audioConstraints) {
         try {
             const devices = await navigator.mediaDevices.enumerateDevices();
 
             const audioInputs = devices.filter(device => device.kind === 'audioinput');
-            //const audioOutputs = devices.filter(device => device.kind === 'audiooutput');
-            const videoInputs = devices.filter(device => device.kind === 'videoinput');
-            if (audioInputs.length > 0) {
-                console.log(audioInputs)
-                populateDropdown('micDropdownMenu', audioInputs, 'micButtonDropdown');
-            }
-            if (videoInputs.length > 0) {
-                console.log(videoInputs)
-                populateDropdown('cameraDropdownMenu', videoInputs, 'cameraButtonDropdown');
-            }
-
-            //populateDropdown('speakerDropdownMenu', audioOutputs, 'speakerButtonDropdown');
-
-
-            console.log(JSON.parse(videoConstraints), JSON.parse(audioConstraints))
-            videoConstraints = JSON.parse(videoConstraints);
+            audioInputSelect.innerHTML = '';
+            audioInputs.forEach(deviceInfo => {
+                if (deviceInfo.kind === 'audioinput') {
+                    const option = document.createElement('option');
+                    option.value = deviceInfo.deviceId;
+                    option.text = deviceInfo.label || `Micro ${audioInputSelect.length + 1}`;
+                    audioInputSelect.appendChild(option);
+                }
+            });
             audioConstraints = JSON.parse(audioConstraints);
             let audioDeviceExists;
             if (audioConstraints && audioConstraints.deviceId) {
@@ -1355,227 +1411,93 @@
                 audioDeviceExists = false;
             }
 
-            let videoDeviceExists
-            if (videoConstraints && videoConstraints.deviceId) {
-                videoDeviceExists = devices.some(device =>
-                    device.kind === 'videoinput' && device.deviceId === videoConstraints.deviceId.exact
-                )
-            }
-            else {
-                videoDeviceExists = false;
-            }
-
-            return { audioDeviceExists, videoDeviceExists };
+            return audioDeviceExists;
         } catch (error) {
             console.error("Error checking device constraints:", error);
-            return { audioDeviceExists: false, videoDeviceExists: false };
+            return false;
         }
     }
-    async function changeMediaDevice(type, deviceId) {
+
+    function start() {
+        if (window.stream) {
+            window.stream.getTracks().forEach(track => {
+                track.stop();
+            });
+        }
+
+        const videoSource = videoInputSelect.value;
+        const constraints = {
+            video: { deviceId: videoSource ? { exact: videoSource } : undefined }
+        };
+        console.log("vo day")
+
+        navigator.mediaDevices.getUserMedia(constraints).then(gotStream).catch(handleError);
+    }
+
+    function gotStream(stream) {
+        window.stream = stream;
+        if(videoElement.srcObject){
+            let streamStoped = videoElement.srcObject;
+            streamStoped.getVideoTracks()[0].stop();
+            //videoElement.srcObject.getTracks().forEach(track => track.stop());
+            videoElement.srcObject = null;
+        }
+        videoElement.srcObject = stream;
+    }
+
+    function handleError(error) {
+        console.error('Error: ', error);
+    }
+
+    videoInputSelect.onchange = start;
+
+    $("#settingsButton").on("click", async () => {
         try {
-            const videoElement = document.getElementById('videoPreview');
-            // if (!window.stream) {
-            //     let stream = await getUserMediaWithConstraints(true, true);
-            //     window.stream = stream
-            //     videoElement.srcObject = stream;
-            // }
-            let stream = videoElement.srcObject;
-
-            let audioConstraints = null;
-            let videoConstraints = null;
-            if (type === 'audioinput') {
-                audioConstraints = { deviceId: { exact: deviceId } };
-
-                let audioStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints })
-
-                if (!stream) {
-                    /*let stream = await getUserMediaWithConstraints(true, true);
-                    let videoTrack = stream.getVideoTracks()[0];
-                    let videoSettings = videoTrack.getSettings();
-                    const videoDeviceId = videoSettings.deviceId;
-
-                    let videoConstraints = { deviceId: { exact: videoDeviceId } };*/
-                    videoElement.srcObject = audioStream;
-                    //videoElement.srcObject.addTrack(audioStream.getVideoTracks()[0]);
-                    //localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
-                }
-                else {
-                    const audioTracks = stream.getAudioTracks();
-                    console.log(audioTracks)
-                    if (audioTracks.length > 0) {
-                        stream.removeTrack(audioTracks[0]);
-                        stream.addTrack(audioStream.getAudioTracks()[0])
-                        //localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
-                    }
-                    else {
-                        stream.addTrack(audioStream.getAudioTracks()[0])
-                        //localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
+            await navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(async (stream) => {
+                stream.getAudioTracks()[0].stop();
+                stream.getVideoTracks()[0].stop();  
+                let videoConstraints = localStorage.getItem("videoConstraints");
+                console.log(videoConstraints);
+                const videoDeviceExists = await checkVideoDeviceConstraints(videoConstraints)
+                if (videoDeviceExists) {
+                    let deviceId = JSON.parse(videoConstraints).deviceId.exact;
+                    for (let option of videoInputSelect.options) {
+                        if (option.value === deviceId) {
+                            console.log("GIONG", option.value)
+                            videoInputSelect.value = option.value;
+                            break;
+                        }
                     }
                 }
-                audioSrcChange = true;
-            } else if (type === 'videoinput') {
-                videoConstraints = { deviceId: { exact: deviceId } };
-
-                console.log(videoConstraints)
-                let videoStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints })
-                if (!stream) {
-                    /*let stream = await getUserMediaWithConstraints(true, true);
-                    let videoTrack = stream.getVideoTracks()[0];
-                    let videoSettings = videoTrack.getSettings();
-                    const videoDeviceId = videoSettings.deviceId;
-
-                    let videoConstraints = { deviceId: { exact: videoDeviceId } };*/
-                    videoElement.srcObject = videoStream;
-                    //localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
-                }
-                else {
-                    const videoTracks = stream.getVideoTracks();
-                    if (videoTracks.length > 0) {
-                        stream.removeTrack(videoTracks[0]);
-                        stream.addTrack(videoStream.getVideoTracks()[0]);
-                        console.log(videoStream.getVideoTracks()[0])
-                        console.log("REPLACE VIDEO TRACK")
-                        //localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
+                let audioConstraints = localStorage.getItem("audioConstraints");
+                console.log(audioConstraints);
+                const audioDeviceExists = await checkAudioDeviceConstraints(audioConstraints);
+                if (audioDeviceExists) {
+                    let deviceId = JSON.parse(audioConstraints).deviceId.exact;
+                    for (let option of audioInputSelect.options) {
+                        if (option.value === deviceId) {
+                            audioInputSelect.value = option.value;
+                            break;
+                        }
                     }
-                    else {
-                        stream.addTrack(videoStream.getVideoTracks()[0]);
-                        console.log(videoStream.getVideoTracks()[0])
-                        console.log("REPLACE VIDEO TRACK")
-                        //localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
-                    }
-                    videoTracks[0].stop();
                 }
-                videoSrcChange = true;
-            }
+                start();
+            });
         } catch (error) {
-            console.error('Lỗi khi thay đổi thiết bị media:', error);
+            handleError(error);
         }
-    }
-    $("#changeSourceButton").on("click", async function () {
-        const videoPreview = document.getElementById("videoPreview");
-        let videoPreviewStream = videoPreview.srcObject;
-        let videoTrackReplace = videoPreviewStream.getVideoTracks()[0];
-        let videoTracks;
-        if (videoSrcChange) {
-            let track = videoTrackReplace;
-            let videoSettings = track.getSettings();
-            const videoDeviceId = videoSettings.deviceId;
-
-            let videoConstraints = { deviceId: { exact: videoDeviceId } };
-            localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
-            console.log("CHANGE MEDIA SOURCE")
-            console.log(videoConstraints);
-            //videoPreview.srcObject = null;
-            videoSrcChange = false;
-        }
-        if (audioSrcChange == true) {
-            let audioTrackReplace = videoPreviewStream.getAudioTracks()[0];
-
-            let audioTracks = stream.getAudioTracks();
-            // if(!stream){
-            //     audioTracks = audioTrackReplace;
-            // }else{
-            //     audioTracks = 
-            // }
-            //replace;
-            if (audioTracks.length > 0) {
-                audioTracks.forEach(track => {
-                    stream.removeTrack(track);
-                });
-                stream.addTrack(audioTrackReplace);
-
-                await audioProducer.replaceTrack({ track: audioTrackReplace });
-
-                let track = audioTrackReplace;
-                const audioSettings = track.getSettings();
-                const audioDeviceId = audioSettings.deviceId;
-
-                const audioConstraints = { deviceId: { exact: audioDeviceId } };
-                localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
-
-                let id = "localVideo";
-                if (harkInstances[id]) {
-                    console.log("EXISTS HARK INSTANCE")
-                    harkInstances[id].stop();
-                    harkInstances[id] = null;
-                    delete harkInstances[id];
-                }
-                console.log(harkInstances);
-                let audioStream = new MediaStream();
-                audioStream.addTrack(stream.getAudioTracks()[0]);
-                let options = {
-                    threshold: -70
-                };
-                harkInstances[id] = hark(audioStream, options);
-
-                harkInstances[id].on('speaking', () => {
-                    console.log(`${id} is speaking on track ${track.id}`);
-                    showDots(id);
-                    moveDivToPositionWhenSpeaking(id);
-                });
-
-                harkInstances[id].on('stopped_speaking', () => {
-                    console.log(`${id} speech stopped on track ${track.id}`);
-                    stopDots(id);
-                });
-                harkInstances[id].on('volume_change', (volume, threshold) => {
-                    //console.log(`Volume change: ${volume}, Threshold: ${threshold}`);
-
-                    updateDots(volume, id);
-                });
-            } else {
-                console.error('No video tracks found in local video stream.');
-            }
-
-            audioSrcChange = false;
-        }
-
-
-
-
-        // const audioSettings = track.getSettings();
-        // const deviceId = settings.deviceId;
-
-        // let audioConstraints = { deviceId: { exact: deviceId } };
-        // localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
-        //replace;
-
-        // let stopStream = videoPreview.srcObject;
-        // let videoStopTracks = stopStream.getVideoTracks()[0]
-        // videoStopTracks.stop();
-        // let audioStopTracks = stopStream.getAudioTracks()[0]
-        // audioStopTracks.stop();
-
-        let stream = videoPreview.srcObject;
-        let videoTracksStop = stream.getVideoTracks()[0]
-        videoTracksStop.stop();
-        let audioTracksStop = stream.getAudioTracks()[0]
-        audioTracksStop.stop();
-        videoPreview.srcObject = null;
-
     });
 
-    $("#changeSourceCloseButton").on("click", function () {
-        const videoPreview = document.getElementById("videoPreview");
-        let stream = videoPreview.srcObject;
-        let videoTracks = stream.getVideoTracks()[0]
-        videoTracks.stop();
-        let audioTracks = stream.getAudioTracks()[0]
-        audioTracks.stop();
-        videoPreview.srcObject = null;
-    })
-
-    $("#closeModal").on("click", function () {
-        const videoPreview = document.getElementById("videoPreview");
-        let stream = videoPreview.srcObject;
-        let videoTracks = stream.getVideoTracks()[0]
-        videoTracks.stop();
-        let audioTracks = stream.getAudioTracks()[0]
-        audioTracks.stop();
-        videoPreview.srcObject = null;
-    })
+    document.getElementById('settingModal').addEventListener('hidden.bs.modal', () => {
+        if (window.stream) {
+            window.stream.getTracks().forEach(track => {
+                track.stop();
+            });
+        }
+    });
 
     //audio
+
     let audioContext;
     let recorder;
     let audioChunks = [];
@@ -1588,61 +1510,58 @@
     let activeStream = null; // Để lưu trữ stream hiện tại
 
     startbtn.addEventListener('click', async () => {
-        // Clear old audio and data
-        const audioElements = document.querySelectorAll('audio');
+        let audioElements = Array.from(document.querySelectorAll('audio'));
+        console.log('Existing audio elements before removal:', audioElements.length);
+
         audioElements.forEach(audio => {
-            if (!audio.paused) {
-                audio.pause();
+            if (audio) {
+                if (!audio.paused) {
+                    audio.pause();
+                }
                 audio.currentTime = 0;
+                audio.remove();
             }
         });
-        audioChunks = [];
 
-        // Initialize new recording
+        audioElements = document.querySelectorAll('audio');
+        console.log('Audio elements after removal:', audioElements.length);
+
+        console.log("audioElements after removal: ", audioElements);
+        console.log("chunks: ", audioChunks);
+        console.log("audio element: ", audioElements);
+
+        // Khởi tạo ghi âm mới
+        let audioConstraints = localStorage.getItem("audioConstraints");
+        console.log(audioConstraints);
+        console.log(audioInputSelect.value)
+
+        let constraint = { deviceId: { exact: audioInputSelect.value } }
+        if (audioContext && audioContext.state !== 'closed') {
+            audioContext.close();
+        }
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        let stream;
-        const videoElement = document.getElementById("videoPreview");
-        if (videoElement && videoElement.srcObject) {
-            stream = new MediaStream();
-            if (videoElement.srcObject.getAudioTracks().length > 0) {
-                stream.addTrack(videoElement.srcObject.getAudioTracks()[0]);
-            } else {
-                // Handle the case where no audio tracks are available
-                console.error('No audio tracks available in the video element.');
-                return;
-            }
-        } else {
-            stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        }
-        let input = audioContext.createMediaStreamSource(stream);
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: constraint });
+        const input = audioContext.createMediaStreamSource(stream);
+        recorder = new MediaRecorder(stream);
         activeStream = stream;
-        if (!recorder) {
-            recorder = new MediaRecorder(activeStream);
-        }
 
         recorder.ondataavailable = event => {
             audioChunks.push(event.data);
+            console.log(audioChunks);
         };
 
         recorder.onstop = () => {
-            let audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-            let audioUrl = URL.createObjectURL(audioBlob);
-            let audio = new Audio(audioUrl);
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            audioChunks = [];
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audio = new Audio(audioUrl);
+            document.body.appendChild(audio);
             playback.disabled = false;
-            playing.classList.add('d-none');
+            playing.classList.add('hidden');
 
-            playback.addEventListener('click', async () => {
-                if (!audio.paused) {
-                    await audio.pause();
-                    playing.classList.add('d-none');
-                    startbtn.disabled = false;
-                    playback.innerText = "Play back";
-                } else {
-                    await audio.play();
-                    playing.classList.remove('d-none');
-                    startbtn.disabled = true;
-                    playback.innerText = "Stop play";
-                }
+            playback.addEventListener('click', () => {
+                audio.play();
+                playing.classList.remove('hidden');
             });
         };
 
@@ -1650,28 +1569,27 @@
         startbtn.disabled = true;
         playback.disabled = true;
         stopbtn.disabled = false;
-        recording.classList.remove('d-none');
-        playing.classList.add('d-none');
+        recording.classList.remove('hidden');
+        playing.classList.add('hidden');
     });
 
-
-    stopbtn.addEventListener('click', async () => {
+    stopbtn.addEventListener('click', () => {
         if (recorder && recorder.state !== 'inactive') {
-            await recorder.stop();
-            console.log("STOP")
-            await audioContext.close();
-            if (activeStream) {
-                activeStream.getTracks().forEach(track => track.stop());
-                activeStream = null;
-            }
-            startbtn.disabled = false;
-            stopbtn.disabled = true;
-            recording.classList.add('d-none');
+            recorder.stop();
         }
+        if (audioContext && audioContext.state !== 'closed') {
+            audioContext.close();
+        }
+        if (activeStream) {
+            activeStream.getTracks().forEach(track => track.stop());
+            activeStream = null;
+        }
+        startbtn.disabled = false;
+        stopbtn.disabled = true;
+        recording.classList.add('hidden');
     });
 
     document.getElementById('settingModal').addEventListener('hidden.bs.modal', () => {
-        // Dừng ghi âm và giải phóng tài nguyên nếu đang ghi âm
         if (recorder && recorder.state !== 'inactive') {
             recorder.stop();
             audioContext.close();
@@ -1680,8 +1598,6 @@
                 activeStream = null;
             }
         }
-
-        // Dừng phát lại âm thanh nếu có
         const audioElements = document.querySelectorAll('audio');
         audioElements.forEach(audio => {
             if (!audio.paused) {
@@ -1690,16 +1606,46 @@
             }
         });
 
-        // Xóa âm thanh cũ và dữ liệu
+        if(window.stream){
+            let stream = window.stream;
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+
+        if(videoElement.srcObject){
+            console.log("EXIST");
+            let stream = videoElement.srcObject;
+            stream.getVideoTracks()[0].stop();
+            //videoElement.srcObject.getTracks().forEach(track => track.stop());
+            videoElement.srcObject = null;
+        }
+
         audioChunks = [];
 
-        // Reset UI elements
         startbtn.disabled = false;
         playback.disabled = true;
         stopbtn.disabled = true;
         recording.classList.add('hidden');
         playing.classList.add('hidden');
+        console.log("CLOSE");
     });
+
+    $("#changeSourceButton").on("click", function(){
+        let audioDeviceId = audioInputSelect.value;
+        let audioConstraints = {
+            deviceId: { exact: audioDeviceId }
+        }
+
+        localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints));
+
+        let videoDeviceId = videoInputSelect.value;
+        let videoConstraints = {
+            deviceId: { exact: videoDeviceId }
+        }
+
+        localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints));
+    })
+
 </script>
 
 </html>
