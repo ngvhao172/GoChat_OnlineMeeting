@@ -245,7 +245,7 @@
         }
         $(document).ready(function () {
             const ws_url = "{{ws_url}}";
-            const ws = new WebSocket(ws_url);
+            const ws = new WebSocket(`{{ws_url}}?token=${encodeURIComponent('{{token}}')}`);
             ws.onmessage = async (message) => {
                 const data = JSON.parse(message.data);
                 console.log('Received:', data);
@@ -272,7 +272,7 @@
                 $("#joinButton").prop("disabled", true);
                 $("#joinText").addClass("d-none");
                 $("#loadingJoin").removeClass("d-none");
-                ws.send(JSON.stringify({ action: 'requestJoin', roomId: "{{roomId}}", email: "{{user.userEmail}}", name: "{{user.fullName}}" }));
+                ws.send(JSON.stringify({ action: 'requestJoin', roomId: "{{roomId}}", userEmail: "{{user.userEmail}}", name: "{{user.fullName}}" }));
             });
         })
         document.addEventListener('DOMContentLoaded', async (event) => {

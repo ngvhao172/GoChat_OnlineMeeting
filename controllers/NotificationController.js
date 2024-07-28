@@ -1,5 +1,6 @@
 const NotificationSub = require("../models/NotificationSub");
 const notificationService = require("../services/NotificationService");
+const roomService = require("../services/RoomService");
 const userService = require('../services/UserService');
 const webPush = require("web-push");
 
@@ -101,6 +102,33 @@ class NotificationController {
         }
 
     }
+
+    // async sendInviteEmailWhenCreate(req, res, next){
+    //     const {roomId, to} = req.body;
+    //     if(!roomId || !roomId.trim() || !to || !to.trim()){
+    //         return res.status(400).json({ "status": "Error", "message": "All fields are required" });
+    //     }
+    //     try {
+    //         const invited = await notificationService.sendInviteEmail(to, roomId);
+    //         if(invited.status){
+    //             const roomData = await roomService.getRoomByRoomId(roomId);
+    //             if(roomData.status){
+    //                 let attendees = roomData.data.attendees;
+    //                 attendees.push(to);
+    //                 let updateRoom = await roomService.updateRoom(roomId, {"attendees": attendees})
+    //                 console.log(updateRoom);
+    //             }
+
+    //             return res.json({ status: true, message: "Email Invitation sent!" });
+    //         }
+    //         else{
+    //             return res.status(500).json({ status: false, message: invited.message });
+    //         }
+    //     } catch (error) {
+    //         return res.status(500).json({ status: false, message: 'Error when sending email invitation', error });
+    //     }
+
+    // }
     
 }
 

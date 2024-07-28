@@ -1,10 +1,23 @@
 const webSocket = require('ws');
+const jwt = require("jsonwebtoken")
+const url = require('url');
+
+const secret_key = process.env.SECRET_KEY;
+
+const authenticateToken = (token) => {
+  try {
+    return jwt.verify(token, secret_key);
+  } catch (err) {
+    console.log(err)
+    return null;
+  }
+};
 
 let rooms = {};
 const createWebRtcTransport = async (router) => {
   const transportOptions = {
     listenIps: [{ ip: '0.0.0.0', announcedIp: '127.0.0.1' }],
-    // listenIps: [{ ip: '0.0.0.0', announcedIp: 'videochatapp.online' }],
+    //listenIps: [{ ip: '0.0.0.0', announcedIp: 'videochatapp.online' }],
     enableUdp: true,
     enableTcp: true,
     preferUdp: true
@@ -17,39 +30,74 @@ module.exports = async (httpServer, router) => {
   const wss = new webSocket.Server({ server: httpServer }, () => {
     console.log(`Websocket server is started up: ${wss.address} `);
   });
-  wss.on('connection', ws => {
+  wss.on('connection', (ws, req)=> {
+    //console.log(req.headers);
+    //const token = req.headers['authorization']?.split(' ')[1];
+    const query = url.parse(req.url, true).query;
+    const token = query.token;
+    //console.log("TOKEN SEND TO SERVER:" + token);
+
+    if (!token) {
+        ws.close(4001, 'Unauthorized');
+        console.log('Connection attempt without token');
+        return;
+    }
+
+    const userEmailVerified = authenticateToken(token)
+    //console.log(userEmailVerified)
+
+    if (!userEmailVerified) {
+        ws.close(4001, 'Unauthorized');
+        console.log('Unauthorized connection attempt');
+        return;
+    }
+
     ws.on('message', async message => {
       try {
         const data = JSON.parse(message);
         // const data = JSON.parse(message);
         console.log("Data send to ws", data);
-        const { roomId, userId } = data;
-
+        const { roomId, userId, userEmail } = data;
+        if(userEmail!=userEmailVerified.userEmail){
+            ws.close(4001, 'Unauthorized');
+            console.log('Unauthorized connection attempt');
+            return;
+        }
         switch (data.action) {
           case 'create':
             {
+              const { attendes } = data;
               if (!rooms[roomId]) {
                 // lắng nghe âm thanh
-                // const audioLevelObserver = await router.createAudioLevelObserver({
-                //   maxEntries: 5,//tối đa 5 người được theo dõi 
-                //   threshold: -80, 
-                //   interval: 800 
-                // });
                 rooms[data.roomId] = {
                   users: {},
                   producers: {},
                   consumers: {},
-                  ownerCreatedId: userId,
+                  ownerCreatedEmail: data.userEmail,
                   settings: {
                     'private': false
                   },
-                  approvedUsers: [data.email],
+                  approvedUsers: [data.userEmail],
                   requestingUsers: [],
                   requestingUsersWs: {},
                   blockUsers: []
                   // audioLevelObserver: audioLevelObserver
                 };
-
+                if(attendes){
+                  attendes.forEach(email => {
+                    console.log(email);
+                    if(!email.includes("@")){
+                      return;
+                    }
+                    else{
+                      if(!rooms[data.roomId].approvedUsers.includes(email)){
+                        console.log("PASS EMAIL")
+                        console.log(email);
+                        rooms[data.roomId].approvedUsers.push(email);
+                      }
+                    }
+                  })
+                }
                 ws.send(JSON.stringify({
                   action: 'created',
                   status: true,
@@ -84,12 +132,12 @@ module.exports = async (httpServer, router) => {
                 break;
               }
               if (rooms[data.roomId].settings["private"] == false) {
-                if (!rooms[data.roomId].approvedUsers.includes(data.email)) {
-                  rooms[data.roomId].approvedUsers.push(data.email);
+                if (!rooms[data.roomId].approvedUsers.includes(data.userEmail)) {
+                  rooms[data.roomId].approvedUsers.push(data.userEmail);
                 }
               }
-              if (rooms[data.roomId].approvedUsers.includes(data.email)) {
-                rooms[data.roomId].users[data.userId] = { id: data.userId, ws, name: data.name, avatar: data.avatar, email: data.email, producerTransport: null, consumerTransports: {} };
+              if (rooms[data.roomId].approvedUsers.includes(data.userEmail)) {
+                rooms[data.roomId].users[data.userId] = { id: data.userId, ws, name: data.name, avatar: data.avatar, email: data.userEmail, producerTransport: null, consumerTransports: {} };
                 rooms[data.roomId].consumers[data.userId] = {};
 
                 // console.log("Room", rooms[data.roomId]);
@@ -97,9 +145,14 @@ module.exports = async (httpServer, router) => {
                 let users = [];
                 let usersObject = Object.values(rooms[data.roomId].users);
                 usersObject.forEach(user => {
-                  users.push({ id: user.id, name: user.name, avatar: user.avatar });
+                  if(user.email == rooms[roomId].ownerCreatedEmail){
+                    users.push({ id: user.id, name: user.name, avatar: user.avatar, email: user.email });
+                  }
+                  else{
+                    users.push({ id: user.id, name: user.name, avatar: user.avatar });
+                  }
                 });
-                sendBroadcast(data.roomId, { action: 'user-list', room: data.roomId, users: users, ownerId: rooms[data.roomId].ownerCreatedId, newUser: { name: data.name, id: data.userId } });
+                sendBroadcast(data.roomId, { action: 'user-list', room: data.roomId, users: users, ownerEmail: rooms[data.roomId].ownerCreatedEmail, newUser: { name: data.name, id: data.userId } });
               }
               else {
                 //xin request
@@ -126,39 +179,45 @@ module.exports = async (httpServer, router) => {
           case 'settingsUpdate':
             {
               const { private, roomId, userId } = data;
-              if (userId == rooms[roomId].ownerCreatedId) {
+              const user = rooms[roomId].users[userId];
+              if (user.email == rooms[roomId].ownerCreatedEmail) {
                 rooms[roomId].settings["private"] = private;
               }
             }
             break;
           case 'requestJoin':
             {
-              if (rooms[data.roomId].blockUsers.includes(data.email)) {
+              if (rooms[data.roomId].blockUsers.includes(data.userEmail)) {
                 ws.send(JSON.stringify({
                   action: 'requestResponse',
                   isApproved: false
                 }));
               }
-              if (rooms[data.roomId].approvedUsers.includes(data.email) || rooms[data.roomId].settings["private"] == false) {
+              if (rooms[data.roomId].approvedUsers.includes(data.userEmail) || rooms[data.roomId].settings["private"] == false) {
                 ws.send(JSON.stringify({
                   action: 'requestResponse',
                   isApproved: true
                 }));
               } else {
-                const exists = rooms[roomId].requestingUsers.some(user => user.email === data.email);
+                const exists = rooms[roomId].requestingUsers.some(user => user.email === data.userEmail);
                 if (!exists) {
-                  rooms[roomId].requestingUsers.push({ name: data.name, email: data.email });
+                  rooms[roomId].requestingUsers.push({ name: data.name, email: data.userEmail });
                 }
-                rooms[roomId].requestingUsersWs[data.email] = ws;
+                rooms[roomId].requestingUsersWs[data.userEmail] = ws;
                 console.log(rooms[roomId]);
                 try {
-                  const ownerWS = rooms[roomId].users[rooms[data.roomId].ownerCreatedId]["ws"];
-                  ownerWS.send(JSON.stringify({
-                    action: 'newRequest',
-                    newUser: { name: data.name, email: data.email },
-                    requestingUsers: rooms[roomId].requestingUsers
-                  }
-                  ));
+                  let usersObject = Object.values(rooms[data.roomId].users);
+                  usersObject.forEach(user => {
+                    if(user.email == rooms[roomId].ownerCreatedEmail){
+                      let ownerWS = rooms[roomId].users[user.id]["ws"];
+                        ownerWS.send(JSON.stringify({
+                          action: 'newRequest',
+                          newUser: { name: data.name, email: data.userEmail },
+                          requestingUsers: rooms[roomId].requestingUsers
+                        }
+                      ));
+                    }
+                  });
                 } catch (e) {
                   console.log(e);
                 }
@@ -168,7 +227,8 @@ module.exports = async (httpServer, router) => {
           case 'acceptRequest':
             {
               const { roomId, email, id } = data;
-              if (id != rooms[roomId].ownerCreatedId) {
+              const user = rooms[roomId].users[id];
+              if (user.email != rooms[roomId].ownerCreatedEmail) {
                 return;
               }
               if (!rooms[roomId].approvedUsers.includes(email)) {
@@ -202,7 +262,8 @@ module.exports = async (httpServer, router) => {
             {
               try {
                 const { roomId, email, id } = data;
-                if (id != rooms[roomId].ownerCreatedId) {
+                const user = rooms[roomId].users[id];
+                if (user.email != rooms[roomId].ownerCreatedEmail) {
                   return;
                 }
                 if (!rooms[roomId].approvedUsers.includes(email)) {
@@ -234,7 +295,8 @@ module.exports = async (httpServer, router) => {
           case 'inviteUser':
             {
               const { roomId, id, userEmailInvited } = data;
-              if (id != rooms[roomId].ownerCreatedId) {
+              const user = rooms[roomId].users[id];
+              if (user.email != rooms[roomId].ownerCreatedEmail) {
                 return;
               }
               if (!rooms[roomId].approvedUsers.includes(userEmailInvited)) {
@@ -246,7 +308,8 @@ module.exports = async (httpServer, router) => {
           case 'removeUserFromMeeting':
             {
               const { roomId, userId, isBlock, userRemoveId } = data;
-              if (userId != rooms[roomId].ownerCreatedId) {
+              const userOwner = rooms[roomId].users[userId];
+              if (userOwner.email != rooms[roomId].ownerCreatedEmail) {
                 return ws.send(JSON.stringify({
                   action: 'actionNotPermitted',
                   message: "Warning close ws"
@@ -268,7 +331,8 @@ module.exports = async (httpServer, router) => {
             {
               try {
                 const { userId, roomId, mutedUserId } = data;
-                if (userId != rooms[roomId].ownerCreatedId) {
+                const userOwner = rooms[roomId].users[userId];
+                if (userOwner.email != rooms[roomId].ownerCreatedEmail) {
                   return ws.send(JSON.stringify({
                     action: 'actionNotPermitted',
                     message: "Warning close ws"
@@ -716,12 +780,12 @@ module.exports = async (httpServer, router) => {
                 ws.send(JSON.stringify({ action: 'checked-result', roomId: roomId, exists: false, }));
               }
               else {
-                let isBlocked = rooms[roomId].blockUsers.includes(data.email);
+                let isBlocked = rooms[roomId].blockUsers.includes(data.userEmail);
                 if (isBlocked) {
                   ws.send(JSON.stringify({ action: 'checked-result', roomId: roomId, exists: true, isBlocked: true }))
                   break;
                 }
-                let isApproved = rooms[roomId].approvedUsers.includes(data.email);
+                let isApproved = rooms[roomId].approvedUsers.includes(data.userEmail);
                 let isPrivateRoom = rooms[roomId].settings["private"];
                 if (isPrivateRoom == false) {
                   isApproved = true;
@@ -729,7 +793,7 @@ module.exports = async (httpServer, router) => {
                 console.log(rooms[roomId].users.size);
                 ws.send(JSON.stringify({
                   action: 'checked-result', roomId: roomId, exists: true,
-                  usersNumber: Object.keys(rooms[roomId].users).length, ownerId: rooms[roomId].ownerCreatedId, isApproved: isApproved
+                  usersNumber: Object.keys(rooms[roomId].users).length, ownerEmail: rooms[roomId].ownerCreatedEmail, isApproved: isApproved
                 }))
               }
             }

@@ -14,12 +14,12 @@ async function initializeGooglePassport(passport) {
         passReqToCallback: true
     },
     async function (request, accessToken, refreshToken, profile, done) {
-        console.log(profile);
+        //console.log(profile);
         const user = await userService.getUserByEmail(profile.email);
         // return done(null, {id: "Uz5WzRkFxa9vi3edxaqL"});
         if (user.status) {
             //console.log(profile)
-            console.log(user.data)
+            //console.log(user.data)
             return done(null, user.data);
         } else {
             //Không tồn tại tài khoản trong hệ thống

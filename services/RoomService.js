@@ -7,7 +7,6 @@ const moment = require('moment-timezone');
 
 class RoomService{
     async createRoom(room) {
-        console.log(room.createdAt);
         try {
             const roomData = {
                 roomId: room.roomId,
@@ -15,6 +14,7 @@ class RoomService{
                 creatorId: room.creatorId,
                 createdAt: Timestamp.fromDate(new Date(room.createdAt)),
                 daysOfWeek: room.daysOfWeek,
+                attendees: room.attendees,
                 specificDates: room.specificDates
             };
     
@@ -57,7 +57,8 @@ class RoomService{
                 roomData.startAt.toDate(),
                 roomData.endAt.toDate(),
                 roomData.daysOfWeek || [],
-                roomData.specificDates || []
+                roomData.specificDates || [],
+                roomData.attendees || []
             );
             return { status: true, data: room };
         } catch (error) {
@@ -65,19 +66,57 @@ class RoomService{
             return { status: false, message: 'Error getting room by ID:', error };
         }
     }
-
-    async updateRoom(roomId, updatedRoom) {
+    async getRoomByRoomId(roomId) {
         try {
-            const roomRef = doc(collection(db, "rooms"), roomId);
-            await updateDoc(roomRef, {
-                roomId: updatedRoom.roomId,
-                roomName: updatedRoom.roomName,
-                creatorId: updatedRoom.creatorId,
-                startAt: Timestamp.fromDate(new Date(updatedRoom.startAt)),
-                endAt: Timestamp.fromDate(new Date(updatedRoom.endAt)),
-                daysOfWeek: updatedRoom.daysOfWeek,
-                specificDates: updatedRoom.specificDates
-            });
+
+            const roomQuery = query(
+                collection(db, 'rooms'),
+                where('roomId', '==', roomId.trim())
+            );
+            
+            const querySnapshot = await getDocs(roomQuery);
+            
+            if (querySnapshot.empty) {
+                console.log('Room not found');
+                return { status: false, message: "No room found with roomId: " + roomId };
+            }
+            
+            const roomDoc = querySnapshot.docs[0];
+            const roomData = roomDoc.data();
+            
+            const room = new Room(
+                roomDoc.id,
+                roomData.roomId,
+                roomData.roomName,
+                roomData.creatorId,
+                roomData.createdAt ? roomData.createdAt.toDate() : null,
+                roomData.startAt ? roomData.startAt.toDate() : null,
+                roomData.endAt ? roomData.endAt.toDate() : null,
+                roomData.daysOfWeek || [],
+                roomData.specificDates || [],
+                roomData.attendees || []
+            );
+            
+            return { status: true, data: room };
+        } catch (error) {
+            console.error('Error getting room by roomId:', error);
+            return { status: false, message: 'Error getting room by roomId:', error };
+        }
+    }
+    
+
+    async updateRoom(id, updatedRoom) {
+        try {
+
+            if (updatedRoom.startAt) {
+                updatedRoom.startAt = Timestamp.fromDate(new Date(updatedRoom.startAt));
+            }
+    
+            if (updatedRoom.endAt) {
+                updatedRoom.endAt = Timestamp.fromDate(new Date(updatedRoom.endAt));
+            }
+            const roomRef = doc(collection(db, "rooms"), id);
+            await updateDoc(roomRef, updatedRoom);
             console.log('Room updated:', updatedRoom);
             return { status: true, data: updatedRoom };
         } catch (error) {
@@ -98,7 +137,7 @@ class RoomService{
         }
     }
 
-    async getRoomByCreatorId(creatorId) {
+    async getRoomsByCreatorId(creatorId) {
         try {
             const q = query(collection(db, "rooms"), where('creatorId', '==', creatorId));
             const querySnapshot = await getDocs(q);
@@ -125,44 +164,12 @@ class RoomService{
         }
     }
 
-    async getRoomByStartDay(startDay) {
-        try {
-            const startOfDay = new Date(startDay);
-            startOfDay.setHours(0, 0, 0, 0);
-            const endOfDay = new Date(startDay);
-            endOfDay.setHours(23, 59, 59, 999);
-            const q = query(collection(db, "rooms"), where('startAt', '>=', Timestamp.fromDate(startOfDay)), where('startAt', '<=', Timestamp.fromDate(endOfDay)));
-            const querySnapshot = await getDocs(q);
-            const rooms = [];
-            querySnapshot.forEach((doc) => {
-                const roomData = doc.data();
-                const room = new Room(
-                    doc.id,
-                    roomData.roomId,
-                    roomData.roomName,
-                    roomData.creatorId,
-                    roomData.createdAt.toDate(),
-                    roomData.startAt.toDate(),
-                    roomData.endAt.toDate(),
-                    roomData.daysOfWeek || [],
-                    roomData.specificDates || []
-                );
-                rooms.push(room);
-            });
-            return { status: true, data: rooms };
-        } catch (error) {
-            console.error('Error fetching rooms by startDay:', error);
-            return { status: false, message: 'Error fetching rooms by startDay:', error };
-        }
-    }
     async getRoomsByCreatorIdAndWeekDay(startDate, creatorId) {
         try {
-            console.log(startDate)
     
             const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
             const dayOfWeek = daysOfWeek[new Date(startDate).getDay()];
 
-            console.log(dayOfWeek);
             let currentDate;
             if(startDate == moment.utc(new Date(startDate)).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD')){
                 currentDate = Timestamp.fromDate(new Date(startDate));
@@ -187,14 +194,116 @@ class RoomService{
             );
             const rooms = [];
             const snapshot1 = await getDocs(q1);
+           
+            const snapshot2 = await getDocs(q2);   
 
-            console.log(snapshot1.empty)
+            snapshot1.forEach((doc) => {
+                const roomData = doc.data();
+                console.log(roomData);
+                const room = new Room(
+                    doc.id,
+                    roomData.roomId,
+                    roomData.roomName,
+                    roomData.creatorId,
+                    roomData.createdAt ? roomData.createdAt.toDate() : null,
+                    roomData.startAt ? roomData.startAt.toDate() : null,
+                    roomData.endAt ? roomData.endAt.toDate() : null,
+                    roomData.daysOfWeek || [],
+                    roomData.specificDates || []
+                );
+                rooms.push(room);
+            });
 
-            if(snapshot1.empty){
-                const snapshot2 = await getDocs(q2);
-                console.log(snapshot2.empty)
-                snapshot2.forEach((doc) => {
-                    const roomData = doc.data();
+            snapshot2.forEach((doc) => {
+                const roomData = doc.data();
+                console.log(roomData);
+                let startTime;
+                if(roomData.startAt){
+                    startTime = new Date(startDate);
+                    startTime.setHours(roomData.startAt.toDate().getHours());
+                    startTime.setMinutes(roomData.startAt.toDate().getMinutes());
+                    startTime.setSeconds(roomData.startAt.toDate().getSeconds());
+                }
+                let endTime;
+                if(roomData.endAt){
+                    endTime = new Date(startDate);
+                    endTime.setHours(roomData.endAt.toDate().getHours());
+                    endTime.setMinutes(roomData.endAt.toDate().getMinutes());
+                    endTime.setSeconds(roomData.endAt.toDate().getSeconds());
+                }
+                const room = new Room(
+                    doc.id,
+                    roomData.roomId,
+                    roomData.roomName,
+                    roomData.creatorId,
+                    roomData.createdAt ? roomData.createdAt.toDate() : null,
+                    roomData.startAt ? startTime : null,
+                    roomData.endAt ? endTime : null,
+                    roomData.daysOfWeek || [],
+                    roomData.specificDates || []
+                );
+
+                if(!rooms.includes(room)){
+                    rooms.push(room);                    
+                }
+            });
+            
+            return { status: true, data: rooms };
+        } catch (error) {
+            console.error('Error fetching rooms:', error);
+            return { status: false, message: 'Error fetching rooms:', error };
+        }
+    }
+    async getRoomsByUserEmailAndWeekDay(startDate, userEmail) {
+        try {
+    
+            const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const dayOfWeek = daysOfWeek[new Date(startDate).getDay()];
+
+            let currentDate;
+            if(startDate == moment.utc(new Date(startDate)).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD')){
+                currentDate = Timestamp.fromDate(new Date(startDate));
+            }
+            else{
+                currentDate = moment.utc(new Date(startDate)).tz('Asia/Ho_Chi_Minh').format();
+            }
+
+            const q1 = query(
+                collection(db, "rooms"),
+                where('specificDates', 'array-contains', startDate)
+            );
+    
+            const q2 = query(
+                collection(db, "rooms"),
+                where('daysOfWeek', 'array-contains', dayOfWeek),
+                where('createdAt', "<=", currentDate)
+            );
+            const rooms = [];
+            const snapshot1 = await getDocs(q1);
+
+            snapshot1.forEach((doc) => {
+                const roomData = doc.data();
+                if (roomData.attendees && roomData.attendees.includes(userEmail)) {
+                    const room = new Room(
+                        doc.id,
+                        roomData.roomId,
+                        roomData.roomName,
+                        "",
+                        roomData.createdAt ? roomData.createdAt.toDate() : null,
+                        roomData.startAt ? roomData.startAt.toDate() : null,
+                        roomData.endAt ? roomData.endAt.toDate() : null,
+                        roomData.daysOfWeek || [],
+                        roomData.specificDates || [],
+                        roomData.attendees || []
+                    );
+                    rooms.push(room);
+                }
+            });
+
+            const snapshot2 = await getDocs(q2);
+            snapshot2.forEach((doc) => {
+                const roomData = doc.data();
+                if (roomData.attendees && roomData.attendees.includes(userEmail)) {
                     let startTime;
                     if(roomData.startAt){
                         startTime = new Date(startDate);
@@ -213,34 +322,23 @@ class RoomService{
                         doc.id,
                         roomData.roomId,
                         roomData.roomName,
-                        roomData.creatorId,
+                        "",
                         roomData.createdAt ? roomData.createdAt.toDate() : null,
                         roomData.startAt ? startTime : null,
                         roomData.endAt ? endTime : null,
                         roomData.daysOfWeek || [],
-                        roomData.specificDates || []
+                        roomData.specificDates || [],
+                        roomData.attendees || []
                     );
-                    rooms.push(room);
-                });
 
-            }
-            else{
-                snapshot1.forEach((doc) => {
-                    const roomData = doc.data();
-                    const room = new Room(
-                        doc.id,
-                        roomData.roomId,
-                        roomData.roomName,
-                        roomData.creatorId,
-                        roomData.createdAt ? roomData.createdAt.toDate() : null,
-                        roomData.startAt ? roomData.startAt.toDate() : null,
-                        roomData.endAt ? roomData.endAt.toDate() : null,
-                        roomData.daysOfWeek || [],
-                        roomData.specificDates || []
-                    );
-                    rooms.push(room);
-                });
-            }
+                    const roomExists = rooms.some(room => room.id === doc.id);
+                    if(!roomExists){
+                        rooms.push(room);                    
+                    }
+                }
+            });
+
+        
             return { status: true, data: rooms };
         } catch (error) {
             console.error('Error fetching rooms:', error);

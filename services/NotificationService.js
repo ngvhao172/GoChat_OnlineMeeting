@@ -143,7 +143,7 @@ class NotificationSubService {
         }
     }
 
-    sendInviteEmail = async ( userEmail, roomId ) => {
+    sendInviteEmail = async ( userEmail, roomId, startAt, endAt ) => {
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
@@ -159,6 +159,8 @@ class NotificationSubService {
             subject: "[GoChat] Meeting Invitation",
             html: `<p>You are inviting to a meeting.</p>
                 <p>Room code: ${roomId} </p>
+                ${startAt ? ' <p>Start at:  ' +  startAt + '</p>'  : '' }
+                ${endAt ? ' <p>End at:  ' +  endAt + '</p>'  : '' }
                 <p>Press <a href=${currentUrl + "/" + roomId }> here </a> to join.</p>` + footer,
         };
         try {

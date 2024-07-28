@@ -4,7 +4,6 @@ const userVerificationService = require("../services/UserVerificationService");
 const fs = require('fs');
 const bcrypt = require('bcrypt');
 const accountService = require("../services/AccountService");
-const e = require("express");
 
 class UserController {
     async index(req, res, next) {

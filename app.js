@@ -13,6 +13,8 @@ const initializeGooglePassport = require('./config/gg-passport-config');
 const mediasoup = require('mediasoup');
 const cors = require('cors');
 
+const jwt = require('jsonwebtoken')
+
 const webPush = require('web-push');
 
 // Generate VAPID keys
@@ -88,11 +90,16 @@ app.use('/', accessRouter);
 app.use(function (req, res, next) {
   // console.log(req.isAuthenticated());
   if (req.isAuthenticated()) {
+    //console.log("TOKEN:" +  res.locals.token)
     const sessionUUID = req.session.userUUID;
+    const token = req.session.token;
+    //console.log("TOKEN:" +  token)
     res.locals.user = req.user;
     res.locals.user.id = sessionUUID;
     res.locals.ws_url = ws_url;
+    res.locals.token = token;
     res.locals.domain = domain;
+    //console.log("TOKEN:" +  res.locals.token)
     return next();
   }
   else {

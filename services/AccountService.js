@@ -125,7 +125,7 @@ class AccountService {
                 to: userEmail,
                 subject: "[GoChat] Reset Your Password",
                 html: `<p>We've processed your password change request.</p>
-                <p>Here is your new password: ${newPassword}.</p>
+                <p>Here is your new password: ${newPassword}</p>
                 <p>Please change your password afterward to secure your account.</p> ` + footer
             };
             

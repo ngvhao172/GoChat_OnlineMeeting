@@ -16923,6 +16923,7 @@ const searchPeopleInput = $("#searchPeopleInput");
 const user = window.serverData.user;
 const ws_url = window.serverData.ws_url;
 const roomId = window.serverData.roomId;
+const token = window.serverData.token;
 console.log("User", user);
 console.log("roomId", roomId);
 
@@ -17029,7 +17030,8 @@ function acceptRequest(email) {
     action: "acceptRequest",
     roomId: roomId,
     email: email,
-    id: id
+    id: id,
+    userEmail: user.userEmail
   }));
   (0, _index.removeRequestorUi)(email);
 }
@@ -17038,7 +17040,8 @@ function declineRequest(email) {
     action: "declineRequest",
     roomId: roomId,
     email: email,
-    id: id
+    id: id,
+    userEmail: user.userEmail
   }));
   (0, _index.removeRequestorUi)(email);
 }
@@ -17052,7 +17055,8 @@ function removeUserFromMeeting(userId, isBlock) {
       userId: id,
       roomId: roomId,
       userRemoveId: userId,
-      isBlock: isBlock
+      isBlock: isBlock,
+      userEmail: user.userEmail
     }));
   }
 }
@@ -17071,16 +17075,19 @@ function muteUser(userId) {
     action: "muteUser",
     userId: id,
     roomId: roomId,
-    mutedUserId: userId
+    mutedUserId: userId,
+    userEmail: user.userEmail
   }));
 }
 function updateUserList({
   users,
   clientId,
-  filter,
+  clientEmail,
   idUserLeft,
-  ownerId
+  ownerEmail
 }) {
+  $("#contributors-number").text(users.length);
+  $("#contributors-text-show").text(users.length);
   const userListContainer = $("#userslist");
   if (idUserLeft) {
     let userLeft = document.getElementById(`contributor-${idUserLeft}`);
@@ -17095,7 +17102,7 @@ function updateUserList({
       const userDiv = `
                 <div class="row d-flex align-items-center pt-2 pb-2 contributor-showing" data-name="${user.name}" id="contributor-${user.id}">
                     <div class="col-2 avatar"><img class="user-avatar" src="${user.avatar ? user.avatar : '/images/GoLogoNBg.png'}" alt="" srcset=""></div>
-                    <div class="col-6 p-0 fs-6 ps-2"><span>${user.name}${user.id === clientId ? ' (You) ' : ''} ${user.id === ownerId ? "<span class='fw-bold fs-6'>(Host)</span>" : ''}</span></div>
+                    <div class="col-6 p-0 fs-6 ps-2"><span>${user.name}${user.id === clientId ? ' (You) ' : ''} ${user.email === ownerEmail ? "<span class='fw-bold fs-6'>(Host)</span>" : ''}</span></div>
                     <div class="col-2 text-center d-none mutedMic${user.id === clientId ? 'localVideo' : user.id}"><i class="bi bi-mic-mute"></i></div>
                     <div class="col-2 text-center d-none micActive${user.id === clientId ? 'localVideo' : user.id}">
                         <div class="mic-container muted-mic text-white fs-5 rounded-circle d-flex align-items-center justify-content-center">
@@ -17104,7 +17111,7 @@ function updateUserList({
                             <div class="dot rounded-pill"></div>
                         </div>
                     </div>
-                    ${clientId == ownerId && user.id != clientId ? `<div class="ms-auto text-center col-2 p-0 dropstart">
+                    ${clientEmail == ownerEmail && user.id != clientId ? `<div class="ms-auto text-center col-2 p-0 dropstart">
                         <button class="buttonOptions" id="dropdownMenuButton${user.id}" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-three-dots-vertical fs-5"></i>
                         </button>
@@ -17129,8 +17136,6 @@ function updateUserList({
     const targetId = $(this).data("id");
     $('#removeUserId').val(targetId);
   });
-  $("#contributors-number").text(users.length);
-  $("#contributors-text-show").text(users.length);
 }
 let requestorIds = [];
 function updateRequestorsList(requestingUsers) {
@@ -17194,7 +17199,7 @@ const mediasoupClient = require('mediasoup-client');
 // const ws = new WebSocket('wss://localhost:3000');
 
 // const ws = new WebSocket('wss://webrtc-onlinemeeting-sfu-mediasoup.onrender.com');
-const ws = new WebSocket(ws_url);
+const ws = new WebSocket(`${ws_url}?token=${encodeURIComponent(token)}`);
 let device;
 let rtpCapabilities;
 let producerTransport;
@@ -17252,76 +17257,6 @@ let sharingParams = {
 };
 let callbackId;
 let isCallbackCalled = false;
-
-// let localStream;
-
-// async function getLocalStream() {
-//     try {
-//         let audioConstraints = localStorage.getItem("audioConstraints");
-//         let videoConstraints = localStorage.getItem("videoConstraints");
-//         console.log(audioConstraints, videoConstraints);
-
-//         let constraints = { video: true, audio: true };
-//         if (audioConstraints) {
-//             constraints.audio = JSON.parse(audioConstraints);
-//         }
-//         if (videoConstraints) {
-//             constraints.video = JSON.parse(videoConstraints);
-//         }
-//         if(audioConstraints && videoConstraints){
-//             const result = await checkDeviceConstraints(audioConstraints, videoConstraints);
-//             console.log('Audio device exists:', result.audioDeviceExists);
-//             console.log('Video device exists:', result.videoDeviceExists);
-
-//             if (!result.audioDeviceExists) {
-//                 constraints.audio = true;
-//             }
-//             if (!result.videoDeviceExists) {
-//                 constraints.video = true;
-//             }
-//         }
-//         console.log(constraints);
-
-//         const stream = await navigator.mediaDevices.getUserMedia(constraints);
-//         window.localStream = stream;
-//         localVideo.srcObject = stream;
-
-//         const videoTrack = stream.getVideoTracks()[0];
-//         const audioTrack = stream.getAudioTracks()[0];
-
-//         audioParams = {
-//             track: audioTrack,
-//             ...audioParams
-//         };
-
-//         videoParams = {
-//             track: videoTrack,
-//             ...videoParams
-//         };
-
-//         addTrackToVideoElement(audioTrack, "localVideo");
-
-//         let videoSettings = videoTrack.getSettings();
-//         const videoDeviceId = videoSettings.deviceId;
-
-//         videoConstraints = { deviceId: { exact: videoDeviceId } };
-//         localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
-
-//         let audioSettings = audioTrack.getSettings();
-//         const audioDeviceId = audioSettings.deviceId;
-
-//         audioConstraints = { deviceId: { exact: audioDeviceId } };
-//         localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
-
-//         console.log("GET LOCAL STREAM");
-
-//     } catch (error) {
-//         // alert("DEVICE ALREADY IN USE OR ACCESS DENIED. PROGGRAMS MIGHT BE BUGGED. TRY USING AN AVAILABLE DEVICE")    
-//         $("#warningToastText").text('ERROR GETTING LOCAL STREAM: ' + error +", PROGGRAM MIGHT BE BUGGED.");
-//         $("#warningToast").toast("show");
-//         console.error('Error getting local stream:', error);
-//     }
-// }
 async function getLocalStream() {
   try {
     let audioConstraints = localStorage.getItem("audioConstraints");
@@ -17443,12 +17378,13 @@ ws.onopen = async () => {
         userId: id,
         name: username,
         avatar: user.avatar,
-        email: user.userEmail
+        userEmail: user.userEmail
       }));
       ws.send(JSON.stringify({
         action: 'getRtpCapabilities',
         roomId: roomId,
-        userId: id
+        userId: id,
+        userEmail: user.userEmail
       }));
     });
     console.log("ws on open");
@@ -17464,7 +17400,8 @@ ws.onmessage = async event => {
       updateUserList({
         users: data.users,
         clientId: id,
-        ownerId: data.ownerId
+        ownerEmail: data.ownerEmail,
+        clientEmail: user.userEmail
       });
       if (data.newUser.id != id) {
         notifyUserJoin(data.newUser.name);
@@ -17485,7 +17422,8 @@ ws.onmessage = async event => {
       ws.send(JSON.stringify({
         action: 'createProducerTransport',
         roomId: data.roomId,
-        userId: data.userId
+        userId: data.userId,
+        userEmail: user.userEmail
       }));
       break;
     case 'producerTransportCreated':
@@ -17555,7 +17493,8 @@ ws.onmessage = async event => {
           producerId: data.producerId,
           roomId: data.roomId,
           userId: id,
-          producerUserId: data.producerUserId
+          producerUserId: data.producerUserId,
+          userEmail: user.userEmail
         }));
       }
       break;
@@ -17590,7 +17529,8 @@ ws.onmessage = async event => {
         action: 'consumer-resume',
         id: consumer.producerId,
         roomId: data.roomId,
-        userId: id
+        userId: id,
+        userEmail: user.userEmail
       }));
       let producerStatus = data.producerStatus;
       console.log("CONSUMER PRODUCER ID", consumer.producerId);
@@ -17654,6 +17594,12 @@ ws.onmessage = async event => {
           name,
           avatar
         } = data;
+        if (kind == "audio") {
+          const muteButton = $(`#mutedButton${data.producerUserId}`);
+          if (muteButton) {
+            muteButton.addClass("d-none");
+          }
+        }
         await (0, _index.addItem)(producerUserId, name, avatar);
         toggleButtonWhenProducerNotFound(kind, null, true, producerUserId);
       }
@@ -17786,7 +17732,8 @@ const createSendTransport = async params => {
         action: "connectProducerTransport",
         dtlsParameters: dtlsParameters,
         roomId: roomId,
-        userId: params.userId
+        userId: params.userId,
+        userEmail: user.userEmail
       }));
 
       // Tell the transport that parameters were transmitted.
@@ -17810,7 +17757,8 @@ const createSendTransport = async params => {
         roomId: roomId,
         userId: params.userId,
         allProduce: allProduce,
-        isSharing: isSharing
+        isSharing: isSharing,
+        userEmail: user.userEmail
       }));
       const intervalId = setInterval(() => {
         if (callbackId && !isCallbackCalled) {
@@ -17884,7 +17832,8 @@ const connectSendTransport = async () => {
       kind: "video",
       userId: id,
       name: username,
-      roomId: roomId
+      roomId: roomId,
+      userEmail: user.userEmail
     }));
   }
   //allProduce = true;
@@ -17915,7 +17864,8 @@ const connectSendTransport = async () => {
       kind: "audio",
       userId: id,
       name: username,
-      roomId: roomId
+      roomId: roomId,
+      userEmail: user.userEmail
     }));
   }
   // allProduce = false;
@@ -18040,7 +17990,8 @@ const createRecvTransport = async params => {
         producerId: params.producerId,
         roomId: roomId,
         userId: id,
-        producerUserId: params.producerUserId
+        producerUserId: params.producerUserId,
+        userEmail: user.userEmail
       }));
       callback();
     } catch (error) {
@@ -18057,7 +18008,8 @@ const connectRecvTransport = async (producerId, producerUserId, producerStatus) 
     rtpCapabilities: device.rtpCapabilities,
     roomId: roomId,
     userId: id,
-    producerStatus: producerStatus
+    producerStatus: producerStatus,
+    userEmail: user.userEmail
   }));
 };
 sendButton.addEventListener('click', function () {
@@ -18076,7 +18028,8 @@ sendButton.addEventListener('click', function () {
         action: 'message',
         content: content,
         roomId: roomId,
-        userId: user.id
+        userId: user.id,
+        userEmail: user.userEmail
       }));
     }
   } else {
@@ -18099,7 +18052,8 @@ sendButton.addEventListener('click', function () {
       action: 'message',
       content: content,
       roomId: roomId,
-      userId: user.id
+      userId: user.id,
+      userEmail: user.userEmail
     }));
   }
   lastMessageId = user.id;
@@ -18202,7 +18156,8 @@ shareButton.on("click", async () => {
       action: "stopSharing",
       producerUserId: id,
       roomId: roomId,
-      username: username
+      username: username,
+      userEmail: user.userEmail
     }));
     myShareStream = null;
     shareButton.removeClass("bg-primary");
@@ -18245,7 +18200,8 @@ shareButton.on("click", async () => {
       action: "stopSharing",
       producerUserId: id,
       roomId: roomId,
-      username: username
+      username: username,
+      userEmail: user.userEmail
     }));
     shareButton.removeClass("bg-primary");
   };
@@ -18390,7 +18346,8 @@ async function toggleButton(type, button) {
         ws.send(JSON.stringify({
           action: "muted",
           producerUserId: id,
-          roomId: roomId
+          roomId: roomId,
+          userEmail: user.userEmail
         }));
       } else {
         let audioTrackReplace = await getAudioTrackReplace();
@@ -18408,7 +18365,8 @@ async function toggleButton(type, button) {
         ws.send(JSON.stringify({
           action: "unmuted",
           producerUserId: id,
-          roomId: roomId
+          roomId: roomId,
+          userEmail: user.userEmail
         }));
         let harkid = "localVideo";
         if (harkInstances[harkid]) {
@@ -18470,7 +18428,8 @@ async function toggleButton(type, button) {
         ws.send(JSON.stringify({
           action: "offCamera",
           producerUserId: id,
-          roomId: roomId
+          roomId: roomId,
+          userEmail: user.userEmail
         }));
       } else {
         // track.resume();
@@ -18496,7 +18455,8 @@ async function toggleButton(type, button) {
         ws.send(JSON.stringify({
           action: "onCamera",
           producerUserId: id,
-          roomId: roomId
+          roomId: roomId,
+          userEmail: user.userEmail
         }));
       }
     } else {
@@ -19118,7 +19078,8 @@ if (privateMeetingSwitch) {
         action: "settingsUpdate",
         private: true,
         roomId: roomId,
-        userId: id
+        userId: id,
+        userEmail: user.userEmail
       }));
     } else {
       $("#meetingAccessDes").text("This meeting is public");
@@ -19126,7 +19087,8 @@ if (privateMeetingSwitch) {
         action: "settingsUpdate",
         private: false,
         roomId: roomId,
-        userId: id
+        userId: id,
+        userEmail: user.userEmail
       }));
     }
   });
@@ -19158,6 +19120,21 @@ $("#inviteButton").on("click", function () {
   sendInvites();
 });
 function sendInvites() {
+  $.ajax({
+    url: '/addRoomAttendees',
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({
+      newAttendees: invitedUsers,
+      roomId: roomId
+    }),
+    success: function (response) {
+      console.log('add new attendee success:', response);
+    },
+    error: function (xhr, status, error) {
+      console.error('Send error:', xhr.responseText);
+    }
+  });
   invitedUsers.forEach(email => {
     sendInvite(roomId, user.userEmail, email);
   });
@@ -19183,7 +19160,8 @@ function sendInvite(roomId, from, to) {
           action: "inviteUser",
           userEmailInvited: to,
           roomId: roomId,
-          id: user.id
+          id: user.id,
+          userEmail: user.userEmail
         }));
         console.log('Send notification success:', response);
       },

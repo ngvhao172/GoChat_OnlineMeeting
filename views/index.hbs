@@ -17,7 +17,8 @@
         window.serverData = {
             user: {{{ json user }}},
             ws_url: "{{ws_url}}",
-            roomId: "{{roomId}}"
+            roomId: "{{roomId}}",
+            token: "{{token}}"
         };
     </script>
 
@@ -566,8 +567,6 @@
     </div>
   </div>
 </div>
-{{/ifEqual}} 
-
 
 
 <!-- Remove Modal -->
@@ -594,5 +593,8 @@
     </div>
   </div>
 </div>
+
+{{/ifEqual}} 
+
 
 </html>

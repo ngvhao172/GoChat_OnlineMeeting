@@ -2,10 +2,13 @@ const bcrypt = require('bcrypt');
 const accountService = require('../services/AccountService');
 const userService = require('../services/UserService');
 const userVerificationService = require('../services/UserVerificationService');
+const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 
 const User = require('../models/User');
 const Account = require('../models/Account');
+
+const secret_key = process.env.SECRET_KEY;
 
 class AuthController {
     checkIsAuthenticated(req, res, next) {
@@ -44,13 +47,12 @@ class AuthController {
             const sessionUUID = uuidv4();
 
             req.session.userUUID = sessionUUID;
-            console.log(req.session.userUUID);
+            const user = req.user;
+            const userEmail = user.userEmail;
+            const token = jwt.sign({ userEmail }, secret_key, { expiresIn: '10h' });
+            req.session.token = token;
             return res.redirect("/");
         }
-        // const {email, password} = req.body;
-        // console.log(email, password);
-        // const account = await accountService.getAccountByEmail(email);
-        // console.log("USERINFO: ", account);
     };
 
     async signupPOST(req, res, next){
@@ -202,6 +204,26 @@ class AuthController {
         } catch (error) {
             console.log(error)
         }
+    }
+
+    async authenticateToken(req, res, next) {
+        const token = res.locals.token;
+    
+        if (!token) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+    
+        jwt.verify(token, secret_key, (err, user) => {
+            if (err) {
+                return res.status(403).json({ message: 'Forbidden' });
+            }
+            if(user.userEmail == res.locals.user.userEmail){
+                next();
+            }
+            else{
+                return res.status(401).json({ message: 'Unauthorized' });
+            }
+        });
     }
 }
 

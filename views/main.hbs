@@ -223,6 +223,14 @@
     li {
         cursor: pointer;
     }
+
+    #copyButton{
+        border: solid 1px rgb(255, 255, 255);
+    }
+    #copyButton:hover{
+        border: solid 1px rgb(113, 113, 113);
+
+    }
 </style>
 
 <body>
@@ -402,9 +410,9 @@
                         <p>Schedule&ensp;&nbsp;</p>
                     </div>
                     <div class="col" style="margin: 10px 0 0 20px">
-                        <div class="share-screen" data-bs-toggle="modal" data-bs-target="#shareScreenModal"><i
-                                class="bi bi-arrow-up-square-fill h1"></i></div>
-                        <p>Share screen</p>
+                        <div class="share-screen" data-bs-toggle="modal" data-bs-target="#meetingLater"><i
+                                class="bi bi-clock-fill h1"></i></div>
+                        <p>Meeting later</p>
                     </div>
                 </div>
             </div>
@@ -439,6 +447,15 @@
                 </div> --}}
                 <div class="card-meet">
                     <div class="meeting-schedule" id="meeting-schedule" style="overflow-y: auto; height: 450px">
+                        <div class="m-2" id="spinnerLoading">
+                            <div class="p-2">
+                                <div class="d-flex justify-content-center">
+                                    <div class="spinner-border text-center" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="card m-2 d-none" id="freeDiv">
                             <div class="card-body p-2">
                                 <div class="d-flex justify-content-between">
@@ -636,56 +653,174 @@
                     <button type="button" class="btn-close btn-light" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
-                <form action="">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="meetingName" class="form-label">Meeting Name</label>
-                            <input type="text" class="form-control form-control-lg" id="meetingName" required
-                                value="Nhat Quynh's Go Meeting">
-                        </div>
-
-                        <div class="mb-3 d-flex justify-content-between ">
-                            <input type="datetime-local" id="datetime1" class="form-control form-control-sm">
-                            <p class="m-2">To</p>
-                            <input type="datetime-local" id="datetime2" class="form-control form-control-sm">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="shareinputID" class="form-label">Attendes</label>
-                            <input type="text" class="form-control" id="attendes" value=""
-                                placeholder="Name or email address">
-                        </div>
+                <div class="modal-body">
+                    <div id="alert-container1"></div>
+                    <div class="mb-3">
+                        <label for="meetingName" class="form-label">Meeting Name</label>
+                        <input type="text" class="form-control form-control-lg" id="meetingName" required
+                            value="{{user.fullName}}'s Go Meeting">
                     </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-secondary" id="scheduleButton" disabled>Create</button>
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
+                    <div class="mb-3 d-flex justify-content-between ">
+                        <input type="datetime-local" id="datetime1" class="form-control form-control-sm">
+                        <p class="m-2">To</p>
+                        <input type="datetime-local" id="datetime2" class="form-control form-control-sm">
                     </div>
-                </form>
+                    <div>Weekly Schedule (Optional)</div>
+                    <div class="list-group row row-cols-4" style="flex-direction: row;">
+                        <label class="list-group-item col">
+                            <input class="form-check-input form-check-input-create me-1" type="checkbox" value="Monday">
+                            Mon
+                        </label>
+                        <label class="list-group-item col border-top">
+                            <input class="form-check-input form-check-input-create me-1" type="checkbox" value="Tuesday">
+                            Tue
+                        </label>
+                        <label class="list-group-item col border-top">
+                            <input class="form-check-input form-check-input-create me-1" type="checkbox" value="Wednesday">
+                            Wed
+                        </label>
+                        <label class="list-group-item col border-top">
+                            <input class="form-check-input form-check-input-create me-1" type="checkbox" value="Thursday">
+                            Thu
+                        </label>
+                        <label class="list-group-item col">
+                            <input class="form-check-input form-check-input-create me-1" type="checkbox" value="Friday">
+                            Fri
+                        </label>
+                        <label class="list-group-item col">
+                            <input class="form-check-input form-check-input-create me-1" type="checkbox" value="Saturday">
+                            Sat
+                        </label>
+                        <label class="list-group-item col">
+                            <input class="form-check-input form-check-input-create me-1" type="checkbox" value="Sunday">
+                            Sun
+                        </label>
+                        <label class="list-group-item col">
+                        </label>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="shareinputID" class="form-label">Attendes (Optional)</label>
+                        <input type="text" class="form-control" id="attendes" value=""
+                            placeholder="Email address, with comma between their email">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="scheduleButton">Create</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeCreateScheduleModal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- update schedule -->
+    <div class="modal fade" id="updateRoomModal" tabindex="-1" aria-labelledby="scheModalLabel" aria-hidden="true">
+        <div class="modal-dialog  modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="scheModalLabel">Schedule Meeting</h5>
+                    <button type="button" class="btn-close btn-light" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="alert-container2"></div>
+                    <div class="mb-3">
+                        <label for="meetingName" class="form-label">Meeting Name</label>
+                        <input type="text" class="form-control form-control-lg" id="meetingNameValue" required
+                            value="{{user.fullName}}'s Go Meeting">
+                    </div>
+                    <div class="mb-3 d-flex justify-content-between ">
+                        <input type="datetime-local" id="startAt" class="form-control form-control-sm">
+                        <p class="m-2">To</p>
+                        <input type="datetime-local" id="endAt" class="form-control form-control-sm">
+                    </div>
+                    <div>Weekly Schedule (Optional)</div>
+                    <div class="list-group row row-cols-4" style="flex-direction: row;">
+                        <label class="list-group-item col">
+                            <input class="form-check-input form-check-input-update me-1" type="checkbox" value="Monday">
+                            Mon
+                        </label>
+                        <label class="list-group-item col border-top">
+                            <input class="form-check-input form-check-input-update me-1" type="checkbox" value="Tuesday">
+                            Tue
+                        </label>
+                        <label class="list-group-item col border-top">
+                            <input class="form-check-input form-check-input-update me-1" type="checkbox" value="Wednesday">
+                            Wed
+                        </label>
+                        <label class="list-group-item col border-top">
+                            <input class="form-check-input form-check-input-update me-1" type="checkbox" value="Thursday">
+                            Thu
+                        </label>
+                        <label class="list-group-item col">
+                            <input class="form-check-input form-check-input-update me-1" type="checkbox" value="Friday">
+                            Fri
+                        </label>
+                        <label class="list-group-item col">
+                            <input class="form-check-input form-check-input-update me-1" type="checkbox" value="Saturday">
+                            Sat
+                        </label>
+                        <label class="list-group-item col">
+                            <input class="form-check-input form-check-input-update me-1" type="checkbox" value="Sunday">
+                            Sun
+                        </label>
+                        <label class="list-group-item col">
+                        </label>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="shareinputID" class="form-label">Attendes (Optional)</label>
+                        <input type="text" class="form-control" id="attendeesValue" value=""
+                            placeholder="Email address, with comma between their email">
+                    </div>
+                    <input type="hidden" name="roomIdUpdate" id="roomIdUpdate">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="updateScheduleButton">Update</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeUpdateScheduleModal">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
     <!-- shareScreen -->
-    <div class="modal fade" id="shareScreenModal" tabindex="-1" aria-labelledby="shareScreenLabel" aria-hidden="true">
+    <div class="modal fade" id="meetingLater" tabindex="-1" aria-labelledby="shareScreenLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="shareScreenLabel">Share Screen</h5>
+                    <h5 class="modal-title" id="shareScreenLabel">Meeting later</h5>
                     <button type="button" class="btn-close btn-light" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
-                <form action="/shareScreen" method="post" id="join-share-meeting">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="shareinputID" class="form-label">Meeting ID or link</label>
-                            <input type="text" class="form-control" name="roomId" id="meeting-share-id" required>
+                <div class="modal-body">
+                    <div class="m-2 text-primary d-none" id="spinnerLoadingLaterMeeting">
+                        <div class="p-2">
+                            <div class="d-flex justify-content-center">
+                                <div class="spinner-border text-center" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" id="shareButton" disabled>Join</button>
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
+                    <div class="mb-3" style="width: 80%" id="laterMeetingTitle">
+                        <h4 class="ms-auto me-auto">Create a meeting for later use?</h4>
                     </div>
-                </form>
+                    <div class="mb-3 d-none" id="meetingInfo">
+                        <h4 class="ms-auto me-auto" style="width: 80%">This is your new meeting infor</h4>
+                        <h6 class="ms-auto me-auto" style="width: 80%">This meeting will be in your schedule for the next 6 days.</h6>
 
+                        <div class="border border-1 bg-light d-flex justify-content-center align-items-center mt-2 ms-auto me-auto p-1" style="width: 80%">
+                            <span class="text-dark" id="meetingLink">
+                                videochatapp.online/abcd-abcd-abcds
+                            </span>
+                            <button type="button" id="copyButton" class="rounded-circle bg-transparent ms-2"  style="height: 30px; width: 30px;">
+                                <i class="bi bi-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="createLaterMeeting">Create</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
@@ -766,12 +901,13 @@
                                 </div>
                             </div>
                             <div id="Audio" class="tabcontent">
-                                <h6>Audio Test</h6>
+                                {{!-- <h6>Audio Test</h6> --}}
                                 <div class="selectors mb-2">
                                     <label for="audioInputSelect">Micro:</label>
                                     <select id="audioInputSelect"></select>
                                 </div>
-                                <button id="start-record-btn" class="btn btn-primary">Start
+                                <div class="d-none">
+                                    <button id="start-record-btn" class="btn btn-primary">Start
                                     Recording</button>
                                 <button id="stop-record-btn" class="btn btn-primary" disabled>Stop
                                     Recording</button>
@@ -784,6 +920,7 @@
                                 </div>
                                 <div id="output2" class="hidden">
                                     <p>Playing...</p>
+                                </div>
                                 </div>
                             </div>
                         </div>
@@ -799,6 +936,27 @@
         </div>
     </div>
     {{!-- Setting modal --}}
+
+    
+<!-- Delete Room Modal -->
+<div class="modal fade" id="deleteRoomModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-white">
+        <h5 class="modal-title text-dark" id="exampleModalLabel">Delete meeting.</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+            Delete <span class="fw-bold" id="textRoomName"></span> ?
+      </div>
+      <input type="hidden" id="deleteRoomId">
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="deleteRoomButton">DELETE</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 <script>
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -811,6 +969,7 @@
 
     const intervalIds = {};
     let today = new Date();
+    today = formatDateToYYYYMMDD(today)
     console.log(today);
 
     function formatDateToYYYYMMDD(date) {
@@ -820,7 +979,7 @@
 
         return `${year}-${month}-${day}`;
     }
-    today = formatDateToYYYYMMDD(today)
+
     console.log(today);
 
     getSchedule(today);
@@ -833,7 +992,78 @@
         getSchedule($("#datetime3").val());
     })
     //getSchedule()
+
+    function deleteRoom(id){
+        $.ajax({
+            url: '/deleteRoomById',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                id: id
+            }),
+            success: function (response) {
+                $(`#${id}`).remove();
+                console.log(response)
+            },
+            error: function (xhr, status, error) {
+                console.error('Send error:', xhr.responseText);
+            }
+        });
+    }
+
+    $("#deleteRoomButton").on("click", function (){
+        let id = $('#deleteRoomId').val();
+        console.log(id);
+        deleteRoom(id);
+    })
+    function getRoomById(id){
+        $.ajax({
+            url: '/getRoomById',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                id: id,
+            }),
+            success: function (response) {
+                console.log(response)
+                $('#meetingNameValue').val(response.roomName);
+                if(response.startAt){
+                    let startAt  = new Date(new Date(response.startAt).getTime() + 7 * 60 * 60 * 1000).toISOString().slice(0, 16);
+                    $('#startAt').val(startAt);
+                }
+                if(response.endAt){
+                    let endAt = new Date(new Date(response.endAt).getTime() + 7 * 60 * 60 * 1000).toISOString().slice(0, 16);
+                    $('#endAt').val(endAt); 
+                }
+                let attendees = '';
+                response.attendees.forEach(email => {
+                    if(email != '{{user.userEmail}}'){
+                        console.log(email)
+                        attendees += email;
+                        attendees +=","
+                    }
+                });
+                const checkboxes = document.querySelectorAll('.list-group-item .form-check-input-update');
+                response.daysOfWeek.forEach(weekDay => {
+                    checkboxes.forEach(checkbox => {
+                        if (checkbox.value == weekDay) {
+                            checkbox.checked = true;
+                        }
+                });
+                })
+                console.log(attendees)
+                $('#attendeesValue').val(attendees);
+            },
+            error: function (xhr, status, error) {
+                console.error('Send error:', xhr.responseText);
+                return null;
+            }
+        });
+    }
     function getSchedule(date){
+        $("#spinnerLoading").removeClass("d-none");
+        $('#meeting-schedule > div').slice(2).remove();
+        $('#freeDiv').addClass("d-none");
         let day = date;
         $.ajax({
             url: '/getRoomsByDay',
@@ -844,28 +1074,29 @@
             }),
             success: function (response) {
                 let data = response;
-               $('#meeting-schedule > div').slice(1).remove();
-               if(data.length == 0){
+                if(data.length == 0){
                     $('#freeDiv').removeClass("d-none");
+                    $("#spinnerLoading").addClass("d-none");
                     return;
-               }
-               $('#freeDiv').addClass("d-none");
+                }
+                $("#spinnerLoading").addClass("d-none");
+                $('#freeDiv').addClass("d-none");
                console.log(data)
-               data.forEach(room => {
+               data.forEach(room => { 
                     const newSchedule = `
-                        <div class="card m-2">
+                        <div class="card m-2" id=${room.id}>
                             <div class="card-body p-2">
                                 <div class="d-flex justify-content-between">
                                     <small class="card-text text-danger" id="${room.roomId}">${(room.endAt && room.startAt) ? (room.endAt) : 'Now' }
                                     </small>
-                                    <div class="dropdown">
+                                    ${room.owner ? `<div class="dropdown">
                                         <i class="bi bi-three-dots-vertical" id="dropdownMenuButton"
                                             data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
                                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                            <a class="dropdown-item" href="#">Edit</a>
-                                            <a class="dropdown-item" href="#">Delete</a>
+                                            <a class="dropdown-item edit-button" data-id=${room.id} data-bs-toggle="modal" data-bs-target="#updateRoomModal">Edit</a>
+                                            <a class="dropdown-item delete-button" data-id=${room.id} data-roomname="${room.roomName}" data-bs-toggle="modal" data-bs-target="#deleteRoomModal">Delete</a>
                                         </div>
-                                    </div>
+                                    </div>` : '' }
                                 </div>
 
                                 <h6 class="card-title">${room.roomName}</h6>
@@ -878,11 +1109,24 @@
                     $('#meeting-schedule').append(newSchedule);
 
                     const roomId = room.roomId;
+                    updateTimeInterval(room.startAt, room.endAt, roomId);
                     intervalIds[roomId]  = setInterval(() => {
                         updateTimeInterval(room.startAt, room.endAt, roomId);
                     }, 60000);
-                    updateTimeInterval(room.startAt, room.endAt, roomId);
                })
+               $(".delete-button").on("click", function() {
+                    const targetId = $(this).data("id");
+                    const roomName = $(this).data("roomname");
+                    console.log(roomName)
+                    $('#deleteRoomId').val(targetId);
+                    $('#textRoomName').text(roomName);
+                });
+                 $(".edit-button").on("click", async function() {
+                    const targetId = $(this).data("id");
+                    let roomData = await getRoomById(targetId);
+                    $('#roomIdUpdate').val(targetId);
+                    console.log(targetId)
+                });
             },
             error: function (xhr, status, error) {
                 console.error('Send error:', xhr.responseText);
@@ -890,8 +1134,230 @@
         });
     }
 
-    $(document).ready(function () {
+    $("#copyButton").on("click", async function (){
+        const textToCopy = document.getElementById('meetingLink').innerText.trim();
 
+            try {
+                await navigator.clipboard.writeText(textToCopy);
+                const tooltip = new bootstrap.Tooltip(document.getElementById('copyButton'), {
+                    trigger: 'manual',
+                    title: 'Copied!',
+                    placement: 'top'
+                });
+                tooltip.show();
+                setTimeout(() => tooltip.hide(), 1000);
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+                const tooltip = new bootstrap.Tooltip(document.getElementById('copyButton'), {
+                    trigger: 'manual',
+                    title: 'Failed to copy!',
+                    placement: 'top'
+                });
+                tooltip.show();
+                setTimeout(() => tooltip.hide(), 1000);
+            }
+        });
+
+    $(document).ready(function () {
+        const datetime1 = document.getElementById('datetime1');
+        const datetime2 = document.getElementById('datetime2');
+        const startAt = document.getElementById('startAt');
+        const endAt = document.getElementById('endAt');
+        function validateDates() {
+                const now = new Date().toISOString().slice(0, 16);
+                datetime1.setAttribute('min', now);
+
+                if (datetime1.value) {
+                    datetime2.setAttribute('min', datetime1.value);
+                }
+            }
+
+        datetime1.addEventListener('change', validateDates);
+        datetime2.addEventListener('change', validateDates);
+        startAt.addEventListener('change', validateDates);
+        endAt.addEventListener('change', validateDates);
+        function convertToISOWithTimezone(datetimeLocal, timezoneOffset) {
+            let localDate = new Date(datetimeLocal + timezoneOffset);
+            
+            let isoString = localDate.toISOString().slice(0, 16) + ':00';
+            return isoString + timezoneOffset;;
+        }
+        $("#updateScheduleButton").on("click", function (){
+            const checkboxes = document.querySelectorAll('.list-group-item .form-check-input-update');
+            let weekly = [];
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    weekly.push(checkbox.value);
+                }
+            });
+            console.log(weekly);
+            validateDates();
+            if (startAt.value && endAt.value) {
+                const date1 = new Date(startAt.value);
+                const date2 = new Date(endAt.value);
+
+                if (date1 < new Date() || date2 <= date1) {
+                    event.preventDefault();
+
+                    showAlert('Please ensure that the first date is in the future and the second date is later than the first.', 'alert-container2')
+                }
+                else{
+                    let roomName = $("#meetingNameValue").val();
+                    if(roomName.trim().length == 0){
+                        showAlert('Room name is required', 'alert-container2');
+                    }
+
+
+                    //const timezoneOffset = (new Date().getTimezoneOffset() > 0 ? '-' : '+') + 
+                    //String(Math.abs(Math.floor(new Date().getTimezoneOffset() / 60))).padStart(2, '0') + ':' + 
+                    //String(Math.abs(new Date().getTimezoneOffset() % 60)).padStart(2, '0');
+
+                    //let startAt = convertToISOWithTimezone($('#startAt').val(), timezoneOffset);
+                    //let endAt = convertToISOWithTimezone($('#endAt').val(), timezoneOffset);
+                    let startAt = $('#startAt').val();
+                    let endAt = $('#endAt').val();
+                    
+                    let daysOfWeek = weekly
+                    let attendees = $('#attendeesValue').val();
+                    let id = $('#roomIdUpdate').val();
+                    updateSchedule(roomName, startAt, endAt, daysOfWeek, attendees, id);
+
+                    $('#closeUpdateScheduleModal').click();
+                }
+            }
+        });
+
+        $("#scheduleButton").on("click", function (){
+            const checkboxes = document.querySelectorAll('.list-group-item .form-check-input=create');
+            let weekly = [];
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    weekly.push(checkbox.value);
+                }
+            });
+            validateDates();
+            if (datetime1.value && datetime2.value) {
+                const date1 = new Date(datetime1.value);
+                const date2 = new Date(datetime2.value);
+
+                if (date1 < new Date() || date2 <= date1) {
+                    event.preventDefault();
+                    showAlert('Please ensure that the first date is in the future and the second date is later than the first.', 'alert-container1')
+                    //alert('Please ensure that the first date is in the future and the second date is later than the first.');
+                }
+                else{
+                    let roomName = $("#meetingName").val();
+                    if(roomName.trim().length == 0){
+                        showAlert('Room name is required', 'alert-container1');
+                        return;
+                    }
+                    let startAt = $("#datetime1").val();
+                    let endAt = $("#datetime2").val();
+                    let daysOfWeek = weekly
+                    let attendees = $('#attendes').val();
+                    createSchedule(roomName, startAt, endAt, daysOfWeek, attendees);
+
+                    $('#closeCreateScheduleModal').click();
+                }
+            }
+        })
+        function showAlert(message, container) {
+            const alertElement = document.createElement('div');
+            alertElement.className = 'alert alert-warning alert-dismissible fade show';
+            alertElement.role = 'alert';
+            alertElement.innerHTML = `${message} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+
+            document.getElementById(container).appendChild(alertElement);
+
+            setTimeout(() => {
+                const alert = document.querySelector('.alert');
+                if (alert) {
+                    alert.classList.remove('show');
+                    alert.classList.add('fade');
+                    alert.remove();
+                }
+            }, 5000);
+        }
+        function updateSchedule(roomName, startAt, endAt, daysOfWeek, attendees, id){
+             $.ajax({
+                url: '/updateRoom',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    roomName: roomName,
+                    startAt: startAt,
+                    endAt: endAt,
+                    daysOfWeek: daysOfWeek,
+                    attendees: attendees,
+                    id: id
+                }),
+                success: function (response) {
+                    console.log(response);
+                    let today = new Date();
+                    today = formatDateToYYYYMMDD(today)
+                    getSchedule(today);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Send error:', xhr.responseText);
+                }
+            });
+        }
+
+        function createSchedule(roomName, startAt, endAt, daysOfWeek, attendees){
+             $.ajax({
+                url: '/createRoomSchedule',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    roomName: roomName,
+                    startAt: startAt,
+                    endAt: endAt,
+                    daysOfWeek: daysOfWeek,
+                    attendees: attendees
+                }),
+                success: function (response) {
+                    console.log(response);
+                    let today = new Date();
+                    today = formatDateToYYYYMMDD(today)
+                    getSchedule(today);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Send error:', xhr.responseText);
+                }
+            });
+        }
+
+        $("#createLaterMeeting").on("click", function(){
+            $("#createLaterMeeting").prop("disabled", true);
+            $("#laterMeetingTitle").addClass("d-none");
+            $("#spinnerLoadingLaterMeeting").removeClass("d-none");
+            $.ajax({
+                url: '/createLaterMeeting',
+                type: 'POST',
+                contentType: 'application/json',
+                success: function (response) {
+                    console.log(response);
+                    $("#meetingLink").text(response);
+                    $("#meetingInfo").removeClass("d-none");
+                    $("#laterMeetingTitle").addClass("d-none");
+                    $("#spinnerLoadingLaterMeeting").addClass("d-none");
+                    $("#createLaterMeeting").addClass("d-none");
+                    let today = new Date();
+                    today = formatDateToYYYYMMDD(today)
+                    getSchedule(today);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Send error:', xhr.responseText);
+                }
+            });
+        })
+        document.getElementById('meetingLater').addEventListener('hidden.bs.modal', () => {
+            $("#meetingLink").text("");
+            $("#meetingInfo").addClass("d-none");
+            $("#laterMeetingTitle").removeClass("d-none");
+            $("#createLaterMeeting").removeClass("d-none");
+            $("#createLaterMeeting").prop("disabled", false);
+        });
         //getSchedule();
         //localStorage.clear();
         const storedDataArrayString = localStorage.getItem('invitations');
@@ -1128,8 +1594,9 @@
             console.error('Service Worker registration failed:', error);
         });
     }
-    const socket = new WebSocket("{{ws_url}}");
+    const socket = new WebSocket(`{{ws_url}}?token=${encodeURIComponent('{{token}}')}`);
     //const socket = new WebSocket('wss://videochatapp.online');
+    
     socket.onmessage = async (message) => {
         const data = JSON.parse(message.data);
         console.log('Received:', data);
@@ -1172,7 +1639,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         const now = new Date();
         const timezoneOffset = now.getTimezoneOffset() * 60000;
-        const localTime = new Date(now - timezoneOffset);
+        const localTime = new Date(now.getTime() + 5*60000 - timezoneOffset);
         const formattedDate = localTime.toISOString().slice(0, 16);
         const nowPlus30Minutes = new Date(localTime.getTime() + 30 * 60000);
         const formattedDate2 = nowPlus30Minutes.toISOString().slice(0, 16);
@@ -1206,7 +1673,25 @@
 
         var time = setTimeout(function () { startTime() }, 500);
     }
-
+    function formatTimeDifference(milliseconds) {
+        let totalMinutes = Math.floor(milliseconds / (1000 * 60));
+        
+        let days = Math.floor(totalMinutes / (60 * 24));
+        let hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+        let minutes = totalMinutes % 60;
+        
+        let result = '';
+        if (days > 0) {
+            result += `${days} days `;
+        }
+        if (hours > 0) {
+            result += `${hours} hours `;
+        }
+        result += `${minutes} minutes`;
+        
+        return result.trim();
+    }
+    
     function updateTimeInterval(start, end, id) {
         let now = new Date();
 
@@ -1215,25 +1700,6 @@
         }
         if (end) {
             end = new Date(end);
-        }
-
-       function formatTimeDifference(milliseconds) {
-            let totalMinutes = Math.floor(milliseconds / (1000 * 60));
-            
-            let days = Math.floor(totalMinutes / (60 * 24));
-            let hours = Math.floor((totalMinutes % (60 * 24)) / 60);
-            let minutes = totalMinutes % 60;
-            
-            let result = '';
-            if (days > 0) {
-                result += `${days} days `;
-            }
-            if (hours > 0) {
-                result += `${hours} hours `;
-            }
-            result += `${minutes} minutes`;
-            
-            return result.trim();
         }
         const element = document.getElementById(id);
 
@@ -1277,7 +1743,7 @@
         hr = (hr > 12) ? hr - 12 : hr;
         hr = checkTime(hr);
         min = checkTime(min);
-        time = hr + ":" + min + ap
+        time = hr + ":" + min + " "+ ap
         var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         var curDay = datetime.getDate();
         var curMonth = months[datetime.getMonth()];
@@ -1311,7 +1777,7 @@
     });
 
     //input Share
-    document.addEventListener('DOMContentLoaded', function () {
+    /*document.addEventListener('DOMContentLoaded', function () {
         const shareinputID = document.getElementById('meeting-share-id');
         const shareButton = document.getElementById('shareButton');
 
@@ -1320,20 +1786,8 @@
         }
         shareinputID.addEventListener('input', toggleShareButton);
         toggleShareButton();
-    });
+    });*/
     //input Schedule
-    document.addEventListener('DOMContentLoaded', function () {
-        const attendes = document.getElementById('attendes');
-        const meetingName = document.getElementById('meetingName');
-
-        function toggleScheButton() {
-            scheduleButton.disabled = !(attendes.value.trim() && meetingName.value.trim());
-        }
-        meetingName.addEventListener('input', toggleScheButton);
-        attendes.addEventListener('input', toggleScheButton);
-
-        toggleScheButton();
-    });
 
     function openCity(evt, cityName) {
         var i, tabcontent, tablinks;
