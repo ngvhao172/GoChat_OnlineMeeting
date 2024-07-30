@@ -116,7 +116,7 @@ class UserController {
                     const result = await bcrypt.compare(uniqueString, hashedUniqueString);
                     if (result) {
                         const accountUpdated = await accountService.updateAccountByUserId(userId, { verified: true });
-                        if (accountUpdated) {
+                        if (accountUpdated.status) {
                             await userVerificationService.deleteUserVerification(userVeri.id)
                                 .then((result) => {
                                     if (result.status === true) {

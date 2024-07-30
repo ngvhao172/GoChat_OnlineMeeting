@@ -5,6 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer" />
+    <meta property="og:title" content="GoChat - Online Meeting" />
+    <meta property="og:description" content="Cùng tham gia trò chuyện với bạn bè trong Go Chat" />
+    <meta property="og:image" content="/images/GoChatHo.png" />
+    <meta property="og:url" content="https://videochatapp.online" />
+    <meta property="og:site_name" content="GoChat" />
+    <meta property="og:type" content="website" />
     <title>GoChat</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
@@ -835,6 +841,7 @@
                 </div>
                 <form id="join-meeting">
                     <div class="modal-body">
+                        <div id="alert-container3"></div>
                         <div class="mb-3">
                             <label for="inputID" class="form-label">Meeting ID or link</label>
                             <input type="text" class="form-control" id="meeting-id" required>
@@ -943,7 +950,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header bg-white">
-        <h5 class="modal-title text-dark" id="exampleModalLabel">Delete meeting.</h5>
+        <h5 class="modal-title text-dark" id="exampleModalLabel">Delete meeting</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -970,22 +977,23 @@
     const intervalIds = {};
     let today = new Date();
     today = formatDateToYYYYMMDD(today)
-    console.log(today);
+    //console.log(today);
 
     function formatDateToYYYYMMDD(date) {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0'); 
-        const day = String(date.getDate()).padStart(2, '0');
-
-        return `${year}-${month}-${day}`;
+        if(date){
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); 
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
     }
 
-    console.log(today);
+    //console.log(today);
 
     getSchedule(today);
 
     $('#datetime3').on("change", function(){
-        console.log($("#datetime3").val());
+        //console.log($("#datetime3").val());
         Array.from(intervalIds).forEach(id => {
             clearInterval(intervalIds[id]);
         })
@@ -1003,7 +1011,7 @@
             }),
             success: function (response) {
                 $(`#${id}`).remove();
-                console.log(response)
+                //console.log(response)
             },
             error: function (xhr, status, error) {
                 console.error('Send error:', xhr.responseText);
@@ -1013,7 +1021,7 @@
 
     $("#deleteRoomButton").on("click", function (){
         let id = $('#deleteRoomId').val();
-        console.log(id);
+        //console.log(id);
         deleteRoom(id);
     })
     function getRoomById(id){
@@ -1025,7 +1033,7 @@
                 id: id,
             }),
             success: function (response) {
-                console.log(response)
+                //console.log(response)
                 $('#meetingNameValue').val(response.roomName);
                 if(response.startAt){
                     let startAt  = new Date(new Date(response.startAt).getTime() + 7 * 60 * 60 * 1000).toISOString().slice(0, 16);
@@ -1038,7 +1046,7 @@
                 let attendees = '';
                 response.attendees.forEach(email => {
                     if(email != '{{user.userEmail}}'){
-                        console.log(email)
+                        //console.log(email)
                         attendees += email;
                         attendees +=","
                     }
@@ -1051,7 +1059,7 @@
                         }
                 });
                 })
-                console.log(attendees)
+                //console.log(attendees)
                 $('#attendeesValue').val(attendees);
             },
             error: function (xhr, status, error) {
@@ -1081,7 +1089,6 @@
                 }
                 $("#spinnerLoading").addClass("d-none");
                 $('#freeDiv').addClass("d-none");
-               console.log(data)
                data.forEach(room => { 
                     const newSchedule = `
                         <div class="card m-2" id=${room.id}>
@@ -1110,14 +1117,15 @@
 
                     const roomId = room.roomId;
                     updateTimeInterval(room.startAt, room.endAt, roomId);
-                    intervalIds[roomId]  = setInterval(() => {
+                    let startDay = formatDateToYYYYMMDD(new Date(formateDateTime(room.startAt).split("<span>")[0]))
+                    intervalIds[roomId+startDay]  = setInterval(() => {
                         updateTimeInterval(room.startAt, room.endAt, roomId);
                     }, 60000);
                })
                $(".delete-button").on("click", function() {
                     const targetId = $(this).data("id");
                     const roomName = $(this).data("roomname");
-                    console.log(roomName)
+                    //console.log(roomName)
                     $('#deleteRoomId').val(targetId);
                     $('#textRoomName').text(roomName);
                 });
@@ -1125,7 +1133,7 @@
                     const targetId = $(this).data("id");
                     let roomData = await getRoomById(targetId);
                     $('#roomIdUpdate').val(targetId);
-                    console.log(targetId)
+                    //console.log(targetId)
                 });
             },
             error: function (xhr, status, error) {
@@ -1158,7 +1166,65 @@
             }
         });
 
+    const socket = new WebSocket(`{{ws_url}}?token=${encodeURIComponent('{{token}}')}`);
+        //const socket = new WebSocket('wss://videochatapp.online');
+        
+        socket.onmessage = async (message) => {
+            const data = JSON.parse(message.data);
+            //console.log('Received:', data);
+            //console.log(data.exists);
+            switch (data.action) {
+                case 'checked-result':
+                    if (data.exists) {
+                        $("#join-meeting").submit();
+                    }
+                    else {
+                        share = false;
+                        //alert("Room not found");
+                        showAlert('Room not found', 'alert-container3');
+                        $("#meeting-id").val("")
+                    }
+                    break;
+                default:
+                    console.error('Unknown message type:', data.type);
+            }
+        };
+
+        function joinMeeting(e) {
+            e.preventDefault();
+            let parts = $("#meeting-id").val().split("/");
+
+            let meetingId = parts[parts.length - 1];
+            //console.log(parts);
+            if (meetingId !== "") {
+                $("#join-meeting").attr("action", meetingId);
+                socket.send(JSON.stringify({ action: 'check-room-existed', roomId: meetingId.trim(), userEmail: "{{user.userEmail}}" }));
+                //$("#join-meeting").submit();
+            } else {
+                showAlert("Please enter a valid meeting ID.", "alert-container3")
+            }
+        }
+        function showAlert(message, container) {
+            const alertElement = document.createElement('div');
+            alertElement.className = 'alert alert-warning alert-dismissible fade show';
+            alertElement.role = 'alert';
+            alertElement.innerHTML = `${message} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+
+            document.getElementById(container).appendChild(alertElement);
+
+            setTimeout(() => {
+                const alert = document.querySelector('.alert');
+                if (alert) {
+                    alert.classList.remove('show');
+                    alert.classList.add('fade');
+                    alert.remove();
+                }
+            }, 5000);
+        }
+
+
     $(document).ready(function () {
+
         const datetime1 = document.getElementById('datetime1');
         const datetime2 = document.getElementById('datetime2');
         const startAt = document.getElementById('startAt');
@@ -1190,16 +1256,16 @@
                     weekly.push(checkbox.value);
                 }
             });
-            console.log(weekly);
+            //console.log(weekly);
             validateDates();
             if (startAt.value && endAt.value) {
                 const date1 = new Date(startAt.value);
                 const date2 = new Date(endAt.value);
 
-                if (date1 < new Date() || date2 <= date1) {
+                if ( date2 <= date1) {
                     event.preventDefault();
 
-                    showAlert('Please ensure that the first date is in the future and the second date is later than the first.', 'alert-container2')
+                    showAlert('Please ensure that the second date is later than the first.', 'alert-container2')
                 }
                 else{
                     let roomName = $("#meetingNameValue").val();
@@ -1228,7 +1294,7 @@
         });
 
         $("#scheduleButton").on("click", function (){
-            const checkboxes = document.querySelectorAll('.list-group-item .form-check-input=create');
+            const checkboxes = document.querySelectorAll('.list-group-item .form-check-input-create');
             let weekly = [];
             checkboxes.forEach(checkbox => {
                 if (checkbox.checked) {
@@ -1261,23 +1327,6 @@
                 }
             }
         })
-        function showAlert(message, container) {
-            const alertElement = document.createElement('div');
-            alertElement.className = 'alert alert-warning alert-dismissible fade show';
-            alertElement.role = 'alert';
-            alertElement.innerHTML = `${message} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
-
-            document.getElementById(container).appendChild(alertElement);
-
-            setTimeout(() => {
-                const alert = document.querySelector('.alert');
-                if (alert) {
-                    alert.classList.remove('show');
-                    alert.classList.add('fade');
-                    alert.remove();
-                }
-            }, 5000);
-        }
         function updateSchedule(roomName, startAt, endAt, daysOfWeek, attendees, id){
              $.ajax({
                 url: '/updateRoom',
@@ -1391,7 +1440,7 @@
     let per = false;
     var refreshing;
     const newMessage = localStorage.getItem('newMessage');
-    console.log(newMessage)
+    //console.log(newMessage)
     if (newMessage == "true") {
         $("#new-noti-green").removeClass("d-none");
     }
@@ -1594,42 +1643,6 @@
             console.error('Service Worker registration failed:', error);
         });
     }
-    const socket = new WebSocket(`{{ws_url}}?token=${encodeURIComponent('{{token}}')}`);
-    //const socket = new WebSocket('wss://videochatapp.online');
-    
-    socket.onmessage = async (message) => {
-        const data = JSON.parse(message.data);
-        console.log('Received:', data);
-        console.log(data.exists);
-        switch (data.action) {
-            case 'checked-result':
-                if (data.exists) {
-                    $("#join-meeting").submit();
-                }
-                else {
-                    share = false;
-                    alert("Room not found");
-                }
-                break;
-            default:
-                console.error('Unknown message type:', data.type);
-        }
-    };
-
-    function joinMeeting(e) {
-        e.preventDefault();
-        let parts = $("#meeting-id").val().split("/");
-
-        let meetingId = parts[parts.length - 1];
-        console.log(parts);
-        if (meetingId !== "") {
-            $("#join-meeting").attr("action", meetingId);
-            socket.send(JSON.stringify({ action: 'check-room-existed', roomId: meetingId.trim() }));
-            //$("#join-meeting").submit();
-        } else {
-            alert("Please enter a valid meeting ID.");
-        }
-    }
 
     function createMeeting() {
         $("#createMeeting").submit();
@@ -1695,8 +1708,10 @@
     function updateTimeInterval(start, end, id) {
         let now = new Date();
 
+        let startDay;
         if (start) {
             start = new Date(start);
+            startDay = formatDateToYYYYMMDD(start)
         }
         if (end) {
             end = new Date(end);
@@ -1706,7 +1721,7 @@
         if (element) {
             if(!start){
                 element.textContent = '---';
-                clearInterval(intervalIds[id]);; 
+                clearInterval(intervalIds[id]); 
             }
             else if (now > start) {
                 if(end){
@@ -1716,12 +1731,12 @@
                     }
                     else{
                         element.textContent = 'End';
-                        clearInterval(intervalIds[id]);
+                        clearInterval(intervalIds[id+startDay]);
                     }
                 }
                 else{
                     element.textContent = 'Now';
-                    clearInterval(intervalIds[id]);; 
+                    clearInterval(intervalIds[id+startDay]);; 
                 }
             } else if (now < start) {
                 const minutes = formatTimeDifference(start - now);
@@ -1734,7 +1749,6 @@
 
     function formateDateTime(datetime){
         datetime = new Date(datetime)
-        console.log(datetime);
         let formatted = '';
         var hr = datetime.getHours();
         var min = datetime.getMinutes();
@@ -1883,7 +1897,6 @@
         const constraints = {
             video: { deviceId: videoSource ? { exact: videoSource } : undefined }
         };
-        console.log("vo day")
 
         navigator.mediaDevices.getUserMedia(constraints).then(gotStream).catch(handleError);
     }

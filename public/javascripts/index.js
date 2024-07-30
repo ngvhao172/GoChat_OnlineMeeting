@@ -198,7 +198,7 @@ export function addOtherUsersUIDiv(){
     const nameDisplay2 = document.createElement('div');
     nameDisplay2.classList.add('name-display');
     nameDisplay2.classList.add('me-1');
-    nameDisplay2.innerText = "5 other users";
+    nameDisplay2.innerText = "Other users";
     divAlternative.appendChild(nameDisplay2);
     resizeVideo();
 
@@ -462,6 +462,8 @@ export function resizeVideo() {
             rows = Math.ceil(num / 5);
         } else {
             addOtherUsersUIDiv();
+            moveDivToPosition("divOtherUsers", 25);
+            rows = Math.ceil(5);
         }
     } else if (width > 800) {
         if (num == 1) {
@@ -482,12 +484,11 @@ export function resizeVideo() {
             rows = Math.ceil(num / 4);
         } else if (num <= 16) {
             columns = 4;
-            rows = Math.ceil(num / 4);
-        } else if (num <= 20) {
-            columns = 5;
-            rows = Math.ceil(num / 5);
+            rows = Math.ceil(4);
         } else {
             addOtherUsersUIDiv();
+            moveDivToPosition("divOtherUsers", 16);
+            rows = Math.ceil(4);
         }
     } else {
         if (num == 1) {
@@ -508,11 +509,10 @@ export function resizeVideo() {
         } else if (num <= 12) {
             columns = 3;
             rows = Math.ceil(num / 3);
-        } else if (num <= 16) {
-            columns = 4;
-            rows = Math.ceil(num / 4);
         } else{
             addOtherUsersUIDiv();
+            moveDivToPosition("divOtherUsers", 12);
+            rows = Math.ceil(3);
         }
     }
 
@@ -638,28 +638,48 @@ export function moveDivToPositionWhenSpeaking(divId) {
     // Sharing => day len vi tri thu 3
     if ($(".grid-container").hasClass("hide-extra")) {
         position = 3 * 2 - 2;
+        var div = document.getElementById("divVideo" + divId);
+        var alterDiv = document.getElementById("divAlter" + divId);
+        var parent = div.parentNode;
+    
+        let targetIndex = Math.min(position, parent.children.length - 1);
+    
+        console.log(targetIndex);
+    
+        console.log(parent.children[targetIndex + 1] === alterDiv);
+        console.log(parent.children[targetIndex] === div);
+    
+        if (parent.children[targetIndex] === div && parent.children[targetIndex + 1] === alterDiv) {
+            return;
+        }
+    
+        parent.insertBefore(div, parent.children[targetIndex]);
+        parent.insertBefore(alterDiv, parent.children[targetIndex + 1]);
     } else {
         position = 2 * 2 - 2;
+
+        var div = document.getElementById("divVideo" + divId);
+        var alterDiv = document.getElementById("divAlter" + divId);
+        var parent = div.parentNode;
+        if(parent.children.length < 8){
+            return;
+        }
+    
+        let targetIndex = Math.min(position, parent.children.length - 1);
+    
+        console.log(targetIndex);
+    
+        console.log(parent.children[targetIndex + 1] === alterDiv);
+        console.log(parent.children[targetIndex] === div);
+    
+        if (parent.children[targetIndex] === div && parent.children[targetIndex + 1] === alterDiv) {
+            return;
+        }
+    
+        parent.insertBefore(div, parent.children[targetIndex]);
+        parent.insertBefore(alterDiv, parent.children[targetIndex + 1]);
     }
     // Không sharing => day len vi tri thu 2
-
-    var div = document.getElementById("divVideo" + divId);
-    var alterDiv = document.getElementById("divAlter" + divId);
-    var parent = div.parentNode;
-
-    let targetIndex = Math.min(position, parent.children.length - 1);
-
-    console.log(targetIndex);
-
-    console.log(parent.children[targetIndex + 1] === alterDiv);
-    console.log(parent.children[targetIndex] === div);
-
-    if (parent.children[targetIndex] === div && parent.children[targetIndex + 1] === alterDiv) {
-        return;
-    }
-
-    parent.insertBefore(div, parent.children[targetIndex]);
-    parent.insertBefore(alterDiv, parent.children[targetIndex + 1]);
 }
 
 export function removeRequestorUi(id){
@@ -688,6 +708,38 @@ export function updateRequestorListUI(){
 
 
 window.addEventListener('resize', resizeVideo);
+
+
+$("#copyButton").on("click", async function (){
+    const textToCopy = document.getElementById('meetingLink').innerText.trim();
+
+    try {
+        await navigator.clipboard.writeText(textToCopy);
+        const tooltip = new bootstrap.Tooltip(document.getElementById('copyButton'), {
+            trigger: 'manual',
+            title: 'Copied!',
+            placement: 'top'
+        });
+        tooltip.show();
+        setTimeout(() => tooltip.hide(), 1000);
+    } catch (err) {
+        console.error('Failed to copy text: ', err);
+        const tooltip = new bootstrap.Tooltip(document.getElementById('copyButton'), {
+            trigger: 'manual',
+            title: 'Failed to copy!',
+            placement: 'top'
+        });
+        tooltip.show();
+        setTimeout(() => tooltip.hide(), 1000);
+    }
+});
+
+$('#closeMeetingInfo').on("click", function (){
+    $("#meetingInfoContainer").removeClass("visible");
+    setTimeout(() => {
+        $("#meetingInfoContainer").remove(); 
+    }, 500);
+})
 
 
 

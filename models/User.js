@@ -10,6 +10,7 @@ class User {
         this.gender = gender;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.role = 'User'
     }
 }
 

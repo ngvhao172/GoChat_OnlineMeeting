@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <nav class="nav-bar sticky-top navbar-expand-lg navbar-light bg-light p-3 d-lg-block d-sm-none nav1">
+        <div class="container-fluid d-flex justify-content-between justify-content-center align-items-center">
+            <div class="left-section ms-4 me-5 d-flex d-flex align-items-center">
+                <a href="/Admin/Airline" class="me-4"><img src="~/img/logo-navbar.png" alt="Logo"></a>
+                <a href="/Admin/Flight" class="ms-2 fw-bold text-uppercase text-dark text-decoration-none">Chuyến
+                    bay</a>
+                <a href="/Admin/Airline" class="ms-2 fw-bold text-uppercase text-dark text-decoration-none">Hãng bay</a>
+                <a href="/Admin/Airport" class="ms-2 fw-bold text-uppercase text-dark text-decoration-none">Sân bay</a>
+                <a href="/Admin/Customer" class="ms-2 fw-bold text-uppercase text-dark text-decoration-none">Khách
+                    Hàng</a>
+                <a href="/Admin/Historyticket" class="ms-2 fw-bold text-uppercase text-dark text-decoration-none">Lịch
+                    sử
+                    mua vé</a>
+                <a href="/Admin/Statistic" class="ms-2 fw-bold text-uppercase text-dark text-decoration-none">Thống
+                    kê</a>
+            </div>
+            <div class="right-section text-end">
+                <div class="container-fluid d-flex justify-content-between justify-content-center align-items-center">
+                    <div class="username fw-bold">Admin</div>
+                    <a class="nav-link dropdown-toggle text-dark" data-bs-toggle="dropdown" href="#" role="button"
+                        aria-expanded="false"></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/Admin/Flight" class="dropdown-item text-dark text-decoration-none">Chuyến bay</a>
+                        </li>
+                        <li><a href="/Admin/Airline" class="dropdown-item text-dark text-decoration-none">Hãng bay</a>
+                        </li>
+                        <li><a href="/Admin/Airport" class="dropdown-item text-dark text-decoration-none">Sân bay</a>
+                        </li>
+                        <li><a href="/Admin/Customer" class="dropdown-item text-dark text-decoration-none">Khách
+                                Hàng</a>
+                        </li>
+                        <li><a href="/Admin/Historyticket" class="dropdown-item text-dark text-decoration-none">Lịch sử
+                                mua
+                                vé</a></li>
+                        <li><a href="/Admin/Statistic" class="dropdown-item text-dark text-decoration-none">Thống kê</a>
+                        </li>
+                        <li><a href="/logout" class="dropdown-item">Đăng xuất</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <nav class="navbar navbar-expand-lg sticky-top navbar-light bg-light p-3 d-sm-block d-lg-none nav2">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#"><img src="~/img/logo-navbar.png" alt="Logo"></a>
+            <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav align-items-end">
+                    <li><a href="flight.php" class="dropdown-item text-dark text-decoration-none">Chuyến bay</a>
+                    </li>
+                    <li><a href="airline.php" class="dropdown-item text-dark text-decoration-none">Hãng bay</a>
+                    </li>
+                    <li><a href="airport.php" class="dropdown-item text-dark text-decoration-none">Sân bay</a>
+                    </li>
+                    <li><a href="customer.php" class="dropdown-item text-dark text-decoration-none">Khách Hàng</a>
+                    </li>
+                    <li><a href="historyticket.php" class="dropdown-item text-dark text-decoration-none">Lịch sử mua
+                            vé</a></li>
+                    <li><a href="statistic.php" class="dropdown-item text-dark text-decoration-none">Thống kê</a>
+                    </li>
+                    <li><a href="/logout" class="dropdown-item">Đăng xuất</a></li>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid p-5">
+        <div class="row">
+            <div class="col-2">
+                <div class="list-group" id="list-tab" role="tablist">
+                    <button id="statistic" class="list-group-item list-group-item-action list-group-item-success"
+                        id="list-settings-list" data-bs-toggle="list" href="#list-settings" role="tab"
+                        aria-controls="list-settings">Thống
+                        kê thu nhập</button>
+                </div>
+            </div>
+            <div class="col-10">
+                <div class="tab-content" id="nav-tabContent">
+                    <div class="tab-pane fade show active" id="list-settings" role="tabpanel"
+                        aria-labelledby="list-settings-list">
+                        <div class="container">
+                            <div class="row mb-3">
+                                <div class="col-4">
+                                    <div class="input-group date datetimepicker" data-target-input="nearest">
+                                        <div class="input-group-text d-block">Từ ngày <i class="fa fa-calendar"
+                                                style="height: 100%;"></i></div><input required id="search_fromdate"
+                                            type="date" class="form-control datetimepicker-input"
+                                            data-target=".datetimepicker" />
+                                        <div class="input-group-append" data-target="#datetimepicker"
+                                            data-toggle="datetimepicker">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="input-group date datetimepicker" data-target-input="nearest">
+                                        <div class="input-group-text d-block">Đến ngày <i class="fa fa-calendar"
+                                                style="height: 100%;"></i></div><input required id="search_todate"
+                                            type="date" class="form-control datetimepicker-input"
+                                            data-target=".datetimepicker" />
+                                        <div class="input-group-append" data-target="#datetimepicker"
+                                            data-toggle="datetimepicker">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <input type="button" name="save" id="btn_search" class="btn btn-info"
+                                        value="Thống kê" />
+                                </div>
+                            </div>
+                            <div class="tab-content" id="nav-tabContent">
+                                <div class="tab-pane fade show active" id="list-messages" role="tabpanel"
+                                    aria-labelledby="list-messages-list">
+                                    <table class="table table-striped" id="dt-statistic" style="width: 100%">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">TỔNG SỐ LƯỢNG VÉ</th>
+                                                <th scope="col">DOANH THU</th>
+                                            </tr>
+                                        </thead>
+                                        <tfoot>
+                                            <tr>
+                                                <th scope="col">TỔNG SỐ LƯỢNG VÉ</th>
+                                                <th scope="col">DOANH THU</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

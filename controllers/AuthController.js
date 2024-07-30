@@ -68,6 +68,12 @@ class AuthController {
                 req.flash('message', 'All fields are required.');
                 return res.redirect('/signup');
             }
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+            if(!passwordRegex.test(password)){
+                req.flash('type', 'danger');
+                req.flash('message', 'Password must contain at least 8 characters, 1 uppercase letter, 1 lowercase letter, and 1 number');
+                return res.redirect('/signup');
+            }
             //check mail exists
             email = email.trim();
             password = password.trim();
@@ -102,7 +108,7 @@ class AuthController {
                 account.userEmail = email;
                 const resultAccount = await accountService.createAccount(account);
                 if(resultAccount.status === true) {
-                    const veri =  await userVerificationService.sendVerificationEmail(resultAccount.data.id, account.userEmail);
+                    const veri =  await userVerificationService.sendVerificationEmail(userCreated.id, account.userEmail);
                     if(veri.status){
                         req.flash('type', 'success');
                         req.flash('message', 'Account created successfully. Please check your email inbox');

@@ -386,3 +386,20 @@ p {
   border-radius: 50%;
   border: 1px solid white;
 }
+
+#copyButton{
+  border: solid 1px rgb(255, 255, 255);
+}
+#copyButton:hover{
+  border: solid 1px rgb(113, 113, 113);
+
+}
+
+#meetingInfoContainer {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+#meetingInfoContainer.visible {
+  opacity: 1;
+}

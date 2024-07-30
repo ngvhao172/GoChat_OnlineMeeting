@@ -16,8 +16,8 @@ const authenticateToken = (token) => {
 let rooms = {};
 const createWebRtcTransport = async (router) => {
   const transportOptions = {
-    listenIps: [{ ip: '0.0.0.0', announcedIp: '127.0.0.1' }],
-    //listenIps: [{ ip: '0.0.0.0', announcedIp: 'videochatapp.online' }],
+    //listenIps: [{ ip: '0.0.0.0', announcedIp: '127.0.0.1' }],
+    listenIps: [{ ip: '0.0.0.0', announcedIp: 'videochatapp.online' }],
     enableUdp: true,
     enableTcp: true,
     preferUdp: true
@@ -85,14 +85,14 @@ module.exports = async (httpServer, router) => {
                 };
                 if(attendes){
                   attendes.forEach(email => {
-                    console.log(email);
+                    //console.log(email);
                     if(!email.includes("@")){
                       return;
                     }
                     else{
                       if(!rooms[data.roomId].approvedUsers.includes(email)){
-                        console.log("PASS EMAIL")
-                        console.log(email);
+                        //console.log("PASS EMAIL")
+                        //console.log(email);
                         rooms[data.roomId].approvedUsers.push(email);
                       }
                     }
@@ -204,7 +204,7 @@ module.exports = async (httpServer, router) => {
                   rooms[roomId].requestingUsers.push({ name: data.name, email: data.userEmail });
                 }
                 rooms[roomId].requestingUsersWs[data.userEmail] = ws;
-                console.log(rooms[roomId]);
+                //console.log(rooms[roomId]);
                 try {
                   let usersObject = Object.values(rooms[data.roomId].users);
                   usersObject.forEach(user => {
@@ -244,7 +244,7 @@ module.exports = async (httpServer, router) => {
                 // }
                 const updatedRequestingUsers = rooms[roomId].requestingUsers.filter(user => user.email !== email);
                 rooms[roomId].requestingUsers = updatedRequestingUsers;
-                console.log("REQUESTINGUSER:", rooms[roomId].requestingUsersWs);
+                //console.log("REQUESTINGUSER:", rooms[roomId].requestingUsersWs);
                 //const requestorWs = rooms[roomId].requestingUsersWs[email];
 
                 if (requestorWs) {
@@ -284,7 +284,7 @@ module.exports = async (httpServer, router) => {
 
                     delete rooms[roomId].requestingUsersWs[email];
 
-                    console.log("REQUESTINGUSER:", rooms[roomId].requestingUsersWs);
+                    //console.log("REQUESTINGUSER:", rooms[roomId].requestingUsersWs);
                   }
                 }
               } catch (error) {
@@ -302,7 +302,7 @@ module.exports = async (httpServer, router) => {
               if (!rooms[roomId].approvedUsers.includes(userEmailInvited)) {
                 rooms[roomId].approvedUsers.push(userEmailInvited);
               }
-              console.log(rooms[roomId]);
+              //console.log(rooms[roomId]);
             }
             break;
           case 'removeUserFromMeeting':
@@ -365,11 +365,11 @@ module.exports = async (httpServer, router) => {
             {
               const { roomId, userId, kind, name } = data;
               const avatar = rooms[roomId].users[userId].avatar;
-              console.log("ROOMSSSSSS");
-              console.log(rooms[roomId].users)
+              //console.log("ROOMSSSSSS");
+              //console.log(rooms[roomId].users)
               for (let id in rooms[roomId].users) {
                 if (id !== userId) {
-                  console.log("PRODUCER MOI NE");
+                  //console.log("PRODUCER MOI NE");
                   rooms[roomId].users[id].ws.send(JSON.stringify({
                     action: 'producerNotProvided',
                     kind: kind,
@@ -385,7 +385,7 @@ module.exports = async (httpServer, router) => {
           case 'createProducerTransport':
             {
               const transport = await createWebRtcTransport(router);
-              console.log(rooms[roomId]);
+              //console.log(rooms[roomId]);
               rooms[roomId].users[userId].producerTransport = transport;
 
               ws.send(JSON.stringify({
@@ -403,12 +403,12 @@ module.exports = async (httpServer, router) => {
               usersObject.forEach(user => {
                 users.push({ id: user.id, name: user.name, avatar: user.avatar });
               });
-              console.log(users);
+              //console.log(users);
               //Create consumers for the new user for all existing producers
 
               users.forEach(async user => {
                 if (user.id != userId) {
-                  console.log("USERID:", user.id);
+                  //console.log("USERID:", user.id);
                   let producer = rooms[roomId].producers[user.id];
                   // console.log("PRODUCERS:", producer)
                   if (producer) {
@@ -420,6 +420,7 @@ module.exports = async (httpServer, router) => {
                       }
                       else {
                         transport = await createWebRtcTransport(router);
+                        transport.appData.connected = false;
                         rooms[roomId].users[userId].consumerTransports[user.id] = transport
                       }
                       // gui ve client tao consumer transport thanh cong
@@ -447,7 +448,7 @@ module.exports = async (httpServer, router) => {
                       }
                       // console.log(producer["video"].status);//
                       if (producer["audio"]) {
-                        console.log("AUDIO PRODUCER ON SERVER SIDE: ", producer["audio"].id)
+                        //console.log("AUDIO PRODUCER ON SERVER SIDE: ", producer["audio"].id)
                         ws.send(JSON.stringify({
                           action: 'consumerTransportCreated',
                           id: transport.id,
@@ -540,7 +541,7 @@ module.exports = async (httpServer, router) => {
               else {
                 rooms[roomId].producers[userId][kind] = producer;
               }
-              console.log("ROOM after produce", rooms[roomId]);
+              //console.log("ROOM after produce", rooms[roomId]);
 
 
               ws.send(JSON.stringify({ action: 'produced', id: producer.id, kind: kind }));
@@ -552,7 +553,6 @@ module.exports = async (httpServer, router) => {
 
               for (let id in rooms[roomId].users) {
                 if (id !== userId) {
-                  console.log("PRODUCER MOI NE");
                   rooms[roomId].users[id].ws.send(JSON.stringify({
                     action: 'newProducer',
                     producerId: producer.id,
@@ -563,11 +563,6 @@ module.exports = async (httpServer, router) => {
                   }));
                 }
               }
-              console.log("ALL PRODUCE:", allProduce);
-              // khi ca audio va video dc gui thanh cong -> moi tien hanh tao cac consumer transport -> gui toi client moi join
-              if (allProduce) {
-
-              };
             }
             break;
 
@@ -596,36 +591,27 @@ module.exports = async (httpServer, router) => {
             }
             break;
 
-          case 'connectConsumerTransport':
-            {
-              const { dtlsParameters, producerId, producerUserId } = data;
-              const transport = rooms[roomId].users[userId].consumerTransports[producerUserId];
-              // console.log("transport.dtlsState: ", transport.dtlsState)
-              if (transport.dtlsState === 'new') {
-                await rooms[roomId].users[userId].consumerTransports[producerUserId].connect({ dtlsParameters }).then(() => {
-                  console.log('Consumer transport connected');
-                }).catch(error => {
-                  console.error('Error connecting consumer transport:', error);
-                });
+            case 'connectConsumerTransport':
+              {
+                  const { dtlsParameters, producerUserId } = data;
+                  const transport = rooms[roomId].users[userId].consumerTransports[producerUserId];
+                  try {
+                      console.log('Attempting to connect consumer transport...');
+                      await transport.connect({ dtlsParameters });
+                      console.log('Consumer transport connected');
+                      ws.send(JSON.stringify({ action: 'consumerTransportConnected', producerUserId }));
+                  } catch (error) {
+                      console.error('Error connecting consumer transport:', error);
+                      //ws.send(JSON.stringify({ action: 'consumerTransportError', error: error.message }));
+                  }
               }
-              else {
-                // await rooms[roomId].users[userId].consumerTransports[producerUserId].connect({ dtlsParameters }).then(() => {
-                //   console.log('Consumer transport connected');
-                // }).catch(error => {
-                //   console.error('Error connecting consumer transport:', error);
-                // });
-                console.error('consumer transport is already connected');
-              }
-              ws.send(JSON.stringify({ action: 'consumerTransportConnected', producerId }));
-            }
-            break;
+            break;          
 
           case 'consume':
             {
               const { producerUserId, producerId, rtpCapabilities, producerStatus } = data;
               if (router.canConsume({ producerId, rtpCapabilities })) {
-                console.log(rooms[roomId])
-                console.log(userId, producerUserId)
+                //console.log(rooms[roomId])
                 const transport = rooms[roomId].users[userId].consumerTransports[producerUserId];
                 const consumer = await transport.consume({ producerId, rtpCapabilities, paused: true });
                 rooms[roomId].consumers[userId][producerId] = consumer;
@@ -634,8 +620,8 @@ module.exports = async (httpServer, router) => {
 
                 // console.log("ROOM AFTER CONSUMER:", rooms[roomId]);
                 const isSharingProducer = rooms[roomId].producers[producerUserId]["sharing"];
-                console.log(producerUserId)
-                console.log(isSharingProducer)
+                // console.log(producerUserId)
+                // console.log(isSharingProducer)
                 if (isSharingProducer != null && isSharingProducer.id == producerId) {
                   ws.send(JSON.stringify({
                     action: 'consumed',
@@ -652,7 +638,6 @@ module.exports = async (httpServer, router) => {
                   }));
                 }
                 else {
-                  console.log("AUDIO CONSUMER ON SERVER SIDE: ", producerId)
                   ws.send(JSON.stringify({
                     action: 'consumed',
                     id: consumer.id,
@@ -680,7 +665,7 @@ module.exports = async (httpServer, router) => {
               console.log(rooms[roomId]);
 
               let consumer = rooms[roomId].consumers[userId][data.id]
-              console.log("Consumer for resume:", consumer.id)
+              //console.log("Consumer for resume:", consumer.id)
               // console.log(consumer);
               if (consumer) {
                 await consumer.resume()

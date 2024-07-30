@@ -367,7 +367,6 @@ const ws = new WebSocket(`${ws_url}?token=${encodeURIComponent(token)}`);
 let device
 let rtpCapabilities
 let producerTransport;
-let consumerTransport;
 let consumerTransports = {};
 let consumer;
 let consumers = {};
@@ -664,12 +663,7 @@ ws.onmessage = async (event) => {
             break;
 
         case 'consumerTransportConnected':
-            // {
-            //     const producerId = data.producerId;
-            //     const rtpCapabilities = await getRtpCapabilities();
-            //     ws.send(JSON.stringify({ action: 'consume', producerId, rtpCapabilities }));
-            // }
-            // connectRecvTransport();
+
             break;
 
         case 'consumed':
@@ -717,6 +711,7 @@ ws.onmessage = async (event) => {
                 await addItem(data.producerUserId, data.name, data.avatar);
                 console.log("ADDTRACK TO REMOTE STREAM", track);
                 addTrackToVideoElement(track, data.producerUserId);
+                console.log(producerStatus)
                 if (producerStatus) {
                     if (producerStatus == "off") {
                         if (data.kind == "video") {
@@ -1122,13 +1117,13 @@ function addTrackToVideoElement(track, id) {
         harkInstances[id] = hark(audioStream, options);
 
         harkInstances[id].on('speaking', () => {
-            console.log(`${id} is speaking on track ${track.id}`);
+            //console.log(`${id} is speaking on track ${track.id}`);
             showDots(id);
             moveDivToPositionWhenSpeaking(id);
         });
 
         harkInstances[id].on('stopped_speaking', () => {
-            console.log(`${id} speech stopped on track ${track.id}`);
+            //console.log(`${id} speech stopped on track ${track.id}`);
             stopDots(id);
         });
         harkInstances[id].on('volume_change', (volume, threshold) => {
@@ -1144,13 +1139,14 @@ function addTrackToVideoElement(track, id) {
 
 
 const createRecvTransport = async (params) => {
+    console.log("PARAMS VALUE:", params)
     // see server's socket.on('consume', sender?, ...)
     // this is a call from Consumer, so sender = false
 
     // creates a new WebRTC Transport to receive media
     // based on server's consumer transport params
     // https://mediasoup.org/documentation/v3/mediasoup-client/api/#device-createRecvTransport
-
+    let consumerTransport;
     if (consumerTransports[params.producerUserId]) {
         consumerTransport = consumerTransports[params.producerUserId];
     }
@@ -1159,30 +1155,38 @@ const createRecvTransport = async (params) => {
         consumerTransport = device.createRecvTransport(params)
         console.log("COnsumerTransport created: ", consumerTransport.id);
 
-        consumerTransports[params.producerUserId] = consumerTransport// nen la userid
+        consumerTransports[params.producerUserId] = consumerTransport;
+
+        consumerTransport.on('connect', async ({ dtlsParameters }, callback, errback) => {
+            try {
+                // Signal local DTLS parameters to the server side transport
+                // see server's socket.on('transport-recv-connect', ...)
+                ws.send(JSON.stringify({
+                    action: 'connectConsumerTransport',
+                    dtlsParameters,
+                    producerId: params.producerId,
+                    roomId: roomId,
+                    userId: id,
+                    producerUserId: params.producerUserId,
+                    userEmail: user.userEmail
+                }));
+                
+                callback();
+                       
+    
+            } catch (error) {
+                // Tell the transport that something was wrong
+                errback(error)
+            }
+        })
+
     }
+
+    // consumerTransport.on('connect', async () => {
+    //     connectRecvTransport(params.producerId, params.producerUserId);
+    // });
+
     connectRecvTransport(params.producerId, params.producerUserId, params.producerStatus);
-
-    consumerTransport.on('connect', async ({ dtlsParameters }, callback, errback) => {
-        try {
-            // Signal local DTLS parameters to the server side transport
-            // see server's socket.on('transport-recv-connect', ...)
-            ws.send(JSON.stringify({
-                action: 'connectConsumerTransport',
-                dtlsParameters,
-                producerId: params.producerId,
-                roomId: roomId,
-                userId: id,
-                producerUserId: params.producerUserId,
-                userEmail: user.userEmail
-            }));
-
-            callback()
-        } catch (error) {
-            // Tell the transport that something was wrong
-            errback(error)
-        }
-    })
 }
 
 const connectRecvTransport = async (producerId, producerUserId, producerStatus) => {
@@ -1193,8 +1197,8 @@ const connectRecvTransport = async (producerId, producerUserId, producerStatus) 
         producerId: producerId,
         rtpCapabilities: device.rtpCapabilities,
         roomId: roomId,
-        userId: id,
         producerStatus: producerStatus,
+        userId: id,
         userEmail: user.userEmail
     }));
 }
@@ -1594,13 +1598,13 @@ async function toggleButton(type, button) {
                 harkInstances[harkid] = hark(audioStream, options);
 
                 harkInstances[harkid].on('speaking', () => {
-                    console.log(`${harkid} is speaking on track ${track.id}`);
+                    //console.log(`${harkid} is speaking on track ${track.id}`);
                     showDots(harkid);
                     moveDivToPositionWhenSpeaking(harkid);
                 });
 
                 harkInstances[harkid].on('stopped_speaking', () => {
-                    console.log(`${harkid} speech stopped on track ${track.id}`);
+                    //console.log(`${harkid} speech stopped on track ${track.id}`);
                     stopDots(harkid);
                 });
                 harkInstances[harkid].on('volume_change', (volume, threshold) => {
@@ -2274,13 +2278,13 @@ function showLiOptions(ids) {
                     harkInstances[id] = hark(audioStream, options);
 
                     harkInstances[id].on('speaking', () => {
-                        console.log(`${id} is speaking on track ${track.id}`);
+                        //console.log(`${id} is speaking on track ${track.id}`);
                         showDots(id);
                         moveDivToPositionWhenSpeaking(id);
                     });
 
                     harkInstances[id].on('stopped_speaking', () => {
-                        console.log(`${id} speech stopped on track ${track.id}`);
+                        //console.log(`${id} speech stopped on track ${track.id}`);
                         stopDots(id);
                     });
                     harkInstances[id].on('volume_change', (volume, threshold) => {

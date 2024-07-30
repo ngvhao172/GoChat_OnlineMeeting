@@ -17203,7 +17203,6 @@ const ws = new WebSocket(`${ws_url}?token=${encodeURIComponent(token)}`);
 let device;
 let rtpCapabilities;
 let producerTransport;
-let consumerTransport;
 let consumerTransports = {};
 let consumer;
 let consumers = {};
@@ -17509,12 +17508,6 @@ ws.onmessage = async event => {
       createRecvTransport(data);
       break;
     case 'consumerTransportConnected':
-      // {
-      //     const producerId = data.producerId;
-      //     const rtpCapabilities = await getRtpCapabilities();
-      //     ws.send(JSON.stringify({ action: 'consume', producerId, rtpCapabilities }));
-      // }
-      // connectRecvTransport();
       break;
     case 'consumed':
       console.log("DATA CONSUMED:", data);
@@ -17561,6 +17554,7 @@ ws.onmessage = async event => {
         await (0, _index.addItem)(data.producerUserId, data.name, data.avatar);
         console.log("ADDTRACK TO REMOTE STREAM", track);
         addTrackToVideoElement(track, data.producerUserId);
+        console.log(producerStatus);
         if (producerStatus) {
           if (producerStatus == "off") {
             if (data.kind == "video") {
@@ -17946,12 +17940,12 @@ function addTrackToVideoElement(track, id) {
     };
     harkInstances[id] = (0, _hark.default)(audioStream, options);
     harkInstances[id].on('speaking', () => {
-      console.log(`${id} is speaking on track ${track.id}`);
+      //console.log(`${id} is speaking on track ${track.id}`);
       (0, _index.showDots)(id);
       (0, _index.moveDivToPositionWhenSpeaking)(id);
     });
     harkInstances[id].on('stopped_speaking', () => {
-      console.log(`${id} speech stopped on track ${track.id}`);
+      //console.log(`${id} speech stopped on track ${track.id}`);
       (0, _index.stopDots)(id);
     });
     harkInstances[id].on('volume_change', (volume, threshold) => {
@@ -17962,43 +17956,49 @@ function addTrackToVideoElement(track, id) {
   }
 }
 const createRecvTransport = async params => {
+  console.log("PARAMS VALUE:", params);
   // see server's socket.on('consume', sender?, ...)
   // this is a call from Consumer, so sender = false
 
   // creates a new WebRTC Transport to receive media
   // based on server's consumer transport params
   // https://mediasoup.org/documentation/v3/mediasoup-client/api/#device-createRecvTransport
-
+  let consumerTransport;
   if (consumerTransports[params.producerUserId]) {
     consumerTransport = consumerTransports[params.producerUserId];
   } else {
     params.iceServers = iceServers;
     consumerTransport = device.createRecvTransport(params);
     console.log("COnsumerTransport created: ", consumerTransport.id);
-    consumerTransports[params.producerUserId] = consumerTransport; // nen la userid
+    consumerTransports[params.producerUserId] = consumerTransport;
+    consumerTransport.on('connect', async ({
+      dtlsParameters
+    }, callback, errback) => {
+      try {
+        // Signal local DTLS parameters to the server side transport
+        // see server's socket.on('transport-recv-connect', ...)
+        ws.send(JSON.stringify({
+          action: 'connectConsumerTransport',
+          dtlsParameters,
+          producerId: params.producerId,
+          roomId: roomId,
+          userId: id,
+          producerUserId: params.producerUserId,
+          userEmail: user.userEmail
+        }));
+        callback();
+      } catch (error) {
+        // Tell the transport that something was wrong
+        errback(error);
+      }
+    });
   }
+
+  // consumerTransport.on('connect', async () => {
+  //     connectRecvTransport(params.producerId, params.producerUserId);
+  // });
+
   connectRecvTransport(params.producerId, params.producerUserId, params.producerStatus);
-  consumerTransport.on('connect', async ({
-    dtlsParameters
-  }, callback, errback) => {
-    try {
-      // Signal local DTLS parameters to the server side transport
-      // see server's socket.on('transport-recv-connect', ...)
-      ws.send(JSON.stringify({
-        action: 'connectConsumerTransport',
-        dtlsParameters,
-        producerId: params.producerId,
-        roomId: roomId,
-        userId: id,
-        producerUserId: params.producerUserId,
-        userEmail: user.userEmail
-      }));
-      callback();
-    } catch (error) {
-      // Tell the transport that something was wrong
-      errback(error);
-    }
-  });
 };
 const connectRecvTransport = async (producerId, producerUserId, producerStatus) => {
   ws.send(JSON.stringify({
@@ -18007,8 +18007,8 @@ const connectRecvTransport = async (producerId, producerUserId, producerStatus) 
     producerId: producerId,
     rtpCapabilities: device.rtpCapabilities,
     roomId: roomId,
-    userId: id,
     producerStatus: producerStatus,
+    userId: id,
     userEmail: user.userEmail
   }));
 };
@@ -18383,12 +18383,12 @@ async function toggleButton(type, button) {
         };
         harkInstances[harkid] = (0, _hark.default)(audioStream, options);
         harkInstances[harkid].on('speaking', () => {
-          console.log(`${harkid} is speaking on track ${track.id}`);
+          //console.log(`${harkid} is speaking on track ${track.id}`);
           (0, _index.showDots)(harkid);
           (0, _index.moveDivToPositionWhenSpeaking)(harkid);
         });
         harkInstances[harkid].on('stopped_speaking', () => {
-          console.log(`${harkid} speech stopped on track ${track.id}`);
+          //console.log(`${harkid} speech stopped on track ${track.id}`);
           (0, _index.stopDots)(harkid);
         });
         harkInstances[harkid].on('volume_change', (volume, threshold) => {
@@ -19030,12 +19030,12 @@ $("#changeSourceButton").on("click", async function () {
         };
         harkInstances[id] = (0, _hark.default)(audioStream, options);
         harkInstances[id].on('speaking', () => {
-          console.log(`${id} is speaking on track ${track.id}`);
+          //console.log(`${id} is speaking on track ${track.id}`);
           (0, _index.showDots)(id);
           (0, _index.moveDivToPositionWhenSpeaking)(id);
         });
         harkInstances[id].on('stopped_speaking', () => {
-          console.log(`${id} speech stopped on track ${track.id}`);
+          //console.log(`${id} speech stopped on track ${track.id}`);
           (0, _index.stopDots)(id);
         });
         harkInstances[id].on('volume_change', (volume, threshold) => {
@@ -19487,7 +19487,7 @@ function addOtherUsersUIDiv() {
   const nameDisplay2 = document.createElement('div');
   nameDisplay2.classList.add('name-display');
   nameDisplay2.classList.add('me-1');
-  nameDisplay2.innerText = "5 other users";
+  nameDisplay2.innerText = "Other users";
   divAlternative.appendChild(nameDisplay2);
   resizeVideo();
 
@@ -19724,6 +19724,8 @@ function resizeVideo() {
       rows = Math.ceil(num / 5);
     } else {
       addOtherUsersUIDiv();
+      moveDivToPosition("divOtherUsers", 25);
+      rows = Math.ceil(5);
     }
   } else if (width > 800) {
     if (num == 1) {
@@ -19743,12 +19745,11 @@ function resizeVideo() {
       rows = Math.ceil(num / 4);
     } else if (num <= 16) {
       columns = 4;
-      rows = Math.ceil(num / 4);
-    } else if (num <= 20) {
-      columns = 5;
-      rows = Math.ceil(num / 5);
+      rows = Math.ceil(4);
     } else {
       addOtherUsersUIDiv();
+      moveDivToPosition("divOtherUsers", 16);
+      rows = Math.ceil(4);
     }
   } else {
     if (num == 1) {
@@ -19769,11 +19770,10 @@ function resizeVideo() {
     } else if (num <= 12) {
       columns = 3;
       rows = Math.ceil(num / 3);
-    } else if (num <= 16) {
-      columns = 4;
-      rows = Math.ceil(num / 4);
     } else {
       addOtherUsersUIDiv();
+      moveDivToPosition("divOtherUsers", 12);
+      rows = Math.ceil(3);
     }
   }
   container.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
@@ -19871,23 +19871,37 @@ function moveDivToPositionWhenSpeaking(divId) {
   // Sharing => day len vi tri thu 3
   if ($(".grid-container").hasClass("hide-extra")) {
     position = 3 * 2 - 2;
+    var div = document.getElementById("divVideo" + divId);
+    var alterDiv = document.getElementById("divAlter" + divId);
+    var parent = div.parentNode;
+    let targetIndex = Math.min(position, parent.children.length - 1);
+    console.log(targetIndex);
+    console.log(parent.children[targetIndex + 1] === alterDiv);
+    console.log(parent.children[targetIndex] === div);
+    if (parent.children[targetIndex] === div && parent.children[targetIndex + 1] === alterDiv) {
+      return;
+    }
+    parent.insertBefore(div, parent.children[targetIndex]);
+    parent.insertBefore(alterDiv, parent.children[targetIndex + 1]);
   } else {
     position = 2 * 2 - 2;
+    var div = document.getElementById("divVideo" + divId);
+    var alterDiv = document.getElementById("divAlter" + divId);
+    var parent = div.parentNode;
+    if (parent.children.length < 8) {
+      return;
+    }
+    let targetIndex = Math.min(position, parent.children.length - 1);
+    console.log(targetIndex);
+    console.log(parent.children[targetIndex + 1] === alterDiv);
+    console.log(parent.children[targetIndex] === div);
+    if (parent.children[targetIndex] === div && parent.children[targetIndex + 1] === alterDiv) {
+      return;
+    }
+    parent.insertBefore(div, parent.children[targetIndex]);
+    parent.insertBefore(alterDiv, parent.children[targetIndex + 1]);
   }
   // Không sharing => day len vi tri thu 2
-
-  var div = document.getElementById("divVideo" + divId);
-  var alterDiv = document.getElementById("divAlter" + divId);
-  var parent = div.parentNode;
-  let targetIndex = Math.min(position, parent.children.length - 1);
-  console.log(targetIndex);
-  console.log(parent.children[targetIndex + 1] === alterDiv);
-  console.log(parent.children[targetIndex] === div);
-  if (parent.children[targetIndex] === div && parent.children[targetIndex + 1] === alterDiv) {
-    return;
-  }
-  parent.insertBefore(div, parent.children[targetIndex]);
-  parent.insertBefore(alterDiv, parent.children[targetIndex + 1]);
 }
 function removeRequestorUi(id) {
   const requestDIV = document.getElementById("requestor-" + id);
@@ -19911,5 +19925,33 @@ function updateRequestorListUI() {
   }
 }
 window.addEventListener('resize', resizeVideo);
+$("#copyButton").on("click", async function () {
+  const textToCopy = document.getElementById('meetingLink').innerText.trim();
+  try {
+    await navigator.clipboard.writeText(textToCopy);
+    const tooltip = new bootstrap.Tooltip(document.getElementById('copyButton'), {
+      trigger: 'manual',
+      title: 'Copied!',
+      placement: 'top'
+    });
+    tooltip.show();
+    setTimeout(() => tooltip.hide(), 1000);
+  } catch (err) {
+    console.error('Failed to copy text: ', err);
+    const tooltip = new bootstrap.Tooltip(document.getElementById('copyButton'), {
+      trigger: 'manual',
+      title: 'Failed to copy!',
+      placement: 'top'
+    });
+    tooltip.show();
+    setTimeout(() => tooltip.hide(), 1000);
+  }
+});
+$('#closeMeetingInfo').on("click", function () {
+  $("#meetingInfoContainer").removeClass("visible");
+  setTimeout(() => {
+    $("#meetingInfoContainer").remove();
+  }, 500);
+});
 
 },{}]},{},[59,58]);

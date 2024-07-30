@@ -82,7 +82,7 @@ class AccountService {
         }
     }
 
-    async updateAccount(id, newData) {
+    async updateAccountById(id, newData) {
         try {
             const docRef = doc(db, 'accounts', id);
             await updateDoc(docRef, newData);
@@ -98,6 +98,37 @@ class AccountService {
             return { status: false, data: 'Error updating account', error };
         }
     }
+
+    async updateAccountByUserId(userId, newData) {
+        try {
+            const querySnapshot = await getDocs(
+                query(collection(db, 'accounts'), where('userId', '==', userId))
+            );
+    
+            if (querySnapshot.empty) {
+                console.log('Account not found');
+                return { status: false, message: 'Account not found' };
+            }
+    
+            const docRef = querySnapshot.docs[0].ref;
+            await updateDoc(docRef, newData);
+    
+            const updatedAccount = await this.getAccountById(docRef.id);
+            if (!updatedAccount.status) {
+                console.log('Account not found after update');
+                return { status: false, message: 'Account not found after update' };
+            }
+    
+            console.log('Account updated:', updatedAccount.data);
+            return { status: true, data: updatedAccount.data };
+        } catch (error) {
+            console.error('Error updating account:', error);
+            return { status: false, message: 'Error updating account', error };
+        }
+    }
+    
+
+
     async deleteAccount(id) {
         try {
             await deleteDoc(doc(db, 'accounts', id));

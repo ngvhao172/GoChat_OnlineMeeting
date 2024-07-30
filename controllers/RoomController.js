@@ -131,7 +131,13 @@ class RoomController {
                                             attendees.push(res.locals.user.userEmail);
                                         }
                                         await roomService.updateRoom(roomData.data.id, { "attendees": attendees});
-                                        return res.render('index', {roomId: roomId, isOwner});
+                                        if(isRoomNewCreated && isRoomNewCreated[0]){
+                                            const meetingLink = res.locals.domain + "/" + roomId
+                                            return res.render('index', {roomId: roomId, isOwner, isNewRoomCreated: true, meetingLink: meetingLink});
+                                        }
+                                        else{
+                                            return res.render('index', {roomId: roomId, isOwner});
+                                        }
                                     }
                                     else{
                                         return res.render('prejoin', {usersNumber: data.usersNumber, isOwner, isApproved: data.isApproved, roomId: roomId});

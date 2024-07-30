@@ -10,7 +10,9 @@ async function initializeGooglePassport(passport) {
     passport.use(new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: `http://localhost:${process.env.PORT}/auth/google/callback`,
+        callbackURL: process.env.NODE_ENV === 'Production' 
+        ? 'https://videochatapp.online/auth/google/callback' 
+        : `http://localhost:${process.env.PORT}/auth/google/callback`,
         passReqToCallback: true
     },
     async function (request, accessToken, refreshToken, profile, done) {

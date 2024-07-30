@@ -41,23 +41,27 @@ class NotificationController {
         }
     }
     async saveSubscription(req, res, next){
-        const {userEmail, subscription} = req.body;
-        if(!userEmail || !userEmail.trim() || !subscription || !subscription.trim()){
-            return res.status(500).json({ "status": "Error", "message": "All fields are required" });
-        }
-        const userData = await userService.getUserByEmail(userEmail);
-        if(!userData.status){
-            return res.status(500).json({ "status": "Error", "message": userData.message });
-        }
-        const newSub = new NotificationSub();
-        newSub.userId = userData.data.id;
-        newSub.subScription = subscription;
-        newSub.createdAt = new Date();
-        const subSavedResult = await notificationService.createNotificationSub(newSub);
-        if(subSavedResult.status){
-            return res.json({ status: "Success", message: "Subscription saved!" })
-        }else{
-            res.status(500).json({ "status": "Error", "message": subSavedResult.message });
+        try {
+            const {userEmail, subscription} = req.body;
+            if(!userEmail || !userEmail.trim() || !subscription ){
+                return res.status(500).json({ "status": "Error", "message": "All fields are required" });
+            }
+            const userData = await userService.getUserByEmail(userEmail);
+            if(!userData.status){
+                return res.status(500).json({ "status": "Error", "message": userData.message });
+            }
+            const newSub = new NotificationSub();
+            newSub.userId = userData.data.id;
+            newSub.subScription = subscription;
+            newSub.createdAt = new Date();
+            const subSavedResult = await notificationService.createNotificationSub(newSub);
+            if(subSavedResult.status){
+                return res.json({ status: "Success", message: "Subscription saved!" })
+            }else{
+                res.status(500).json({ "status": "Error", "message": subSavedResult.message });
+            }
+        } catch (error) {
+            res.status(500).json({ "status": "Error", "message": error });
         }
     }
 

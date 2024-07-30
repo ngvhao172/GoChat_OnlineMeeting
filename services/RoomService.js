@@ -1,4 +1,4 @@
-const { getFirestore, collection, doc, getDoc, addDoc, updateDoc, deleteDoc, where, query, Timestamp, getDocs } = require('firebase/firestore');
+const { getFirestore, collection, doc, getDoc, addDoc, updateDoc, deleteDoc, where, query, Timestamp, getDocs, endAt } = require('firebase/firestore');
 const { app } = require('../config/firebase');
 const db = getFirestore(app);
 const Room = require('../models/Room');
@@ -314,6 +314,15 @@ class RoomService{
                     let endTime;
                     if(roomData.endAt){
                         endTime = new Date(startDate);
+                        if(roomData.startAt){
+                            const startAtDate = roomData.startAt.toDate();
+                            const endAtDate = roomData.endAt.toDate();
+
+                            const timeDiff = startAtDate.getTime() - endAtDate.getTime();
+                            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                        
+                            endTime.setDate(endTime.getDate() + daysDiff + 1);
+                        }
                         endTime.setHours(roomData.endAt.toDate().getHours());
                         endTime.setMinutes(roomData.endAt.toDate().getMinutes());
                         endTime.setSeconds(roomData.endAt.toDate().getSeconds());
@@ -336,6 +345,19 @@ class RoomService{
                         rooms.push(room);                    
                     }
                 }
+            });
+
+            rooms.sort((a, b) => {
+                if (!a.startAt && b.startAt) {
+                    return -1; 
+                }
+                if (a.startAt && !b.startAt) {
+                    return 1;
+                }
+                if (!a.startAt && !b.startAt) {
+                    return 0; 
+                }
+                return a.startAt - b.startAt; 
             });
 
         

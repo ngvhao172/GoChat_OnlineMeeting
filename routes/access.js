@@ -33,6 +33,7 @@ router.get('/auth/google/callback',
 router.get('/verify/:userId/:uniqueString', userController.verifyUser);
 
 
+
 //router.post('/getRoomsByDay', roomController.getRoomsByDay)
 
 module.exports = router;

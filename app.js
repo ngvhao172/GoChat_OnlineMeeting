@@ -44,6 +44,8 @@ const domain = process.env.DOMAIN;
 var indexRouter = require('./routes/index');
 var accessRouter = require('./routes/access');
 
+var adminRouter = require('./routes/admin');
+
 var app = express();
 
 const customHelpers = require('./utils/customHelpers');
@@ -103,49 +105,19 @@ app.use(function (req, res, next) {
     return next();
   }
   else {
-    //Trả về trang 401
     res.redirect('/login');
   }
 })
-// app.post('/subscribe', (req, res) => {
-//   const subscription = req.body;
 
-//   // Send a push notification
-//   console.log("SUBCRIBE FOUND")
-//   const payload = JSON.stringify({ title: 'Test Notification', body: 'This is a test notification' });
-
-//   webPush.sendNotification(subscription, payload)
-//     .then(() => res.status(200).json({ message: 'Notification sent successfully.' }))
-//     .catch(err => {
-//       console.error(err);
-//       res.sendStatus(500);
-//     });
-// });
-
+//app.use('/', adminRouter)
 
 app.use('/', indexRouter);
 // app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
+  return res.render("notfound")
 });
-
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
-
-// if (process.env.NODE_ENV === 'production') {
-//   dotenv.config({ path: '.env.production' });
-// } else {
-//   dotenv.config();
-// }
 
 let worker;
 let router;
