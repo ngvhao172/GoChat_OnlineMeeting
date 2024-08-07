@@ -44,8 +44,6 @@ const domain = process.env.DOMAIN;
 var indexRouter = require('./routes/index');
 var accessRouter = require('./routes/access');
 
-var adminRouter = require('./routes/admin');
-
 var app = express();
 
 const customHelpers = require('./utils/customHelpers');
@@ -109,9 +107,9 @@ app.use(function (req, res, next) {
   }
 })
 
-//app.use('/', adminRouter)
-
 app.use('/', indexRouter);
+
+
 // app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler

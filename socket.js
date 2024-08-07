@@ -16,8 +16,8 @@ const authenticateToken = (token) => {
 let rooms = {};
 const createWebRtcTransport = async (router) => {
   const transportOptions = {
-    //listenIps: [{ ip: '0.0.0.0', announcedIp: '127.0.0.1' }],
-    listenIps: [{ ip: '0.0.0.0', announcedIp: 'videochatapp.online' }],
+    listenIps: [{ ip: '0.0.0.0', announcedIp: '127.0.0.1' }],
+    //listenIps: [{ ip: '0.0.0.0', announcedIp: 'videochatapp.online' }],
     enableUdp: true,
     enableTcp: true,
     preferUdp: true
@@ -37,11 +37,11 @@ module.exports = async (httpServer, router) => {
     const token = query.token;
     //console.log("TOKEN SEND TO SERVER:" + token);
 
-    if (!token) {
-        ws.close(4001, 'Unauthorized');
-        console.log('Connection attempt without token');
-        return;
-    }
+    // if (!token) {
+    //     ws.close(4001, 'Unauthorized');
+    //     console.log('Connection attempt without token');
+    //     return;
+    // }
 
     const userEmailVerified = authenticateToken(token)
     //console.log(userEmailVerified)
@@ -52,17 +52,43 @@ module.exports = async (httpServer, router) => {
         return;
     }
 
+  const pingInterval = 30000; 
+  const pongTimeout = 5000; // 5s time out
+
+  let pongTimeoutId;
+
+  // gửi ping mỗi 30 giây
+  const interval = setInterval(() => {
+    if (ws.readyState === webSocket.OPEN) {
+      ws.ping();
+      //console.log('Sent ping to client');
+
+      clearTimeout(pongTimeoutId);
+      
+      pongTimeoutId = setTimeout(() => {
+        //console.log('Connection lost with client');
+        ws.terminate(); 
+      }, pongTimeout);
+    }
+  }, pingInterval);
+
+  ws.on('pong', () => {
+    //console.log('Received pong from client');
+    
+    clearTimeout(pongTimeoutId);
+  });
+
     ws.on('message', async message => {
       try {
         const data = JSON.parse(message);
         // const data = JSON.parse(message);
         console.log("Data send to ws", data);
         const { roomId, userId, userEmail } = data;
-        if(userEmail!=userEmailVerified.userEmail){
-            ws.close(4001, 'Unauthorized');
-            console.log('Unauthorized connection attempt');
-            return;
-        }
+        // if(userEmail!=userEmailVerified.userEmail){
+        //     ws.close(4001, 'Unauthorized');
+        //     console.log('Unauthorized connection attempt');
+        //     return;
+        // }
         switch (data.action) {
           case 'create':
             {
@@ -140,7 +166,7 @@ module.exports = async (httpServer, router) => {
                 rooms[data.roomId].users[data.userId] = { id: data.userId, ws, name: data.name, avatar: data.avatar, email: data.userEmail, producerTransport: null, consumerTransports: {} };
                 rooms[data.roomId].consumers[data.userId] = {};
 
-                // console.log("Room", rooms[data.roomId]);
+                console.log("Room1", rooms[data.roomId]);
 
                 let users = [];
                 let usersObject = Object.values(rooms[data.roomId].users);
@@ -529,6 +555,7 @@ module.exports = async (httpServer, router) => {
           case 'produce':
             {
               // console.log(rooms[roomId]);
+              console.log(userId);
               const { kind, rtpParameters, appData, allProduce, isSharing } = data;
               const transport = rooms[roomId].users[userId].producerTransport;
               const producer = await transport.produce({ kind, rtpParameters });
@@ -541,14 +568,11 @@ module.exports = async (httpServer, router) => {
               else {
                 rooms[roomId].producers[userId][kind] = producer;
               }
-              //console.log("ROOM after produce", rooms[roomId]);
+              console.log("ROOM after produce", rooms[roomId]);
 
 
               ws.send(JSON.stringify({ action: 'produced', id: producer.id, kind: kind }));
-              // thêm vào audio observer
-              // if(kind == 'audio'){
-              //   rooms[roomId].audioLevelObserver.addProducer({ producerId: producer.id });
-              // } 
+              
 
 
               for (let id in rooms[roomId].users) {
@@ -791,7 +815,11 @@ module.exports = async (httpServer, router) => {
       }
     });
 
-    ws.on('close', () => {
+    ws.on('close', (code, reason) => {
+      console.log(`Connection closed with code: ${code}, reason: ${reason}`);
+      if(interval){
+        clearInterval(interval);
+      }
       for (let roomId in rooms) {
         const room = rooms[roomId];
         for (let userId in room.users) {
@@ -800,8 +828,6 @@ module.exports = async (httpServer, router) => {
             if (room.users[userId].producerTransport) {
               room.users[userId].producerTransport.close();
             }
-
-            // đóng all consumer transports
             for (let producerId in room.users[userId].consumerTransports) {
               room.users[userId].consumerTransports[producerId].close();
             }

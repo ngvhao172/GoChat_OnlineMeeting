@@ -59,6 +59,7 @@ function initialize(passport) {
         // console.log(id);
         const userData = await userService.getUserById(id);
         const user = userData.data;
+        //console.log(user)
         return done(null, user)
     })
 }

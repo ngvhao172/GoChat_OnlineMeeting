@@ -11,6 +11,7 @@ const accountController = require('../controllers/AccountController');
 
 const authController = require('../controllers/AuthController');
 
+
 router.post('/createMeeting', roomController.createRoom);
 
 router.post('/shareScreen', roomController.shareScreen);

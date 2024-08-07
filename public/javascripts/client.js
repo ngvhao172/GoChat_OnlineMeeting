@@ -2,6 +2,8 @@ import { resizeVideo, addItem, getCurrentTime, resizeSharing, updateDots, stopDo
 
 import hark from "hark";
 
+import { uuid } from 'uuid';
+
 // const { resizeVideo, addItem, updateUserList, getCurrentTime } = require("./index.js");
 
 // let localStream = null;
@@ -75,7 +77,7 @@ console.log("roomId", roomId)
 $("#roomId").text(roomId);
 // let time = window.time;
 const username = user.fullName
-const id = user.id
+let id = user.id
 
 // addItem("localUser", username, id);
 
@@ -362,7 +364,6 @@ const mediasoupClient = require('mediasoup-client')
 // const ws = new WebSocket('wss://localhost:3000');
 
 // const ws = new WebSocket('wss://webrtc-onlinemeeting-sfu-mediasoup.onrender.com');
-const ws = new WebSocket(`${ws_url}?token=${encodeURIComponent(token)}`);
 
 let device
 let rtpCapabilities
@@ -530,303 +531,263 @@ async function getAudioTrackReplace() {
     let audioTrack = stream.getAudioTracks()[0];
     return audioTrack;
 }
+let wss = [];
 
+let ws;
+startCall();
 
-
-
-// async function initializeLocalStream() {
-//     try {
-//         await getLocalStream();
-//         console.log("GET LOCAL STREAM");
-//     } catch (error) {
-//         alert('Error getting local stream:', error)
-//         console.error('Error getting local stream:', error);
-//     }
-// }
-
-ws.onopen = async () => {
-    try {
-        getLocalStream().then(() => {
-            ws.send(JSON.stringify({ action: 'join', roomId: roomId, userId: id, name: username, avatar: user.avatar, userEmail: user.userEmail }));
-            ws.send(JSON.stringify({ action: 'getRtpCapabilities', roomId: roomId, userId: id, userEmail: user.userEmail }));
-        });
-        console.log("ws on open");
-    } catch (error) {
-        console.error('Error during WebSocket onopen:', error);
-    }
-};
-
-
-
-ws.onmessage = async (event) => {
-    const data = JSON.parse(event.data);
-    console.log("Data send to client", data);
-    switch (data.action) {
-
-        case 'user-list':
-            updateUserList({ users: data.users, clientId: id, ownerEmail: data.ownerEmail, clientEmail: user.userEmail });
-            if (data.newUser.id != id) {
-                notifyUserJoin(data.newUser.name);
-            }
-            break;
-        case 'leave':
-            console.log("LEAVE: ", data);
-            updateUserList({ users: data.users, idUserLeft: data.userLeftId });
-
-            updateUIVideo(data.userLeftId, data.username);
-
-            notifyUserLeft(data.username, false);
-
-            break;
-        case 'getRtpCapabilities':
-            rtpCapabilities = data.rtpCapabilities
-            await createDevice();
-            ws.send(JSON.stringify({ action: 'createProducerTransport', roomId: data.roomId, userId: data.userId, userEmail: user.userEmail }));
-            break;
-        case 'producerTransportCreated':
-            console.log(data.id);
-            // producerTransport = device.createSendTransport(data);
-            // producerTransport.on('connect', async ({ dtlsParameters }, callback, errback) => {
-            //     console.log(dtlsParameters);
-            //     try {
-            //         ws.send('connectProducerTransport', { dtlsParameters });
-            //         callback();
-            //     } catch (error) {
-            //         errback(error);
-            //     }
-            // });
-            // console.log(data.userId == id+"-Sharing")
-            // console.log(id+"-Sharing")
-            // console.log(data.userId)
-            // if(data.userId == id+"-Sharing"){
-            //     createSendTransport(data, sharingParams);
-            // }
-            // else{
-            //     createSendTransport(data, videoParams, audioParams);
-            // }
-            await createSendTransport(data);
-            break;
-
-        case 'producerTransportConnected':
-            // connectSendTransport();
-            // localStream.getTracks().forEach(track => {
-            //     producerTransport.addTrack(track, localStream);
-            // });
-            // producerTransport.on('produce', async (parameters, callback, errback) => {
-            //     console.log(parameters)
-
-            //     try {
-            //         await ws.send('produce', {
-            //             kind: parameters.kind,
-            //             rtpParameters: parameters.rtpParameters,
-            //             appData: parameters.appData,
-            //         }, ({ id }) => {
-            //             // Tell the transport that parameters were transmitted and provide it with the
-            //             // server side producer's id.
-            //             callback({ id })
-            //         })
-            //     } catch (error) {
-            //         errback(error)
-            //     }
-            // })
-            // connectSendTransport();
-            /*const offer = await producerTransport.createOffer();
-            await producerTransport.setLocalDescription(offer);
-            ws.send(JSON.stringify({ action: 'produce', kind: 'video', rtpParameters: offer.sdp }));*/
-            break;
-
-        case 'produced':
-            {
-                console.log(data);
-                console.log('Producer created:', data.id);
-                callbackId = data.id;;
-                isCallbackCalled = false;
-            }
-            break;
-
-        case 'newProducer':
-            {
-                console.log('New producer:', data.producerId);
-                ws.send(JSON.stringify({ action: 'createConsumerTransport', producerId: data.producerId, roomId: data.roomId, userId: id, producerUserId: data.producerUserId, userEmail: user.userEmail }));
-            }
-            break;
-
-        case 'consumerTransportCreated':
-            // {
-            //     const transport = createWebRtcTransport(data);
-            //     consumerTransports[data.id] = transport;
-            //     const offer = await transport.createOffer();
-            //     await transport.setLocalDescription(offer);
-            //     ws.send(JSON.stringify({ action: 'connectConsumerTransport', dtlsParameters: transport.localDescription, producerId: data.producerId }));
-            // }
-            createRecvTransport(data);
-            break;
-
-        case 'consumerTransportConnected':
-
-            break;
-
-        case 'consumed':
-            console.log("DATA CONSUMED:", data);
-            console.log("ConsumerTransport needed: ", consumerTransports[data.producerUserId]);
-            consumer = await consumerTransports[data.producerUserId].consume({
-                id: data.id,
-                producerId: data.producerId,
-                kind: data.kind,
-                rtpParameters: data.rtpParameters
-            })
-            ws.send(JSON.stringify(
-                { action: 'consumer-resume', id: consumer.producerId, roomId: data.roomId, userId: id, userEmail: user.userEmail }
-            ));
-            let producerStatus = data.producerStatus;
-
-            console.log("CONSUMER PRODUCER ID", consumer.producerId);
-            if (!Object.values(consumers)[data.producerUserId]) {
-                consumers[data.producerUserId] = {};
-            }
-            if (data.isSharing && data.isSharing == true) {
-                consumers[data.producerUserId]["sharing"] = consumer
-            }
-            else {
-                consumers[data.producerUserId][data.kind] = consumer
-            }
-            // consumers[producerUserId][kind] = consumer
-
-            // destructure and retrieve the video track from the producer
-            const { track } = consumer
-            console.log("TRACK KIND:", data.kind, "IS SHARING: ", data.isSharing);
-            if (data.isSharing && data.isSharing == true) {
-                // alert("IS SHARING")
-                await addSharingContainer(data.producerUserId + '-Sharing', data.name + " is sharing");
-                addTrackToSharingElement(track, data.producerUserId + '-Sharing');
-                resizeSharing();
-                resizeVideo();
-
-                moveDivToPosition(data.producerUserId, 2);
-
-
-                notifyUserJoin(data.name, true)
-            }
-            else {
-                await addItem(data.producerUserId, data.name, data.avatar);
-                console.log("ADDTRACK TO REMOTE STREAM", track);
-                addTrackToVideoElement(track, data.producerUserId);
-                console.log(producerStatus)
-                if (producerStatus) {
-                    if (producerStatus == "off") {
-                        if (data.kind == "video") {
-                            enabledVideo(false, data.producerUserId);
-                        }
-                        //audio
-                        else if (data.kind == "audio") {
-                            enabledMic(false, data.producerUserId);
+async function startCall(){
+    // ids=+1;
+    // ids = ids.toString();
+    // id = ids;
+    //id = id.toString();
+    //user.userEmail = user.userEmail;
+    ws = new WebSocket(`${ws_url}?token=${encodeURIComponent(token)}`);
+    // wss[id] = ws;
+    ws.onopen = async () => {
+        $(".reconnecting-layout").addClass("d-none");
+        try {
+            getLocalStream().then(() => {
+                ws.send(JSON.stringify({ action: 'join', roomId: roomId, userId: id, name: username, avatar: user.avatar, userEmail: user.userEmail }));
+                ws.send(JSON.stringify({ action: 'getRtpCapabilities', roomId: roomId, userId: id, userEmail: user.userEmail }));
+            });
+            console.log("ws on open");
+        } catch (error) {
+            console.error('Error during WebSocket onopen:', error);
+        }
+    };
+    
+    
+    ws.onmessage = async (event) => {
+        const data = JSON.parse(event.data);
+        console.log("Data send to client", data);
+        switch (data.action) {
+    
+            case 'user-list':
+                updateUserList({ users: data.users, clientId: id, ownerEmail: data.ownerEmail, clientEmail: user.userEmail });
+                if (data.newUser.id != id) {
+                    notifyUserJoin(data.newUser.name);
+                }
+                break;
+            case 'leave':
+                console.log("LEAVE: ", data);
+                updateUserList({ users: data.users, idUserLeft: data.userLeftId });
+    
+                updateUIVideo(data.userLeftId, data.username);
+    
+                notifyUserLeft(data.username, false);
+    
+                break;
+            case 'getRtpCapabilities':
+                rtpCapabilities = data.rtpCapabilities
+                await createDevice();
+                ws.send(JSON.stringify({ action: 'createProducerTransport', roomId: data.roomId, userId: data.userId, userEmail: user.userEmail }));
+                break;
+            case 'producerTransportCreated':
+                console.log(data.id);
+                await createSendTransport(data);
+                break;
+    
+            case 'producerTransportConnected':
+                break;
+    
+            case 'produced':
+                {
+                    console.log(data);
+                    console.log('Producer created:', data.id);
+                    callbackId = data.id;;
+                    isCallbackCalled = false;
+                }
+                break;
+    
+            case 'newProducer':
+                {
+                    console.log('New producer:', data.producerId);
+                    ws.send(JSON.stringify({ action: 'createConsumerTransport', producerId: data.producerId, roomId: data.roomId, userId: id, producerUserId: data.producerUserId, userEmail: user.userEmail }));
+                }
+                break;
+    
+            case 'consumerTransportCreated':
+                createRecvTransport(data);
+                break;
+    
+            case 'consumerTransportConnected':
+    
+                break;
+    
+            case 'consumed':
+                console.log("DATA CONSUMED:", data);
+                console.log("ConsumerTransport needed: ", consumerTransports[data.producerUserId]);
+                consumer = await consumerTransports[data.producerUserId].consume({
+                    id: data.id,
+                    producerId: data.producerId,
+                    kind: data.kind,
+                    rtpParameters: data.rtpParameters
+                })
+                ws.send(JSON.stringify(
+                    { action: 'consumer-resume', id: consumer.producerId, roomId: data.roomId, userId: id, userEmail: user.userEmail }
+                ));
+                let producerStatus = data.producerStatus;
+    
+                console.log("CONSUMER PRODUCER ID", consumer.producerId);
+                if (!Object.values(consumers)[data.producerUserId]) {
+                    consumers[data.producerUserId] = {};
+                }
+                if (data.isSharing && data.isSharing == true) {
+                    consumers[data.producerUserId]["sharing"] = consumer
+                }
+                else {
+                    consumers[data.producerUserId][data.kind] = consumer
+                }
+                // consumers[producerUserId][kind] = consumer
+    
+                // destructure and retrieve the video track from the producer
+                const { track } = consumer
+                console.log("TRACK KIND:", data.kind, "IS SHARING: ", data.isSharing);
+                if (data.isSharing && data.isSharing == true) {
+                    // alert("IS SHARING")
+                    await addSharingContainer(data.producerUserId + '-Sharing', data.name + " is sharing");
+                    addTrackToSharingElement(track, data.producerUserId + '-Sharing');
+                    resizeSharing();
+                    resizeVideo();
+    
+                    moveDivToPosition(data.producerUserId, 2);
+    
+    
+                    notifyUserJoin(data.name, true)
+                }
+                else {
+                    await addItem(data.producerUserId, data.name, data.avatar);
+                    console.log("ADDTRACK TO REMOTE STREAM", track);
+                    addTrackToVideoElement(track, data.producerUserId);
+                    console.log(producerStatus)
+                    if (producerStatus) {
+                        if (producerStatus == "off") {
+                            if (data.kind == "video") {
+                                enabledVideo(false, data.producerUserId);
+                            }
+                            //audio
+                            else if (data.kind == "audio") {
+                                enabledMic(false, data.producerUserId);
+                            }
                         }
                     }
                 }
-            }
-            // Object.values(consumers).forEach(consumer => {
-            //     const stream = new MediaStream();
-            //     stream.addTrack(consumer.track);
-
-
-            // });
-
-            // console.log("KIND: " + data.kind + " status: " + producerStatus);
-
-            // console.log('Consumer track details:', consumer.track);
-            // console.log('Stream tracks:', remoteVideo.getTracks());
-
-            break;
-        case 'producerNotProvided':
-            {
-                const {kind, producerUserId, producerStatus, name, avatar} = data;
-                if(kind == "audio"){
+                // Object.values(consumers).forEach(consumer => {
+                //     const stream = new MediaStream();
+                //     stream.addTrack(consumer.track);
+    
+    
+                // });
+    
+                // console.log("KIND: " + data.kind + " status: " + producerStatus);
+    
+                // console.log('Consumer track details:', consumer.track);
+                // console.log('Stream tracks:', remoteVideo.getTracks());
+    
+                break;
+            case 'producerNotProvided':
+                {
+                    const {kind, producerUserId, producerStatus, name, avatar} = data;
+                    if(kind == "audio"){
+                        const muteButton = $(`#mutedButton${data.producerUserId}`);
+                        if(muteButton){
+                            muteButton.addClass("d-none");
+                        }
+                    }
+                    await addItem(producerUserId, name, avatar);
+                    toggleButtonWhenProducerNotFound(kind, null, true, producerUserId);
+                }
+    
+                break;
+            case 'onCamera':
+                console.log("ONCAMERA: ", data);
+                enabledVideo(true, data.producerUserId);
+                break;
+            case 'offCamera':
+                console.log("OFFCAMERA: ", data);
+                enabledVideo(false, data.producerUserId);
+                break;
+            case 'muted':
+                {
                     const muteButton = $(`#mutedButton${data.producerUserId}`);
                     if(muteButton){
                         muteButton.addClass("d-none");
                     }
+                    enabledMic(false, data.producerUserId);
                 }
-                await addItem(producerUserId, name, avatar);
-                toggleButtonWhenProducerNotFound(kind, null, true, producerUserId);
-            }
-
-            break;
-        case 'onCamera':
-            console.log("ONCAMERA: ", data);
-            enabledVideo(true, data.producerUserId);
-            break;
-        case 'offCamera':
-            console.log("OFFCAMERA: ", data);
-            enabledVideo(false, data.producerUserId);
-            break;
-        case 'muted':
-            {
+                break;
+            case 'unmuted':
                 const muteButton = $(`#mutedButton${data.producerUserId}`);
                 if(muteButton){
-                    muteButton.addClass("d-none");
+                    muteButton.removeClass("d-none");
                 }
-                enabledMic(false, data.producerUserId);
-            }
-            break;
-        case 'unmuted':
-            const muteButton = $(`#mutedButton${data.producerUserId}`);
-            if(muteButton){
-                muteButton.removeClass("d-none");
-            }
-            enabledMic(true, data.producerUserId);
-            break;
-        case 'message':
-            console.log("MESSAGE: ", data);
-            displayMessage(data.from, data.content, data.userId);
-            lastMessageId = data.userId;
-            $("#new-message").removeClass("d-none");
-            break;
-        case 'stopSharing':
-            const { producerUserId, roomId, username } = data;
-            updateSharingVideo(producerUserId + "-Sharing");
-            notifyUserLeft(username, true);
-            break;
-        case 'newRequest':
-            //nguoi dung moi
-            const {requestingUsers, newUser} = data;
-            notifyNewRequest(newUser.name, newUser.email, newUser.avatar);
-            updateRequestorsList(requestingUsers);
-            break;
-        case 'beingMuted':
-            if(audioProducer){
-                if(!audioProducer.paused){
-                    toggleButton("audio", micButton);
+                enabledMic(true, data.producerUserId);
+                break;
+            case 'message':
+                console.log("MESSAGE: ", data);
+                displayMessage(data.from, data.content, data.userId);
+                lastMessageId = data.userId;
+                $("#new-message").removeClass("d-none");
+                break;
+            case 'stopSharing':
+                const { producerUserId, roomId, username } = data;
+                updateSharingVideo(producerUserId + "-Sharing");
+                notifyUserLeft(username, true);
+                break;
+            case 'newRequest':
+                //nguoi dung moi
+                const {requestingUsers, newUser} = data;
+                notifyNewRequest(newUser.name, newUser.email, newUser.avatar);
+                updateRequestorsList(requestingUsers);
+                break;
+            case 'beingMuted':
+                if(audioProducer){
+                    if(!audioProducer.paused){
+                        toggleButton("audio", micButton);
+                    }
                 }
-            }
-            break;
-        default:
-            console.error('Unknown message action:', data.action);
+                break;
+            default:
+                console.error('Unknown message action:', data.action);
+    
+        }
+    };
+    
+    ws.onclose = function(event) {
+        console.log('WebSocket connection closed:', event);
+        console.log('Code:', event.code);
+        console.log('Reason:', event.reason);
 
-    }
-};
-ws.onclose = function(event) {
-    console.log('WebSocket connection closed:', event);
-    console.log('Code:', event.code);
-    console.log('Reason:', event.reason);
-  
-    if(event.code == 1008){
-        $('#removeToast').toast("show");
-        let seconds = 3;
-        const interval = setInterval(function () {
-            $('#secondRemovingText').text(seconds.toString());
-            seconds--;
-            if (seconds < 0) {
-                clearInterval(interval); 
-                $('#removeToast').toast("hide");
-            }
-        }, 1000); 
+        if(event.code == 1008){
+            $('#removeToast').toast("show");
+            let seconds = 3;
+            const interval = setInterval(function () {
+                $('#secondRemovingText').text(seconds.toString());
+                seconds--;
+                if (seconds < 0) {
+                    clearInterval(interval); 
+                    $('#removeToast').toast("hide");
+                }
+            }, 1000); 
+    
+            setTimeout(() => {
+                window.location.href = "/" + roomId;
+            }, 3000);
+        }
+        if(event.code == 1006){
+            //try to reconnect
+            $(".reconnecting-layout").removeClass("d-none");
+            console.log("Reconnecting...");
+            //ws = new WebSocket(`${ws_url}?token=${encodeURIComponent(token)}`);
+            startCall();
+            //
+        }
+        //alert(`WebSocket connection closed: ${event.reason}`);
+    };
+}
 
-        setTimeout(() => {
-            window.location.href = "/" + roomId;
-        }, 3000);
-    }
-   alert(`WebSocket connection closed: ${event.reason}`);
-  };
+
 const createDevice = async () => {
     try {
         device = new mediasoupClient.Device();
@@ -875,6 +836,7 @@ const createSendTransport = async (params) => {
         try {
             // Signal local DTLS parameters to the server side transport
             // see server's socket.on('transport-connect', ...)
+            //let ws = wss[params.userId];
             console.log("connect producer transport?", dtlsParameters);
             ws.send(JSON.stringify({
                 action: "connectProducerTransport",
@@ -900,6 +862,7 @@ const createSendTransport = async (params) => {
             // with the following parameters and produce
             // and expect back a server side producer id
             // see server's socket.on('transport-produce', ...)
+            //let ws = wss[params.userId];
             ws.send(JSON.stringify({
                 action: 'produce',
                 kind: parameters.kind,
@@ -962,8 +925,27 @@ const connectSendTransport = async () => {
     //     sharingProducer = await producerTransport.produce(sharingParams);
     // }
     // else{
+    let stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+    });
+    let videoTrack = stream.getVideoTracks()[0];
+    let audioTrack = stream.getAudioTracks()[0];
+
+    let audioParams = {
+        track: audioTrack
+    };
+    let videoParams = { params };
+
+    videoParams = {
+        track: videoTrack,
+        ...videoParams
+    };
+    console.log("VIDEO PARAMS:")
     console.log(videoParams)
     if(videoParams && videoParams.track){
+       
+        
         videoProducer = await producerTransport.produce(videoParams);
 
 
@@ -994,6 +976,9 @@ const connectSendTransport = async () => {
     }
     //allProduce = true;
     // alert("Continue");
+    console.log("AUDIO PARAMS:")
+    console.log(audioParams)
+    console.log(audioParams && audioParams.track);
     if(audioParams && audioParams.track){
         audioProducer = await producerTransport.produce(audioParams, {
             opusStereo: true,
@@ -1135,9 +1120,6 @@ function addTrackToVideoElement(track, id) {
 
 }
 
-
-
-
 const createRecvTransport = async (params) => {
     console.log("PARAMS VALUE:", params)
     // see server's socket.on('consume', sender?, ...)
@@ -1161,6 +1143,7 @@ const createRecvTransport = async (params) => {
             try {
                 // Signal local DTLS parameters to the server side transport
                 // see server's socket.on('transport-recv-connect', ...)
+                //ws = wss[params.producerUserId];
                 ws.send(JSON.stringify({
                     action: 'connectConsumerTransport',
                     dtlsParameters,
@@ -1685,22 +1668,36 @@ async function getAudioStream() {
     return await navigator.mediaDevices.getUserMedia({ audio: true });
 }
 
-function getRemoteAudioTracks() {
+async function getRemoteAudioTracks() {
     return Array.from(consumers)
         .map(consumer => consumer.track)
         .filter(track => track.kind === 'audio');
 }
 
-
 async function createCombinedStream() {
-    const screenStream = await getScreenStream();
-    const audioStream = await getAudioStream();
-    const remoteAudioTracks = getRemoteAudioTracks();
-
     const combinedStream = new MediaStream();
-    screenStream.getTracks().forEach(track => combinedStream.addTrack(track));
-    audioStream.getTracks().forEach(track => combinedStream.addTrack(track));
-    remoteAudioTracks.forEach(track => combinedStream.addTrack(track));
+
+    try {
+        const screenStream = await getScreenStream();
+        screenStream.getTracks().forEach(track => combinedStream.addTrack(track));
+    } catch (error) {
+        console.error("Failed to get screen stream:", error);
+        throw error
+    }
+
+    try {
+        const remoteAudioTracks = await getRemoteAudioTracks();
+        remoteAudioTracks.forEach(track => combinedStream.addTrack(track));
+    } catch (error) {
+        console.error("Failed to get remote audio tracks:", error);
+    }
+
+    try {
+        const audioStream = await getAudioStream();
+        audioStream.getTracks().forEach(track => combinedStream.addTrack(track));
+    } catch (error) {
+        console.warn("Failed to get audio stream:", error);
+    }
 
     return combinedStream;
 }
@@ -1772,8 +1769,8 @@ function showLiOptions(ids) {
     console.log($('#optionsDiv li'));
     $('#optionsDiv li').each(function () {
         const liId = $(this).attr('id');
-        console.log(liId);
-        console.log(ids.includes(liId));
+        //console.log(liId);
+        //console.log(ids.includes(liId));
         if (ids.includes(liId)) {
             $(this).removeClass('d-none');
         } else {
@@ -2552,6 +2549,37 @@ function inviteUser(email, checkbox, avatar) {
     }
 }  
 
+
+let offlineStartTime = null;
+const RECONNECT_DELAY = 5000; 
+
+
+// for (let i = 0; i < 1; i++) {
+   
+// }
+// let array = [0,1]
+// array.forEach(async i => {
+//      await startCall(i);
+// });
+
+window.addEventListener('online', function() {
+    console.log('Đã kết nối lại mạng.');
+    $(".reconnecting-layout").addClass("d-none");
+    
+    if (offlineStartTime && Date.now() - offlineStartTime > RECONNECT_DELAY) {
+        console.log("Mất kết nối lâu hơn 5 giây. Khởi động lại cuộc gọi...");
+        startCall(); 
+    }
+    offlineStartTime = null; 
+});
+
+window.addEventListener('offline', function() {
+    console.log('Mất kết nối mạng.');
+    $(".reconnecting-layout").removeClass("d-none");
+    console.log("Reconnecting...");
+
+    offlineStartTime = Date.now();
+});
 
 
 

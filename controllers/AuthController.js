@@ -45,12 +45,11 @@ class AuthController {
         // res.render("login")
         if(req.isAuthenticated()){
             const sessionUUID = uuidv4();
-
             req.session.userUUID = sessionUUID;
             const user = req.user;
             const userEmail = user.userEmail;
             const token = jwt.sign({ userEmail }, secret_key, { expiresIn: '10h' });
-            req.session.token = token;
+            req.session.token = token;        
             return res.redirect("/");
         }
     };

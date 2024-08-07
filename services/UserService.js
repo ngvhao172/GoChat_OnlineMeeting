@@ -21,7 +21,8 @@ const User = require('../models/User');
                     dob: user.dob || "",
                     avatar: user.avatar || "",
                     gender: user.gender || "",
-                    createdAt: Timestamp.fromDate(new Date(user.createdAt))
+                    createdAt: Timestamp.fromDate(new Date(user.createdAt)),
+                    role: "User"
                 });
                 user.id = userRef.id;
                 console.log('User created:', user);
@@ -51,7 +52,10 @@ const User = require('../models/User');
                     userData.address,
                     userData.dob,
                     userData.avatar,
-                    userData.gender
+                    userData.gender,
+                    "",
+                    "",
+                    userData.role || "User"
                 );
                 return { status: true, data: user };
             } catch (error) {
@@ -80,7 +84,10 @@ const User = require('../models/User');
                     userData.address,
                     userData.dob,
                     userData.avatar,
-                    userData.gender
+                    userData.gender,
+                    "",
+                    "",
+                    userData.role || "User"
                 );
         
                 return { status: true, data: user };
