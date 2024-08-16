@@ -12,6 +12,11 @@ const initializePassport = require('./config/passport-config');
 const initializeGooglePassport = require('./config/gg-passport-config');
 const mediasoup = require('mediasoup');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const { v4: uuidv4 } = require('uuid');
+
+
+const userService = require("./services/UserService");
 
 const jwt = require('jsonwebtoken')
 
@@ -40,6 +45,8 @@ initializeGooglePassport(passport);
 const port = process.env.PORT;
 const ws_url = process.env.WS_URL;
 const domain = process.env.DOMAIN;
+const secret_key = process.env.SECRET_KEY;
+
 
 var indexRouter = require('./routes/index');
 var accessRouter = require('./routes/access');
@@ -70,7 +77,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-
+app.use(cookieParser());
 app.use(session({
   secret: 'mysecretkey',
   resave: false,
@@ -86,6 +93,29 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/', accessRouter);
+
+function authenticateToken(req, res, next) {
+  const token = req.cookies.authToken;
+
+  if (!token) return res.redirect('/login');
+
+  jwt.verify(token, secret_key, async (err, { userEmail }) => {
+      if (err) return res.redirect('/login');
+      let user = await userService.getUserByEmail(userEmail);
+      if(user.status){
+        req.session.token = token;  
+        const sessionUUID = uuidv4();
+        req.session.userUUID = sessionUUID;
+        req.user = user.data;
+        next();
+      }
+      else{
+        res.redirect('/login');
+      }
+  });
+}
+
+app.use(authenticateToken);
 
 app.use(function (req, res, next) {
   // console.log(req.isAuthenticated());

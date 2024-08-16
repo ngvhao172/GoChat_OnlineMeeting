@@ -11,6 +11,13 @@ const Account = require('../models/Account');
 const secret_key = process.env.SECRET_KEY;
 
 class AuthController {
+
+    rememberMeMiddleware(req, res, next) {
+        req.rememberMe = req.body.rememberMe === 'on';
+        console.log(req.rememberMe)
+        next();
+    }
+
     checkIsAuthenticated(req, res, next) {
         if (req.isAuthenticated()) {
             res.locals.user = req.user;
@@ -30,14 +37,25 @@ class AuthController {
         return res.render('login');
     }
     logout(req, res, next) {
-        req.logOut(function (err) {
+        req.logout((err) => {
             if (err) {
-                console.log(err);
-                return next(err);
+                console.log('Logout error:', err);
+                return next(err); 
             }
-            res.redirect('/login');
+    
+            req.session.destroy((err) => {
+                if (err) {
+                    console.log('Session destroy error:', err);
+                    return next(err);
+                }
+    
+                res.clearCookie('authToken'); 
+    
+                res.redirect('/login');
+            });
         });
     }
+    
     async signupGET(req, res, next){
         res.render('signup');
     }
@@ -48,7 +66,15 @@ class AuthController {
             req.session.userUUID = sessionUUID;
             const user = req.user;
             const userEmail = user.userEmail;
-            const token = jwt.sign({ userEmail }, secret_key, { expiresIn: '10h' });
+            const expiresIn = req.rememberMe ? '7d' : '7h';
+            const token = jwt.sign({ userEmail }, secret_key, { expiresIn: expiresIn });
+            
+            res.cookie('authToken', token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'Production',
+                maxAge: req.rememberMe ? 7 * 24 * 60 * 60 * 1000 : 7 * 60 * 1000
+            });
+
             req.session.token = token;        
             return res.redirect("/");
         }

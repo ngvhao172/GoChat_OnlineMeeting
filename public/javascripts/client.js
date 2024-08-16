@@ -2,8 +2,6 @@ import { resizeVideo, addItem, getCurrentTime, resizeSharing, updateDots, stopDo
 
 import hark from "hark";
 
-import { uuid } from 'uuid';
-
 // const { resizeVideo, addItem, updateUserList, getCurrentTime } = require("./index.js");
 
 // let localStream = null;
@@ -67,8 +65,8 @@ const user = window.serverData.user;
 const ws_url = window.serverData.ws_url;
 const roomId = window.serverData.roomId;
 const token = window.serverData.token;
-console.log("User", user)
-console.log("roomId", roomId)
+//console.log("User", user)
+//console.log("roomId", roomId)
 
 
 // const roomId = path.split("/")[1];
@@ -147,7 +145,7 @@ const iceServers = [
     },
 ]
 
-function updateUIVideo(userLeftId, username) {
+function updateUIVideo(userLeftId) {
     console.log(userLeftId);
     const userVideo = document.getElementById('divVideo' + userLeftId);
     if (userVideo) {
@@ -361,10 +359,6 @@ function notifyUserJoin(username, isSharing) {
 
 const mediasoupClient = require('mediasoup-client')
 
-// const ws = new WebSocket('wss://localhost:3000');
-
-// const ws = new WebSocket('wss://webrtc-onlinemeeting-sfu-mediasoup.onrender.com');
-
 let device
 let rtpCapabilities
 let producerTransport;
@@ -427,8 +421,15 @@ let sharingParams = { params };
 let callbackId;
 let isCallbackCalled = false;
 
+let isReconnect = false;
+
 async function getLocalStream() {
     try {
+
+        if(isReconnect == true){
+            return;
+        }
+
         let audioConstraints = localStorage.getItem("audioConstraints");
         let videoConstraints = localStorage.getItem("videoConstraints");
 
@@ -531,21 +532,13 @@ async function getAudioTrackReplace() {
     let audioTrack = stream.getAudioTracks()[0];
     return audioTrack;
 }
-let wss = [];
 
 let ws;
 startCall();
 
 async function startCall(){
-    // ids=+1;
-    // ids = ids.toString();
-    // id = ids;
-    //id = id.toString();
-    //user.userEmail = user.userEmail;
     ws = new WebSocket(`${ws_url}?token=${encodeURIComponent(token)}`);
-    // wss[id] = ws;
     ws.onopen = async () => {
-        $(".reconnecting-layout").addClass("d-none");
         try {
             getLocalStream().then(() => {
                 ws.send(JSON.stringify({ action: 'join', roomId: roomId, userId: id, name: username, avatar: user.avatar, userEmail: user.userEmail }));
@@ -568,6 +561,7 @@ async function startCall(){
                 if (data.newUser.id != id) {
                     notifyUserJoin(data.newUser.name);
                 }
+                $(".reconnecting-layout").addClass("d-none");
                 break;
             case 'leave':
                 console.log("LEAVE: ", data);
@@ -748,6 +742,13 @@ async function startCall(){
                     }
                 }
                 break;
+            case 'actionNotPermitted':
+                {
+                    const { message } = data;
+                    $("#warningToastText").text(message);
+                    $("#warningToast").toast("show");
+                }
+                break;
             default:
                 console.error('Unknown message action:', data.action);
     
@@ -780,6 +781,9 @@ async function startCall(){
             $(".reconnecting-layout").removeClass("d-none");
             console.log("Reconnecting...");
             //ws = new WebSocket(`${ws_url}?token=${encodeURIComponent(token)}`);
+            isReconnect = true;
+            consumerTransports = {};
+            consumers = {};
             startCall();
             //
         }
@@ -1073,14 +1077,28 @@ function addTrackToVideoElement(track, id) {
         //   container.appendChild(remoteVideo);
     }
 
-    if (!remoteVideo.srcObject) {
-        remoteVideo.srcObject = new MediaStream();
+    if (remoteVideo.srcObject) {
+        if (track.kind == "video") {
+            let videoTracks = remoteVideo.srcObject.getVideoTracks();
+            if (videoTracks.length > 0) {
+                let videoTrack = videoTracks[0];
+                remoteVideo.srcObject.removeTrack(videoTrack);
+            }
+        } else if (track.kind == "audio") {
+            let audioTracks = remoteVideo.srcObject.getAudioTracks();
+            if (audioTracks.length > 0) {
+                let audioTrack = audioTracks[0];
+                remoteVideo.srcObject.removeTrack(audioTrack);
+            }
+        }
+        
+        remoteVideo.srcObject.addTrack(track);
+    } else {
+        let newStream = new MediaStream();
+        newStream.addTrack(track);
+        remoteVideo.srcObject = newStream;
     }
-    // //cho nay code cai gi quen r
-    // if(id!="localVideo"){
-    //     remoteVideo.srcObject.addTrack(track);
-    // }
-    remoteVideo.srcObject.addTrack(track);
+
     if (id.includes("Sharing")) {
         return;
     }
@@ -1552,6 +1570,8 @@ async function toggleButton(type, button) {
                 micDiv[1].classList.remove("d-none");
                 micDiv[2].classList.remove("d-none");
                 ws.send(JSON.stringify({ action: "muted", producerUserId: id, roomId: roomId, userEmail: user.userEmail }))
+
+                localStorage.setItem('micEnabled', false); 
             }
             else {
                 let audioTrackReplace = await getAudioTrackReplace();
@@ -1602,6 +1622,8 @@ async function toggleButton(type, button) {
                 micDiv[0].classList.add("d-none");
                 micDiv[1].classList.add("d-none");
                 micDiv[2].classList.add("d-none");
+
+                localStorage.setItem('micEnabled', true);
             }
         }
         else {
@@ -1628,6 +1650,9 @@ async function toggleButton(type, button) {
                 alterDiv.classList.remove("d-none");
                 videoDiv.classList.add("d-none");
                 ws.send(JSON.stringify({ action: "offCamera", producerUserId: id, roomId: roomId, userEmail: user.userEmail }))
+
+
+                localStorage.setItem('cameraEnabled', false);
             }
             else {
                 // track.resume();
@@ -1649,6 +1674,8 @@ async function toggleButton(type, button) {
                 alterDiv.classList.add("d-none");
                 videoDiv.classList.remove("d-none");
                 ws.send(JSON.stringify({ action: "onCamera", producerUserId: id, roomId: roomId, userEmail: user.userEmail }))
+
+                localStorage.setItem('cameraEnabled', true);
             }
         }
         else {
@@ -2069,49 +2096,6 @@ function showLiOptions(ids) {
             }
         } catch (error) {
             console.error('Lỗi khi thay đổi thiết bị media:', error);
-        }
-    }
-
-    function testMic(track, id) {
-        if (harkInstances[id]) {
-            delete harkInstances[id];
-        }
-        let audioStream = new MediaStream();
-        audioStream.addTrack(track);
-        let options = {
-            threshold: -70
-        };
-        harkInstances[id] = hark(audioStream, options);
-
-        harkInstances[id].on('speaking', () => {
-            console.log(`${id} is speaking on track ${track.id}`);
-            showDots(id);
-            // moveDivToPositionWhenSpeaking(id);
-        });
-
-        harkInstances[id].on('stopped_speaking', () => {
-            console.log(`${id} speech stopped on track ${track.id}`);
-            // stopDots(id);
-        });
-        harkInstances[id].on('volume_change', (volume, threshold) => {
-            // console.log(`Volume change: ${volume}, Threshold: ${threshold}`);
-
-            updateDots(volume, id);
-        });
-    }
-    async function getUserMediaWithConstraints(audioConstraints, videoConstraints) {
-        try {
-            const constraints = {};
-            if (audioConstraints) {
-                constraints.audio = audioConstraints;
-            }
-            if (videoConstraints) {
-                constraints.video = videoConstraints;
-            }
-            const stream = await navigator.mediaDevices.getUserMedia(constraints);
-            return stream;
-        } catch (error) {
-            console.error('Lỗi khi lấy media stream:', error);
         }
     }
     async function populateDropdown(dropdownId, devices, buttonId) {
@@ -2551,24 +2535,19 @@ function inviteUser(email, checkbox, avatar) {
 
 
 let offlineStartTime = null;
-const RECONNECT_DELAY = 5000; 
-
-
-// for (let i = 0; i < 1; i++) {
-   
-// }
-// let array = [0,1]
-// array.forEach(async i => {
-//      await startCall(i);
-// });
+const RECONNECT_DELAY = 7000; 
 
 window.addEventListener('online', function() {
     console.log('Đã kết nối lại mạng.');
     $(".reconnecting-layout").addClass("d-none");
     
     if (offlineStartTime && Date.now() - offlineStartTime > RECONNECT_DELAY) {
-        console.log("Mất kết nối lâu hơn 5 giây. Khởi động lại cuộc gọi...");
+        console.log("Mất kết nối lâu hơn 7 giây. Khởi động lại cuộc gọi...");
         startCall(); 
+        isReconnect = true;
+
+        consumerTransports = {};
+        consumers = {};
     }
     offlineStartTime = null; 
 });

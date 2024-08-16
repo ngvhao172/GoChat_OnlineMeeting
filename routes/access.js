@@ -12,7 +12,7 @@ router.get('/login', authController.loginGET)
 
 router.get('/logout', authController.logout)
 
-router.post("/login", passport.authenticate('local', { failureRedirect: '/login', failureFlash: true }),
+router.post("/login", authController.rememberMeMiddleware,  passport.authenticate('local', { failureRedirect: '/login', failureFlash: true }),
     authController.loginPOST);
 
 router.get('/signup', authController.signupGET)

@@ -16,7 +16,7 @@ const authenticateToken = (token) => {
 let rooms = {};
 const createWebRtcTransport = async (router) => {
   const transportOptions = {
-    listenIps: [{ ip: '0.0.0.0', announcedIp: '127.0.0.1' }],
+    listenIps: [{ ip: '0.0.0.0', announcedIp: process.env.ANNOUNCEDIP }],
     //listenIps: [{ ip: '0.0.0.0', announcedIp: 'videochatapp.online' }],
     enableUdp: true,
     enableTcp: true,
@@ -37,11 +37,11 @@ module.exports = async (httpServer, router) => {
     const token = query.token;
     //console.log("TOKEN SEND TO SERVER:" + token);
 
-    // if (!token) {
-    //     ws.close(4001, 'Unauthorized');
-    //     console.log('Connection attempt without token');
-    //     return;
-    // }
+    if (!token) {
+        ws.close(4001, 'Unauthorized');
+        console.log('Connection attempt without token');
+        return;
+    }
 
     const userEmailVerified = authenticateToken(token)
     //console.log(userEmailVerified)
@@ -84,11 +84,11 @@ module.exports = async (httpServer, router) => {
         // const data = JSON.parse(message);
         console.log("Data send to ws", data);
         const { roomId, userId, userEmail } = data;
-        // if(userEmail!=userEmailVerified.userEmail){
-        //     ws.close(4001, 'Unauthorized');
-        //     console.log('Unauthorized connection attempt');
-        //     return;
-        // }
+        if(userEmail!=userEmailVerified.userEmail){
+            ws.close(4001, 'Unauthorized');
+            console.log('Unauthorized connection attempt');
+            return;
+        }
         switch (data.action) {
           case 'create':
             {
@@ -343,6 +343,13 @@ module.exports = async (httpServer, router) => {
                 ));
               }
               const user = rooms[roomId].users[userRemoveId];
+              if(user.email == rooms[roomId].ownerCreatedEmail){
+                return ws.send(JSON.stringify({
+                  action: 'actionNotPermitted',
+                  message: "You can not remove this user"
+                }
+                ));
+              }
               if (isBlock == true) {
                 if (!rooms[roomId].blockUsers.includes(userRemoveId)) {
                   rooms[roomId].blockUsers.push(user.email);

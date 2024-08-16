@@ -382,6 +382,7 @@ export function resizeSharing(){
             rows = Math.ceil(num / 4);
         }
     }
+    resizeVideo()
 
     container.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
     container.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
