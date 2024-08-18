@@ -422,7 +422,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-3 p-0 bg-light right-box" style="min-height: calc(100vh - 70px); ">
+            <div class="col-3 p-0 bg-light right-box" style="min-height: calc(100vh - 70px);">
                 <div id="clockdate">
                     <div class="clockdate-wrapper">
                         <div id="clock"></div>
@@ -438,21 +438,8 @@
                                 class="bi bi-calendar2-plus"></i></button>
                     </div>
                 </div>
-                {{!-- <div class="host">
-                    <div class="btn-group">
-                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            Host: Pham Nhat Quynh
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li class="dropdown-item">Pham Nhat Quynh</li>
-                            <li class="dropdown-item">Nhat Quynh Pham xinh nhat a</li>
-                            <li class="dropdown-item">Quynh Pham Nhat</li>
-                        </ul>
-                    </div>
-                </div> --}}
-                <div class="card-meet">
-                    <div class="meeting-schedule" id="meeting-schedule" style="overflow-y: auto; height: 450px">
+                <div class="card-meet" style="display: flex; flex-direction: column; height: calc(100vh - 300px);">
+                    <div class="meeting-schedule" id="meeting-schedule" style="overflow-y: auto; flex: 1">
                         <div class="m-2" id="spinnerLoading">
                             <div class="p-2">
                                 <div class="d-flex justify-content-center">

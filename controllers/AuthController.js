@@ -213,7 +213,7 @@ class AuthController {
             const account = userAccountData.data;
             const newPassword = this.generatePassword();
             const hasedPassword = await bcrypt.hash(newPassword, 10);
-            const updatePassword = await accountService.updateAccount(account.id, {password: hasedPassword});
+            const updatePassword = await accountService.updateAccountById(account.id, {password: hasedPassword});
             if(updatePassword.status){
                 const sendResult = await accountService.sendResetPassword(email, newPassword);
                 if(sendResult.status){

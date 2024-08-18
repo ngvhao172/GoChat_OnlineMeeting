@@ -23,7 +23,7 @@ class AccountController {
         const account = userAccountData.data;
         if (await bcrypt.compare(currentPassword, account.password)) {
             const hasedPassword = await bcrypt.hash(newPassword, 10);
-            const updatePassword = await accountService.updateAccount(account.id, {password: hasedPassword});
+            const updatePassword = await accountService.updateAccountById(account.id, {password: hasedPassword});
             if(updatePassword.status){
                 req.flash('type', 'success');
                 req.flash('message', "Update password successfully");

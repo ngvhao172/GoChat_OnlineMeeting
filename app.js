@@ -14,6 +14,7 @@ const mediasoup = require('mediasoup');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const { v4: uuidv4 } = require('uuid');
+const LocalStrategy = require("passport-local").Strategy
 
 
 const userService = require("./services/UserService");
@@ -104,9 +105,21 @@ function authenticateToken(req, res, next) {
       let user = await userService.getUserByEmail(userEmail);
       if(user.status){
         req.session.token = token;  
+        console.log(token);
         const sessionUUID = uuidv4();
         req.session.userUUID = sessionUUID;
         req.user = user.data;
+        
+
+        passport.use(new LocalStrategy({ usernameField: 'email' }, done(null, user.data)))
+        passport.serializeUser((user, done) => done(null, user.id))
+        passport.deserializeUser(async (id, done) => {
+            // console.log(id);
+            const userData = await userService.getUserById(id);
+            const user = userData.data;
+            //console.log(user)
+            return done(null, user)
+        });
         next();
       }
       else{
@@ -115,7 +128,7 @@ function authenticateToken(req, res, next) {
   });
 }
 
-app.use(authenticateToken);
+//app.use(authenticateToken);
 
 app.use(function (req, res, next) {
   // console.log(req.isAuthenticated());
@@ -133,7 +146,8 @@ app.use(function (req, res, next) {
     return next();
   }
   else {
-    res.redirect('/login');
+    authenticateToken(req, res, next);
+    //res.redirect('/login');
   }
 })
 

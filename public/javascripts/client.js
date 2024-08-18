@@ -1794,7 +1794,7 @@ function stopRecording() {
 
 function showLiOptions(ids) {
     console.log($('#optionsDiv li'));
-    $('#optionsDiv li').each(function () {
+    $('#optionsDiv li').slice(1).each(function () {
         const liId = $(this).attr('id');
         //console.log(liId);
         //console.log(ids.includes(liId));
