@@ -53,7 +53,7 @@ body {
   height: 100%;
 }
 
-.hide-extra .grid-item:nth-child(n+9) {
+.hide-extra .grid-item:nth-child(n + 9) {
   display: none;
 }
 
@@ -93,7 +93,6 @@ body {
   background-color: #202124;
 }
 
-
 .default-border-class-video {
   border: 5px solid #202124;
 }
@@ -101,7 +100,6 @@ body {
 .custom-border-class {
   border: 5px solid #2370ff;
 }
-
 
 .buttons {
   width: 50px;
@@ -124,10 +122,10 @@ body {
   border-radius: 25px;
   background-color: #d5d7d8;
 }
-.buttonOptions:hover{
+.buttonOptions:hover {
   background-color: #d5d7d8;
 }
-.buttonOptions{
+.buttonOptions {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -222,7 +220,7 @@ body {
   overflow: hidden;
 }
 
-.input-container input[type="text"] {
+.input-container input[type='text'] {
   flex: 1;
   background-color: #f1f3f4;
   padding: 10px;
@@ -266,7 +264,7 @@ p {
 }
 
 .add-people-button:hover {
-  box-shadow: 0 4px 15px 0 rgba(49, 196, 190, 0.75)
+  box-shadow: 0 4px 15px 0 rgba(49, 196, 190, 0.75);
 }
 
 .wrapper {
@@ -277,10 +275,10 @@ p {
   outline: none;
 }
 
-.wrapper .search-people:focus~.bi,
+.wrapper .search-people:focus ~ .bi,
 .wrapper:focus-within,
 .wrapper:active {
-  border: #007BFF 1px solid;
+  border: #007bff 1px solid;
 }
 
 .user-avatar {
@@ -342,6 +340,21 @@ p {
   padding: 10px;
 }
 
+.transcripts {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  color: white;
+  font-size: 20px;
+  padding: 10px;
+  height: calc(1.2em * 3);
+  width: 70%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  box-sizing: border-box;
+}
 
 .overlay {
   display: none;
@@ -353,7 +366,6 @@ p {
   background: url('overlay-image.jpg') no-repeat center center;
   background-size: cover;
 }
-
 
 .invited-user {
   width: 220px;
@@ -377,7 +389,6 @@ p {
   object-fit: contain;
 }
 
-
 .new-noti {
   margin-top: 5px;
   width: 10px;
@@ -387,12 +398,11 @@ p {
   border: 1px solid white;
 }
 
-#copyButton{
+#copyButton {
   border: solid 1px rgb(255, 255, 255);
 }
-#copyButton:hover{
+#copyButton:hover {
   border: solid 1px rgb(113, 113, 113);
-
 }
 
 #meetingInfoContainer {

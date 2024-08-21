@@ -16883,7 +16883,7 @@ const recordButton = $('#recordButton');
 const pauseButton = $('#pauseButton');
 const stopButton = $('#stopButton');
 const resumeButton = $('#resumeButton');
-const searchPeopleInput = $("#searchPeopleInput");
+const searchPeopleInput = $('#searchPeopleInput');
 
 // const servers = {
 //     iceServers: [
@@ -16930,68 +16930,98 @@ const token = window.serverData.token;
 // const roomId = path.split("/")[1];
 
 // const roomText = $("#roomId");
-$("#roomId").text(roomId);
+$('#roomId').text(roomId);
 // let time = window.time;
 const username = user.fullName;
-let id = user.id;
-
-// addItem("localUser", username, id);
-
-// updateLocalUser();
-
-// function updateLocalUser() {
-//     const localUsername = document.getElementsByClassName("name-display");
-//     console.log(localUsername);
-//     localUsername[0].innerHTML = username
-//     localUsername[1].innerHTML = username
-// }
-
-// var localStream;
-// var remoteStream
-// const toastNofifierExample = document.getElementById('liveToast')
+const id = user.id;
+let recordingUsersOnClient = [];
 $(document).ready(async function () {
-  // $('#liveToast').toast();
-  // $('#liveToast2').toast();
-
-  // $('#requestToast').toast("show");
-
-  // await getLocalMedia();
-  await (0, _index.addItem)("localVideo", "You", user.avatar);
+  await (0, _index.addItem)('localVideo', 'You', user.avatar);
 
   // addOtherUsersUIDiv();
 });
+const transcriptSwitch = document.getElementById('toggleSwitchTranscription');
+const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+recognition.lang = 'vi-VN';
+recognition.continuous = true;
+recognition.interimResults = true;
+recognition.onresult = function (event) {
+  let interimTranscript = '';
+  let finalTranscript = '';
+  for (let i = event.resultIndex; i < event.results.length; i++) {
+    const result = event.results[i];
+    if (!result.isFinal) {
+      interimTranscript += result[0].transcript + ' ';
+      //console.log(interimTranscript);
+      //$('.transcripts-localVideo').text(interimTranscript);
+      if (transcriptSwitch.checked) {
+        showTranscript('localVideo', interimTranscript);
+      }
+      ws.send(JSON.stringify({
+        action: 'sendTranscript',
+        userId: id,
+        userEmail: user.userEmail,
+        roomId: roomId,
+        transcript: interimTranscript
+      }));
+      // setTimeout(() => {
+      //   $('.transcripts-localVideo').text('');
+      // }, 5000);
+    } else {
+      finalTranscript += result[0].transcript + ' ';
+    }
+  }
+};
+recognition.onerror = function (event) {
+  console.error('Speech recognition error:', event.error);
+  console.log(transcriptSwitch.checked);
+  try {
+    let isMicEnabled = localStorage.getItem('micEnabled');
+    if (isMicEnabled == 'true') {
+      recognition.stop();
+      recognition.start();
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+recognition.onend = function () {
+  console.log('Speech recognition service has stopped.');
+};
+const transcriptLanguage = document.getElementById('transcriptLanguage');
 
-// async function getLocalMedia() {
-//     let localUser = document.getElementById('localUser');
-//     if(!localUser){
-//         addItem("localUser", username, id);
-//     }
-//     localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-//     localUser.srcObject = localStream;
-// }
+// transcriptLanguage.onchange = async function () {};
 
-// let localUser = document.getElementById('localUser');
-
+let timeoutMap = {};
+function showTranscript(userId, transcript) {
+  if (timeoutMap[userId]) {
+    clearTimeout(timeoutMap[userId]);
+  }
+  $(`.transcripts-${userId}`).text(transcript);
+  timeoutMap[userId] = setTimeout(() => {
+    $(`.transcripts-${userId}`).text('');
+  }, 5000);
+}
 const iceServers = [{
   urls: 'stun:stun.l.google.com:19302'
 }, {
-  urls: "stun:stun.relay.metered.ca:80"
+  urls: 'stun:stun.relay.metered.ca:80'
 }, {
-  urls: "turn:global.relay.metered.ca:80",
-  username: "ad5b1b255ff7868080c67d5a",
-  credential: "pq8cUtoQPWmQ2u69"
+  urls: 'turn:global.relay.metered.ca:80',
+  username: 'ad5b1b255ff7868080c67d5a',
+  credential: 'pq8cUtoQPWmQ2u69'
 }, {
-  urls: "turn:global.relay.metered.ca:80?transport=tcp",
-  username: "ad5b1b255ff7868080c67d5a",
-  credential: "pq8cUtoQPWmQ2u69"
+  urls: 'turn:global.relay.metered.ca:80?transport=tcp',
+  username: 'ad5b1b255ff7868080c67d5a',
+  credential: 'pq8cUtoQPWmQ2u69'
 }, {
-  urls: "turn:global.relay.metered.ca:443",
-  username: "ad5b1b255ff7868080c67d5a",
-  credential: "pq8cUtoQPWmQ2u69"
+  urls: 'turn:global.relay.metered.ca:443',
+  username: 'ad5b1b255ff7868080c67d5a',
+  credential: 'pq8cUtoQPWmQ2u69'
 }, {
-  urls: "turns:global.relay.metered.ca:443?transport=tcp",
-  username: "ad5b1b255ff7868080c67d5a",
-  credential: "pq8cUtoQPWmQ2u69"
+  urls: 'turns:global.relay.metered.ca:443?transport=tcp',
+  username: 'ad5b1b255ff7868080c67d5a',
+  credential: 'pq8cUtoQPWmQ2u69'
 }];
 function updateUIVideo(userLeftId) {
   console.log(userLeftId);
@@ -17007,27 +17037,27 @@ function updateUIVideo(userLeftId) {
 }
 function notifyUserLeft(username, isSharing) {
   console.log(username);
-  const toastBody = $("#toast-body");
+  const toastBody = $('#toast-body');
   if (isSharing) {
     if (isSharing == true) {
-      toastBody.text(username + " stop sharing");
+      toastBody.text(username + ' stop sharing');
     } else {
-      toastBody.text(username + " left");
+      toastBody.text(username + ' left');
     }
   } else {
-    toastBody.text(username + " left");
+    toastBody.text(username + ' left');
   }
-  $('#liveToast').toast("show");
+  $('#liveToast').toast('show');
 }
 function notifyNewRequest(username, email) {
   //update ui request toast
-  $("#requestMessage").text(username + " request to join.");
-  $("#requestorId").val(email);
-  $('#requestToast').toast("show");
+  $('#requestMessage').text(username + ' request to join.');
+  $('#requestorId').val(email);
+  $('#requestToast').toast('show');
 }
 function acceptRequest(email) {
   ws.send(JSON.stringify({
-    action: "acceptRequest",
+    action: 'acceptRequest',
     roomId: roomId,
     email: email,
     id: id,
@@ -17037,7 +17067,7 @@ function acceptRequest(email) {
 }
 function declineRequest(email) {
   ws.send(JSON.stringify({
-    action: "declineRequest",
+    action: 'declineRequest',
     roomId: roomId,
     email: email,
     id: id,
@@ -17051,7 +17081,7 @@ function removeUserFromMeeting(userId, isBlock) {
     return;
   } else {
     ws.send(JSON.stringify({
-      action: "removeUserFromMeeting",
+      action: 'removeUserFromMeeting',
       userId: id,
       roomId: roomId,
       userRemoveId: userId,
@@ -17060,8 +17090,8 @@ function removeUserFromMeeting(userId, isBlock) {
     }));
   }
 }
-$("#removeUserButton").on("click", function () {
-  let removeUserId = $("#removeUserId").val();
+$('#removeUserButton').on('click', function () {
+  let removeUserId = $('#removeUserId').val();
   if (!removeUserId || !removeUserId.trim()) {
     return;
   } else {
@@ -17072,7 +17102,7 @@ $("#removeUserButton").on("click", function () {
 });
 function muteUser(userId) {
   ws.send(JSON.stringify({
-    action: "muteUser",
+    action: 'muteUser',
     userId: id,
     roomId: roomId,
     mutedUserId: userId,
@@ -17086,9 +17116,9 @@ function updateUserList({
   idUserLeft,
   ownerEmail
 }) {
-  $("#contributors-number").text(users.length);
-  $("#contributors-text-show").text(users.length);
-  const userListContainer = $("#userslist");
+  $('#contributors-number').text(users.length);
+  $('#contributors-text-show').text(users.length);
+  const userListContainer = $('#userslist');
   if (idUserLeft) {
     let userLeft = document.getElementById(`contributor-${idUserLeft}`);
     if (userLeft) {
@@ -17128,18 +17158,18 @@ function updateUserList({
       }
     }
   });
-  $(".mute-button").on("click", function () {
-    const targetId = $(this).data("id");
+  $('.mute-button').on('click', function () {
+    const targetId = $(this).data('id');
     muteUser(targetId);
   });
-  $(".remove-button").on("click", function () {
-    const targetId = $(this).data("id");
+  $('.remove-button').on('click', function () {
+    const targetId = $(this).data('id');
     $('#removeUserId').val(targetId);
   });
 }
 let requestorIds = [];
 function updateRequestorsList(requestingUsers) {
-  const requestorsList = $("#requestorsList");
+  const requestorsList = $('#requestorsList');
   requestorsList.empty();
   if (requestingUsers.length > 0) {
     requestingUsers.forEach(requestor => {
@@ -17158,41 +17188,41 @@ function updateRequestorsList(requestingUsers) {
       requestorsList.append(div);
       requestorIds.push(requestor.email);
     });
-    $(".accept-button").on("click", function () {
-      const requestorId = $(this).data("id");
+    $('.accept-button').on('click', function () {
+      const requestorId = $(this).data('id');
       acceptRequest(requestorId);
     });
-    $(".decline-button").on("click", function () {
-      const requestorId = $(this).data("id");
+    $('.decline-button').on('click', function () {
+      const requestorId = $(this).data('id');
       declineRequest(requestorId);
     });
   }
   (0, _index.updateRequestorListUI)();
 }
-$("#acceptAllButton").on("click", function () {
+$('#acceptAllButton').on('click', function () {
   requestorIds.forEach(id => {
     acceptRequest(id);
   });
   requestorIds = [];
 });
-$("#declineAllButton").on("click", function () {
+$('#declineAllButton').on('click', function () {
   requestorIds.forEach(id => {
     declineRequest(id);
   });
   requestorIds = [];
 });
 function notifyUserJoin(username, isSharing) {
-  const toastBody = $("#toast-body2");
+  const toastBody = $('#toast-body2');
   if (isSharing) {
     if (isSharing == true) {
-      toastBody.text(username + " is sharing");
+      toastBody.text(username + ' is sharing');
     } else {
-      toastBody.text(username + " join");
+      toastBody.text(username + ' join');
     }
   } else {
-    toastBody.text(username + " join");
+    toastBody.text(username + ' join');
   }
-  $('#liveToast2').toast("show");
+  $('#liveToast2').toast('show');
 }
 const mediasoupClient = require('mediasoup-client');
 let device;
@@ -17257,8 +17287,8 @@ async function getLocalStream() {
     if (isReconnect == true) {
       return;
     }
-    let audioConstraints = localStorage.getItem("audioConstraints");
-    let videoConstraints = localStorage.getItem("videoConstraints");
+    let audioConstraints = localStorage.getItem('audioConstraints');
+    let videoConstraints = localStorage.getItem('videoConstraints');
     let audioStreamPromise = navigator.mediaDevices.getUserMedia({
       audio: audioConstraints ? JSON.parse(audioConstraints) : true
     });
@@ -17271,15 +17301,15 @@ async function getLocalStream() {
       audioStream = await audioStreamPromise;
     } catch (error) {
       console.warn('Audio permission denied or other issue:', error);
-      $("#warningToastText").text('ERROR GETTING AUDIO: ' + error + ", PROGRAM MIGHT BE BUGGED.");
-      $("#warningToast").toast("show");
+      $('#warningToastText').text('ERROR GETTING AUDIO: ' + error + ', PROGRAM MIGHT BE BUGGED.');
+      $('#warningToast').toast('show');
     }
     try {
       videoStream = await videoStreamPromise;
     } catch (error) {
       console.warn('Video permission denied or other issue:', error);
-      $("#warningToastText").text('ERROR GETTING VIDEO: ' + error + ", PROGRAM MIGHT BE BUGGED.");
-      $("#warningToast").toast("show");
+      $('#warningToastText').text('ERROR GETTING VIDEO: ' + error + ', PROGRAM MIGHT BE BUGGED.');
+      $('#warningToast').toast('show');
     }
 
     // Create a combined stream if both streams are available
@@ -17303,7 +17333,7 @@ async function getLocalStream() {
       ...videoParams
     };
     if (videoTrack) {
-      addTrackToVideoElement(videoTrack, "localVideo");
+      addTrackToVideoElement(videoTrack, 'localVideo');
       let videoSettings = videoTrack.getSettings();
       const videoDeviceId = videoSettings.deviceId;
       videoConstraints = {
@@ -17311,10 +17341,10 @@ async function getLocalStream() {
           exact: videoDeviceId
         }
       };
-      localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints));
+      localStorage.setItem('videoConstraints', JSON.stringify(videoConstraints));
     }
     if (audioTrack) {
-      addTrackToVideoElement(audioTrack, "localVideo");
+      addTrackToVideoElement(audioTrack, 'localVideo');
       let audioSettings = audioTrack.getSettings();
       const audioDeviceId = audioSettings.deviceId;
       audioConstraints = {
@@ -17322,18 +17352,18 @@ async function getLocalStream() {
           exact: audioDeviceId
         }
       };
-      localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints));
+      localStorage.setItem('audioConstraints', JSON.stringify(audioConstraints));
     }
-    console.log("GET LOCAL STREAM");
+    console.log('GET LOCAL STREAM');
   } catch (error) {
     // Handle errors
-    $("#warningToastText").text('ERROR GETTING LOCAL STREAM: ' + error + ", PROGRAM MIGHT BE BUGGED.");
-    $("#warningToast").toast("show");
+    $('#warningToastText').text('ERROR GETTING LOCAL STREAM: ' + error + ', PROGRAM MIGHT BE BUGGED.');
+    $('#warningToast').toast('show');
     console.error('Error getting local stream:', error);
   }
 }
 async function getVideoTrackReplace() {
-  let videoConstraints = localStorage.getItem("videoConstraints");
+  let videoConstraints = localStorage.getItem('videoConstraints');
   let constraints = {
     video: true
   };
@@ -17345,7 +17375,7 @@ async function getVideoTrackReplace() {
   return videoTrack;
 }
 async function getAudioTrackReplace() {
-  let audioConstraints = localStorage.getItem("audioConstraints");
+  let audioConstraints = localStorage.getItem('audioConstraints');
   let constraints = {
     audio: true
   };
@@ -17378,14 +17408,14 @@ async function startCall() {
           userEmail: user.userEmail
         }));
       });
-      console.log("ws on open");
+      console.log('ws on open');
     } catch (error) {
       console.error('Error during WebSocket onopen:', error);
     }
   };
   ws.onmessage = async event => {
     const data = JSON.parse(event.data);
-    console.log("Data send to client", data);
+    console.log('Data send to client', data);
     switch (data.action) {
       case 'user-list':
         updateUserList({
@@ -17397,10 +17427,10 @@ async function startCall() {
         if (data.newUser.id != id) {
           notifyUserJoin(data.newUser.name);
         }
-        $(".reconnecting-layout").addClass("d-none");
+        $('.reconnecting-layout').addClass('d-none');
         break;
       case 'leave':
-        console.log("LEAVE: ", data);
+        console.log('LEAVE: ', data);
         updateUserList({
           users: data.users,
           idUserLeft: data.userLeftId
@@ -17429,7 +17459,6 @@ async function startCall() {
           console.log(data);
           console.log('Producer created:', data.id);
           callbackId = data.id;
-          ;
           isCallbackCalled = false;
         }
         break;
@@ -17452,8 +17481,8 @@ async function startCall() {
       case 'consumerTransportConnected':
         break;
       case 'consumed':
-        console.log("DATA CONSUMED:", data);
-        console.log("ConsumerTransport needed: ", consumerTransports[data.producerUserId]);
+        console.log('DATA CONSUMED:', data);
+        console.log('ConsumerTransport needed: ', consumerTransports[data.producerUserId]);
         consumer = await consumerTransports[data.producerUserId].consume({
           id: data.id,
           producerId: data.producerId,
@@ -17468,12 +17497,12 @@ async function startCall() {
           userEmail: user.userEmail
         }));
         let producerStatus = data.producerStatus;
-        console.log("CONSUMER PRODUCER ID", consumer.producerId);
+        console.log('CONSUMER PRODUCER ID', consumer.producerId);
         if (!Object.values(consumers)[data.producerUserId]) {
           consumers[data.producerUserId] = {};
         }
         if (data.isSharing && data.isSharing == true) {
-          consumers[data.producerUserId]["sharing"] = consumer;
+          consumers[data.producerUserId]['sharing'] = consumer;
         } else {
           consumers[data.producerUserId][data.kind] = consumer;
         }
@@ -17483,10 +17512,10 @@ async function startCall() {
         const {
           track
         } = consumer;
-        console.log("TRACK KIND:", data.kind, "IS SHARING: ", data.isSharing);
+        console.log('TRACK KIND:', data.kind, 'IS SHARING: ', data.isSharing);
         if (data.isSharing && data.isSharing == true) {
           // alert("IS SHARING")
-          await addSharingContainer(data.producerUserId + '-Sharing', data.name + " is sharing");
+          await addSharingContainer(data.producerUserId + '-Sharing', data.name + ' is sharing');
           addTrackToSharingElement(track, data.producerUserId + '-Sharing');
           (0, _index.resizeSharing)();
           (0, _index.resizeVideo)();
@@ -17494,16 +17523,16 @@ async function startCall() {
           notifyUserJoin(data.name, true);
         } else {
           await (0, _index.addItem)(data.producerUserId, data.name, data.avatar);
-          console.log("ADDTRACK TO REMOTE STREAM", track);
+          console.log('ADDTRACK TO REMOTE STREAM', track);
           addTrackToVideoElement(track, data.producerUserId);
           console.log(producerStatus);
           if (producerStatus) {
-            if (producerStatus == "off") {
-              if (data.kind == "video") {
+            if (producerStatus == 'off') {
+              if (data.kind == 'video') {
                 enabledVideo(false, data.producerUserId);
               }
               //audio
-              else if (data.kind == "audio") {
+              else if (data.kind == 'audio') {
                 enabledMic(false, data.producerUserId);
               }
             }
@@ -17530,10 +17559,10 @@ async function startCall() {
             name,
             avatar
           } = data;
-          if (kind == "audio") {
+          if (kind == 'audio') {
             const muteButton = $(`#mutedButton${data.producerUserId}`);
             if (muteButton) {
-              muteButton.addClass("d-none");
+              muteButton.addClass('d-none');
             }
           }
           await (0, _index.addItem)(producerUserId, name, avatar);
@@ -17541,18 +17570,18 @@ async function startCall() {
         }
         break;
       case 'onCamera':
-        console.log("ONCAMERA: ", data);
+        console.log('ONCAMERA: ', data);
         enabledVideo(true, data.producerUserId);
         break;
       case 'offCamera':
-        console.log("OFFCAMERA: ", data);
+        console.log('OFFCAMERA: ', data);
         enabledVideo(false, data.producerUserId);
         break;
       case 'muted':
         {
           const muteButton = $(`#mutedButton${data.producerUserId}`);
           if (muteButton) {
-            muteButton.addClass("d-none");
+            muteButton.addClass('d-none');
           }
           enabledMic(false, data.producerUserId);
         }
@@ -17560,15 +17589,15 @@ async function startCall() {
       case 'unmuted':
         const muteButton = $(`#mutedButton${data.producerUserId}`);
         if (muteButton) {
-          muteButton.removeClass("d-none");
+          muteButton.removeClass('d-none');
         }
         enabledMic(true, data.producerUserId);
         break;
       case 'message':
-        console.log("MESSAGE: ", data);
+        console.log('MESSAGE: ', data);
         displayMessage(data.from, data.content, data.userId);
         lastMessageId = data.userId;
-        $("#new-message").removeClass("d-none");
+        $('#new-message').removeClass('d-none');
         break;
       case 'stopSharing':
         const {
@@ -17576,7 +17605,7 @@ async function startCall() {
           roomId,
           username
         } = data;
-        updateSharingVideo(producerUserId + "-Sharing");
+        updateSharingVideo(producerUserId + '-Sharing');
         notifyUserLeft(username, true);
         break;
       case 'newRequest':
@@ -17591,7 +17620,7 @@ async function startCall() {
       case 'beingMuted':
         if (audioProducer) {
           if (!audioProducer.paused) {
-            toggleButton("audio", micButton);
+            toggleButton('audio', micButton);
           }
         }
         break;
@@ -17600,10 +17629,40 @@ async function startCall() {
           const {
             message
           } = data;
-          $("#warningToastText").text(message);
-          $("#warningToast").toast("show");
+          $('#warningToastText').text(message);
+          $('#warningToast').toast('show');
         }
         break;
+      case 'recording':
+        {
+          const {
+            recordingUsers
+          } = data;
+          // recordingUsers.push({ userId, name });
+          recordingUsersOnClient = recordingUsers;
+          showRecordingUsers(recordingUsers);
+          break;
+        }
+      case 'stopRecording':
+        {
+          const {
+            recordingUsers
+          } = data;
+          recordingUsersOnClient = recordingUsers;
+          showRecordingUsers(recordingUsers);
+          break;
+        }
+      case 'receiveTranscript':
+        {
+          const {
+            userId,
+            transcript
+          } = data;
+          if (transcriptSwitch.checked) {
+            showTranscript(userId, transcript);
+          }
+          break;
+        }
       default:
         console.error('Unknown message action:', data.action);
     }
@@ -17613,24 +17672,24 @@ async function startCall() {
     console.log('Code:', event.code);
     console.log('Reason:', event.reason);
     if (event.code == 1008) {
-      $('#removeToast').toast("show");
+      $('#removeToast').toast('show');
       let seconds = 3;
       const interval = setInterval(function () {
         $('#secondRemovingText').text(seconds.toString());
         seconds--;
         if (seconds < 0) {
           clearInterval(interval);
-          $('#removeToast').toast("hide");
+          $('#removeToast').toast('hide');
         }
       }, 1000);
       setTimeout(() => {
-        window.location.href = "/" + roomId;
+        window.location.href = '/' + roomId;
       }, 3000);
     }
     if (event.code == 1006) {
       //try to reconnect
-      $(".reconnecting-layout").removeClass("d-none");
-      console.log("Reconnecting...");
+      $('.reconnecting-layout').removeClass('d-none');
+      console.log('Reconnecting...');
       //ws = new WebSocket(`${ws_url}?token=${encodeURIComponent(token)}`);
       isReconnect = true;
       consumerTransports = {};
@@ -17659,20 +17718,20 @@ const createSendTransport = async params => {
   // see server's socket.on('createWebRtcTransport', sender?, ...)
   // this is a call from Producer, so sender = true
   // ws.send('createWebRtcTransport', { sender: true }, ({ params }) => {
-  // The server sends back params needed 
+  // The server sends back params needed
   // to create Send Transport on the client side
   if (params.error) {
     console.log(params.error);
     return;
   }
-  console.log("Params on create send transport", params);
+  console.log('Params on create send transport', params);
 
   // creates a new WebRTC Transport to send media
   // based on the server's producer transport params
   // https://mediasoup.org/documentation/v3/mediasoup-client/api/#TransportOptions
   params.iceServers = iceServers;
   producerTransport = device.createSendTransport(params);
-  console.log("producerTransport created on client side", producerTransport);
+  console.log('producerTransport created on client side', producerTransport);
 
   // https://mediasoup.org/documentation/v3/communication-between-client-and-server/#producing-media
   // this event is raised when a first call to transport.produce() is made
@@ -17680,14 +17739,14 @@ const createSendTransport = async params => {
   producerTransport.on('connect', async ({
     dtlsParameters
   }, callback, errback) => {
-    console.log("DTLS", dtlsParameters);
+    console.log('DTLS', dtlsParameters);
     try {
       // Signal local DTLS parameters to the server side transport
       // see server's socket.on('transport-connect', ...)
       //let ws = wss[params.userId];
-      console.log("connect producer transport?", dtlsParameters);
+      console.log('connect producer transport?', dtlsParameters);
       ws.send(JSON.stringify({
-        action: "connectProducerTransport",
+        action: 'connectProducerTransport',
         dtlsParameters: dtlsParameters,
         roomId: roomId,
         userId: params.userId,
@@ -17760,7 +17819,7 @@ const connectSendTransport = async () => {
   //     alert("THIEU AUDIO PARAMS")
   //     audioParams.track = window.localStream.getAudioTracks()[0];
   // }
-  console.log("producerTransport created on client side", producerTransport);
+  console.log('producerTransport created on client side', producerTransport);
   // console.log("params", params);
   // producer = await producerTransport.produce(params)
   // alert("start");
@@ -17770,24 +17829,22 @@ const connectSendTransport = async () => {
   //     sharingProducer = await producerTransport.produce(sharingParams);
   // }
   // else{
-  let stream = await navigator.mediaDevices.getUserMedia({
-    video: true,
-    audio: true
-  });
-  let videoTrack = stream.getVideoTracks()[0];
-  let audioTrack = stream.getAudioTracks()[0];
-  let audioParams = {
-    track: audioTrack
-  };
-  let videoParams = {
-    params
-  };
-  videoParams = {
-    track: videoTrack,
-    ...videoParams
-  };
-  console.log("VIDEO PARAMS:");
-  console.log(videoParams);
+  // let stream = await navigator.mediaDevices.getUserMedia({
+  //   video: true,
+  //   audio: true,
+  // });
+  // let videoTrack = stream.getVideoTracks()[0];
+  // let audioTrack = stream.getAudioTracks()[0];
+
+  // let audioParams = {
+  //   track: audioTrack,
+  // };
+  // let videoParams = { params };
+
+  // videoParams = {
+  //   track: videoTrack,
+  //   ...videoParams,
+  // };
   if (videoParams && videoParams.track) {
     videoProducer = await producerTransport.produce(videoParams);
     videoProducer.on('trackended', () => {
@@ -17801,11 +17858,11 @@ const connectSendTransport = async () => {
       // close video track
     });
   } else {
-    toggleButtonWhenProducerNotFound("video", webcamButton, true, "localVideo");
-    webcamButton.attr("disabled", true);
+    toggleButtonWhenProducerNotFound('video', webcamButton, true, 'localVideo');
+    webcamButton.attr('disabled', true);
     ws.send(JSON.stringify({
-      action: "producerNotProvided",
-      kind: "video",
+      action: 'producerNotProvided',
+      kind: 'video',
       userId: id,
       name: username,
       roomId: roomId,
@@ -17814,7 +17871,7 @@ const connectSendTransport = async () => {
   }
   //allProduce = true;
   // alert("Continue");
-  console.log("AUDIO PARAMS:");
+  console.log('AUDIO PARAMS:');
   console.log(audioParams);
   console.log(audioParams && audioParams.track);
   if (audioParams && audioParams.track) {
@@ -17836,11 +17893,11 @@ const connectSendTransport = async () => {
       // close video track
     });
   } else {
-    toggleButtonWhenProducerNotFound("audio", micButton, true, "localVideo");
-    micButton.attr("disabled", true);
+    toggleButtonWhenProducerNotFound('audio', micButton, true, 'localVideo');
+    micButton.attr('disabled', true);
     ws.send(JSON.stringify({
-      action: "producerNotProvided",
-      kind: "audio",
+      action: 'producerNotProvided',
+      kind: 'audio',
       userId: id,
       name: username,
       roomId: roomId,
@@ -17851,14 +17908,20 @@ const connectSendTransport = async () => {
   // }
   // alert("Consume both AUDIO AND VIDEO");
 
-  console.log("PRODUCE BOTH", audioProducer);
-  console.log("AUDIO STATUS");
-  if (localStorage.getItem('micEnabled') == "false") {
-    await toggleButton("audio", micButton);
-    console.log("TOGGLED");
+  console.log('PRODUCE BOTH', audioProducer);
+  console.log('AUDIO STATUS');
+  if (localStorage.getItem('micEnabled') == 'false') {
+    await toggleButton('audio', micButton);
+    console.log('TOGGLED');
+  } else {
+    try {
+      recognition.start();
+    } catch (error) {
+      console.log(error);
+    }
   }
-  if (localStorage.getItem('cameraEnabled') == "false") {
-    await toggleButton("video", webcamButton);
+  if (localStorage.getItem('cameraEnabled') == 'false') {
+    await toggleButton('video', webcamButton);
   }
 
   // if(sharingProducer){
@@ -17888,7 +17951,7 @@ function addTrackToSharingElement(track, id) {
   remoteVideo.srcObject.addTrack(track);
 }
 function addTrackToVideoElement(track, id) {
-  console.log("ADD TRACK TO: ", id);
+  console.log('ADD TRACK TO: ', id);
   // const container = document.getElementById('video-container');
   let remoteVideo = document.getElementById(id);
   if (!remoteVideo) {
@@ -17898,13 +17961,13 @@ function addTrackToVideoElement(track, id) {
     //   container.appendChild(remoteVideo);
   }
   if (remoteVideo.srcObject) {
-    if (track.kind == "video") {
+    if (track.kind == 'video') {
       let videoTracks = remoteVideo.srcObject.getVideoTracks();
       if (videoTracks.length > 0) {
         let videoTrack = videoTracks[0];
         remoteVideo.srcObject.removeTrack(videoTrack);
       }
-    } else if (track.kind == "audio") {
+    } else if (track.kind == 'audio') {
       let audioTracks = remoteVideo.srcObject.getAudioTracks();
       if (audioTracks.length > 0) {
         let audioTrack = audioTracks[0];
@@ -17917,7 +17980,7 @@ function addTrackToVideoElement(track, id) {
     newStream.addTrack(track);
     remoteVideo.srcObject = newStream;
   }
-  if (id.includes("Sharing")) {
+  if (id.includes('Sharing')) {
     return;
   }
   console.log(harkInstances);
@@ -17953,7 +18016,7 @@ function addTrackToVideoElement(track, id) {
   }
 }
 const createRecvTransport = async params => {
-  console.log("PARAMS VALUE:", params);
+  console.log('PARAMS VALUE:', params);
   // see server's socket.on('consume', sender?, ...)
   // this is a call from Consumer, so sender = false
 
@@ -17966,7 +18029,7 @@ const createRecvTransport = async params => {
   } else {
     params.iceServers = iceServers;
     consumerTransport = device.createRecvTransport(params);
-    console.log("COnsumerTransport created: ", consumerTransport.id);
+    console.log('COnsumerTransport created: ', consumerTransport.id);
     consumerTransports[params.producerUserId] = consumerTransport;
     consumerTransport.on('connect', async ({
       dtlsParameters
@@ -18011,15 +18074,15 @@ const connectRecvTransport = async (producerId, producerUserId, producerStatus) 
   }));
 };
 sendButton.addEventListener('click', function () {
-  const content = $("#messageContent").val();
+  const content = $('#messageContent').val();
   if (content.trim().length == 0) {
     return;
   }
   if (lastMessageId == user.id) {
-    if (content.trim() !== "") {
-      const lastYourChatElement = $(".yourchat").last();
+    if (content.trim() !== '') {
+      const lastYourChatElement = $('.yourchat').last();
       lastYourChatElement.append(`<p>${content}</p>`);
-      $("#messageContent").val("");
+      $('#messageContent').val('');
 
       // sendMessage("message", content);
       ws.send(JSON.stringify({
@@ -18042,8 +18105,8 @@ sendButton.addEventListener('click', function () {
                         </div>
                     </div>
                 `;
-    $("#chatContainer .chat-body").append(messageHTML);
-    $("#messageContent").val("");
+    $('#chatContainer .chat-body').append(messageHTML);
+    $('#messageContent').val('');
 
     // sendMessage("message", content);
     ws.send(JSON.stringify({
@@ -18080,24 +18143,24 @@ function displayMessage(from, content, userId) {
                     </div>
                 </div>
             `;
-    $("#chatContainer .chat-body").append(messageHTML);
+    $('#chatContainer .chat-body').append(messageHTML);
   }
   const chatBody = document.getElementById('chatBody');
   chatBody.scrollTop = chatBody.scrollHeight - chatBody.clientHeight;
 }
-hangupButton.on("click", () => {
-  console.log("click");
+hangupButton.on('click', () => {
+  console.log('click');
 
   // sendMessage('leave');
   // endCall();
-  window.location.href = "/";
+  window.location.href = '/';
 });
-webcamButton.on("click", async () => {
-  console.log("click");
-  await toggleButton("video", webcamButton);
+webcamButton.on('click', async () => {
+  console.log('click');
+  await toggleButton('video', webcamButton);
 });
-micButton.on("click", async () => {
-  await toggleButton("audio", micButton);
+micButton.on('click', async () => {
+  await toggleButton('audio', micButton);
 });
 async function startCapture(displayMediaOptions) {
   let captureStream = null;
@@ -18113,12 +18176,12 @@ async function startCapture(displayMediaOptions) {
       };
     }
   } catch (err) {
-    console.error("Error: " + err);
+    console.error('Error: ' + err);
   }
   return captureStream;
 }
 function updateSharingVideo(id) {
-  const divSharingVideo = document.getElementById("divSharing" + id);
+  const divSharingVideo = document.getElementById('divSharing' + id);
   if (divSharingVideo) {
     divSharingVideo.remove();
   }
@@ -18130,7 +18193,7 @@ function updateSharingVideo(id) {
   const sharingVideoContainer = document.querySelectorAll('.sharing-video-container');
   const num = sharingVideoContainer.length;
   if (num == 0) {
-    sharingContainer.classList.add("d-none");
+    sharingContainer.classList.add('d-none');
   }
   (0, _index.resizeSharing)();
 }
@@ -18142,23 +18205,23 @@ function stopSharing(id) {
       track.stop();
     });
     updateSharingVideo(id);
-    console.log("Screen sharing stopped.");
+    console.log('Screen sharing stopped.');
   } else {
-    console.log("No active stream to stop.");
+    console.log('No active stream to stop.');
   }
 }
-shareButton.on("click", async () => {
+shareButton.on('click', async () => {
   if (myShareStream != null) {
-    stopSharing(id + "-Sharing");
+    stopSharing(id + '-Sharing');
     ws.send(JSON.stringify({
-      action: "stopSharing",
+      action: 'stopSharing',
       producerUserId: id,
       roomId: roomId,
       username: username,
       userEmail: user.userEmail
     }));
     myShareStream = null;
-    shareButton.removeClass("bg-primary");
+    shareButton.removeClass('bg-primary');
     return;
   }
   myShareStream = await startCapture({
@@ -18167,7 +18230,7 @@ shareButton.on("click", async () => {
   if (!myShareStream) {
     return;
   }
-  shareButton.addClass("bg-primary");
+  shareButton.addClass('bg-primary');
   isSharing = true;
   sharingProducer = await producerTransport.produce(sharingParams);
   sharingProducer.on('trackended', () => {
@@ -18180,8 +18243,8 @@ shareButton.on("click", async () => {
 
     // close video track
   });
-  await addSharingContainer(id + "-Sharing", username + " is sharing");
-  addTrackToSharingElement(myShareStream.getVideoTracks()[0], id + "-Sharing");
+  await addSharingContainer(id + '-Sharing', username + ' is sharing');
+  addTrackToSharingElement(myShareStream.getVideoTracks()[0], id + '-Sharing');
 
   // ws.send(JSON.stringify({ action: 'join', roomId: roomId, userId: id+"-Sharing", name: username +' is sharing' }));
   // ws.send(JSON.stringify({ action: 'getRtpCapabilities', roomId: roomId, userId: id+"-Sharing" }));
@@ -18192,19 +18255,19 @@ shareButton.on("click", async () => {
 
   myShareStream.getVideoTracks()[0].onended = () => {
     // alert('Stream ended');
-    updateSharingVideo(id + "-Sharing");
+    updateSharingVideo(id + '-Sharing');
     //gọi đến ws
     ws.send(JSON.stringify({
-      action: "stopSharing",
+      action: 'stopSharing',
       producerUserId: id,
       roomId: roomId,
       username: username,
       userEmail: user.userEmail
     }));
-    shareButton.removeClass("bg-primary");
+    shareButton.removeClass('bg-primary');
   };
   const sharingContainer = document.querySelector('.sharing-container');
-  sharingContainer.classList.remove("d-none");
+  sharingContainer.classList.remove('d-none');
 
   // await addItem("123","Hao 2");
   // await addItem("1234","Hao 3");
@@ -18219,14 +18282,14 @@ async function addSharingContainer(id, name) {
   }
   const container = document.querySelector('.sharing-container');
   const item = document.createElement('div');
-  item.id = "divSharing" + id;
+  item.id = 'divSharing' + id;
   item.classList.add('grid-item');
   item.classList.add('sharing-video-container');
-  item.style.backgroundColor = "#202124";
+  item.style.backgroundColor = '#202124';
   container.appendChild(item);
   const video = document.createElement('video');
   video.id = id;
-  video.style.objectFit = "contain";
+  video.style.objectFit = 'contain';
   video.autoplay = true;
   video.playsInline = true;
   item.appendChild(video);
@@ -18235,19 +18298,19 @@ async function addSharingContainer(id, name) {
   nameDisplay.classList.add('me-3');
   nameDisplay.innerText = name;
   item.appendChild(nameDisplay);
-  container.classList.remove("d-none");
+  container.classList.remove('d-none');
 }
 function enabledVideo(bool, userId) {
   // alert("Second");
   // let videoPlayer = remoteStream.getTracks().find(track => track.kind === "video")
-  let alterDiv = document.getElementById("divAlter" + userId);
-  let videoDiv = document.getElementById("divVideo" + userId);
+  let alterDiv = document.getElementById('divAlter' + userId);
+  let videoDiv = document.getElementById('divVideo' + userId);
   if (bool) {
-    alterDiv.classList.add("d-none");
-    videoDiv.classList.remove("d-none");
+    alterDiv.classList.add('d-none');
+    videoDiv.classList.remove('d-none');
   } else {
-    alterDiv.classList.remove("d-none");
-    videoDiv.classList.add("d-none");
+    alterDiv.classList.remove('d-none');
+    videoDiv.classList.add('d-none');
   }
 }
 function enabledMic(bool, userId) {
@@ -18260,73 +18323,73 @@ function enabledMic(bool, userId) {
   // console.log(videoPlayer);
   // let alterDiv = document.getElementById("div"+userId);
   // let videoDiv = document.getElementById("remoteUser"+userId);
-  let micDiv = document.getElementsByClassName("mutedMic" + userId);
+  let micDiv = document.getElementsByClassName('mutedMic' + userId);
   if (bool) {
     // videoPlayer.enabled = bool;
     // videoPlayer.muted = bool;
-    micDiv[0].classList.add("d-none");
-    micDiv[1].classList.add("d-none");
-    micDiv[2].classList.add("d-none");
+    micDiv[0].classList.add('d-none');
+    micDiv[1].classList.add('d-none');
+    micDiv[2].classList.add('d-none');
   } else {
     // videoPlayer.enabled = bool;
     // videoPlayer.muted = bool;
-    micDiv[0].classList.remove("d-none");
-    micDiv[1].classList.remove("d-none");
-    micDiv[2].classList.remove("d-none");
+    micDiv[0].classList.remove('d-none');
+    micDiv[1].classList.remove('d-none');
+    micDiv[2].classList.remove('d-none');
   }
 }
 function toggleButtonWhenProducerNotFound(type, button, status, userId) {
-  let micDiv = document.getElementsByClassName("mutedMic" + userId);
-  let alterDiv = document.getElementById("divAlter" + userId);
-  let videoDiv = document.getElementById("divVideo" + userId);
-  if (type == "audio") {
+  let micDiv = document.getElementsByClassName('mutedMic' + userId);
+  let alterDiv = document.getElementById('divAlter' + userId);
+  let videoDiv = document.getElementById('divVideo' + userId);
+  if (type == 'audio') {
     if (status == true) {
       if (button) {
-        button.addClass("bg-danger");
-        $("#micIcon").addClass("bi-mic-mute");
-        $("#micIcon").removeClass("bi-mic");
+        button.addClass('bg-danger');
+        $('#micIcon').addClass('bi-mic-mute');
+        $('#micIcon').removeClass('bi-mic');
       }
-      $(".micActivelocalVideo").addClass("d-none");
-      micDiv[0].classList.remove("d-none");
-      micDiv[1].classList.remove("d-none");
-      micDiv[2].classList.remove("d-none");
+      $('.micActivelocalVideo').addClass('d-none');
+      micDiv[0].classList.remove('d-none');
+      micDiv[1].classList.remove('d-none');
+      micDiv[2].classList.remove('d-none');
     } else {
       if (button) {
-        button.removeClass("bg-danger");
-        $("#micIcon").removeClass("bi-mic-mute");
-        $("#micIcon").addClass("bi-mic");
+        button.removeClass('bg-danger');
+        $('#micIcon').removeClass('bi-mic-mute');
+        $('#micIcon').addClass('bi-mic');
       }
-      micDiv[0].classList.add("d-none");
-      micDiv[1].classList.add("d-none");
-      micDiv[2].classList.add("d-none");
+      micDiv[0].classList.add('d-none');
+      micDiv[1].classList.add('d-none');
+      micDiv[2].classList.add('d-none');
     }
   } else {
     if (status == true) {
       if (button) {
-        button.addClass("bg-danger");
-        $("#webcamIcon").addClass("bi-camera-video-off");
-        $("#webcamIcon").removeClass("bi-camera-video");
+        button.addClass('bg-danger');
+        $('#webcamIcon').addClass('bi-camera-video-off');
+        $('#webcamIcon').removeClass('bi-camera-video');
       }
-      alterDiv.classList.remove("d-none");
-      videoDiv.classList.add("d-none");
+      alterDiv.classList.remove('d-none');
+      videoDiv.classList.add('d-none');
     } else {
       if (button) {
-        button.removeClass("bg-danger");
-        $("#webcamIcon").removeClass("bi-camera-video-off");
-        $("#webcamIcon").addClass("bi-camera-video");
+        button.removeClass('bg-danger');
+        $('#webcamIcon').removeClass('bi-camera-video-off');
+        $('#webcamIcon').addClass('bi-camera-video');
       }
-      alterDiv.classList.add("d-none");
-      videoDiv.classList.remove("d-none");
+      alterDiv.classList.add('d-none');
+      videoDiv.classList.remove('d-none');
     }
   }
 }
 async function toggleButton(type, button) {
   let stream = localVideo.srcObject;
   let track = stream.getTracks().find(track => track.kind === type);
-  let micDiv = document.getElementsByClassName("mutedMiclocalVideo");
-  let alterDiv = document.getElementById("divAlterlocalVideo");
-  let videoDiv = document.getElementById("divVideolocalVideo");
-  if (type == "audio") {
+  let micDiv = document.getElementsByClassName('mutedMiclocalVideo');
+  let alterDiv = document.getElementById('divAlterlocalVideo');
+  let videoDiv = document.getElementById('divVideolocalVideo');
+  if (type == 'audio') {
     console.log(audioProducer);
     if (audioProducer) {
       const audioState = audioProducer.paused ? 'paused' : 'active';
@@ -18334,19 +18397,24 @@ async function toggleButton(type, button) {
         audioProducer.pause();
         stream.getAudioTracks()[0].stop();
         track.enabled = false;
-        button.addClass("bg-danger");
-        $("#micIcon").addClass("bi-mic-mute");
-        $("#micIcon").removeClass("bi-mic");
-        $(".micActivelocalVideo").addClass("d-none");
-        micDiv[0].classList.remove("d-none");
-        micDiv[1].classList.remove("d-none");
-        micDiv[2].classList.remove("d-none");
+        button.addClass('bg-danger');
+        $('#micIcon').addClass('bi-mic-mute');
+        $('#micIcon').removeClass('bi-mic');
+        $('.micActivelocalVideo').addClass('d-none');
+        micDiv[0].classList.remove('d-none');
+        micDiv[1].classList.remove('d-none');
+        micDiv[2].classList.remove('d-none');
         ws.send(JSON.stringify({
-          action: "muted",
+          action: 'muted',
           producerUserId: id,
           roomId: roomId,
           userEmail: user.userEmail
         }));
+        try {
+          recognition.abort();
+        } catch (error) {
+          console.log(error);
+        }
         localStorage.setItem('micEnabled', false);
       } else {
         let audioTrackReplace = await getAudioTrackReplace();
@@ -18362,14 +18430,14 @@ async function toggleButton(type, button) {
         });
         audioProducer.resume();
         ws.send(JSON.stringify({
-          action: "unmuted",
+          action: 'unmuted',
           producerUserId: id,
           roomId: roomId,
           userEmail: user.userEmail
         }));
-        let harkid = "localVideo";
+        let harkid = 'localVideo';
         if (harkInstances[harkid]) {
-          console.log("EXISTS HARK INSTANCE");
+          console.log('EXISTS HARK INSTANCE');
           harkInstances[harkid].stop();
           harkInstances[harkid] = null;
           delete harkInstances[harkid];
@@ -18396,16 +18464,21 @@ async function toggleButton(type, button) {
           (0, _index.updateDots)(volume, harkid);
         });
         track.enabled = true;
-        button.removeClass("bg-danger");
-        $("#micIcon").removeClass("bi-mic-mute");
-        $("#micIcon").addClass("bi-mic");
-        micDiv[0].classList.add("d-none");
-        micDiv[1].classList.add("d-none");
-        micDiv[2].classList.add("d-none");
+        button.removeClass('bg-danger');
+        $('#micIcon').removeClass('bi-mic-mute');
+        $('#micIcon').addClass('bi-mic');
+        micDiv[0].classList.add('d-none');
+        micDiv[1].classList.add('d-none');
+        micDiv[2].classList.add('d-none');
+        try {
+          recognition.start();
+        } catch (error) {
+          console.log(error);
+        }
         localStorage.setItem('micEnabled', true);
       }
     } else {
-      console.log("ERROR: KHONG TIM THAY AUDIOPRODUCER");
+      console.log('ERROR: KHONG TIM THAY AUDIOPRODUCER');
     }
   }
   //video
@@ -18413,20 +18486,20 @@ async function toggleButton(type, button) {
     // console.log(videoState);
     if (videoProducer) {
       const videoState = videoProducer.paused ? 'paused' : 'active';
-      console.log("VIDEO STATE", videoState);
+      console.log('VIDEO STATE', videoState);
       console.log(videoState == 'active');
       if (videoState == 'active') {
         await videoProducer.pause();
         // track.stop();
         stream.getVideoTracks()[0].stop();
         track.enabled = false;
-        button.addClass("bg-danger");
-        $("#webcamIcon").addClass("bi-camera-video-off");
-        $("#webcamIcon").removeClass("bi-camera-video");
-        alterDiv.classList.remove("d-none");
-        videoDiv.classList.add("d-none");
+        button.addClass('bg-danger');
+        $('#webcamIcon').addClass('bi-camera-video-off');
+        $('#webcamIcon').removeClass('bi-camera-video');
+        alterDiv.classList.remove('d-none');
+        videoDiv.classList.add('d-none');
         ws.send(JSON.stringify({
-          action: "offCamera",
+          action: 'offCamera',
           producerUserId: id,
           roomId: roomId,
           userEmail: user.userEmail
@@ -18448,13 +18521,13 @@ async function toggleButton(type, button) {
         });
         await videoProducer.resume();
         track.enabled = true;
-        button.removeClass("bg-danger");
-        $("#webcamIcon").removeClass("bi-camera-video-off");
-        $("#webcamIcon").addClass("bi-camera-video");
-        alterDiv.classList.add("d-none");
-        videoDiv.classList.remove("d-none");
+        button.removeClass('bg-danger');
+        $('#webcamIcon').removeClass('bi-camera-video-off');
+        $('#webcamIcon').addClass('bi-camera-video');
+        alterDiv.classList.add('d-none');
+        videoDiv.classList.remove('d-none');
         ws.send(JSON.stringify({
-          action: "onCamera",
+          action: 'onCamera',
           producerUserId: id,
           roomId: roomId,
           userEmail: user.userEmail
@@ -18462,7 +18535,7 @@ async function toggleButton(type, button) {
         localStorage.setItem('cameraEnabled', true);
       }
     } else {
-      console.log("ERROR: KHONG TIM THAY VIDEOPRODUCER");
+      console.log('ERROR: KHONG TIM THAY VIDEOPRODUCER');
     }
   }
 }
@@ -18487,20 +18560,20 @@ async function createCombinedStream() {
     const screenStream = await getScreenStream();
     screenStream.getTracks().forEach(track => combinedStream.addTrack(track));
   } catch (error) {
-    console.error("Failed to get screen stream:", error);
+    console.error('Failed to get screen stream:', error);
     throw error;
   }
   try {
     const remoteAudioTracks = await getRemoteAudioTracks();
     remoteAudioTracks.forEach(track => combinedStream.addTrack(track));
   } catch (error) {
-    console.error("Failed to get remote audio tracks:", error);
+    console.error('Failed to get remote audio tracks:', error);
   }
   try {
     const audioStream = await getAudioStream();
     audioStream.getTracks().forEach(track => combinedStream.addTrack(track));
   } catch (error) {
-    console.warn("Failed to get audio stream:", error);
+    console.warn('Failed to get audio stream:', error);
   }
   return combinedStream;
 }
@@ -18540,17 +18613,47 @@ async function startRecording() {
   console.log('Recording started');
   //chi show len pause va stop
   showLiOptions(['pauseLi', 'stopLi']);
+  ws.send(JSON.stringify({
+    action: 'recording',
+    userEmail: user.userEmail,
+    userId: id,
+    roomId: roomId
+  }));
+  recordingUsersOnClient.unshift({
+    userId: user.id,
+    name: 'You'
+  });
+  showRecordingUsers(recordingUsersOnClient);
 }
 function pauseRecording() {
   if (mediaRecorder && mediaRecorder.state === 'recording') {
     mediaRecorder.pause();
     console.log('Recording paused');
+    ws.send(JSON.stringify({
+      action: 'stopRecording',
+      userEmail: user.userEmail,
+      userId: id,
+      roomId: roomId
+    }));
+    recordingUsersOnClient = recordingUsersOnClient.filter(user => user.userId != id);
+    showRecordingUsers(recordingUsersOnClient);
   }
 }
 function resumeRecording() {
   if (mediaRecorder && mediaRecorder.state === 'paused') {
     mediaRecorder.resume();
     console.log('Recording resumed');
+    ws.send(JSON.stringify({
+      action: 'recording',
+      userEmail: user.userEmail,
+      userId: id,
+      roomId: roomId
+    }));
+    recordingUsersOnClient.unshift({
+      userId: user.id,
+      name: 'You'
+    });
+    showRecordingUsers(recordingUsersOnClient);
   }
 }
 function stopRecording() {
@@ -18590,8 +18693,16 @@ stopButton.on('click', function () {
   stopRecording();
   //chi show len record
   showLiOptions(['recordLi']);
+  ws.send(JSON.stringify({
+    action: 'stopRecording',
+    userEmail: user.userEmail,
+    userId: id,
+    roomId: roomId
+  }));
+  recordingUsersOnClient = recordingUsersOnClient.filter(user => user.userId != id);
+  showRecordingUsers(recordingUsersOnClient);
 });
-searchPeopleInput.on("input", function () {
+searchPeopleInput.on('input', function () {
   let filter = searchPeopleInput.val();
   (0, _index.filterUsersByName)(filter);
 });
@@ -18625,17 +18736,20 @@ async function checkDeviceConstraints(audioConstraints, videoConstraints) {
       videoDeviceExists
     };
   } catch (error) {
-    console.error("Error checking device constraints:", error);
+    console.error('Error checking device constraints:', error);
     return {
       audioDeviceExists: false,
       videoDeviceExists: false
     };
   }
 }
-$("#settingButton").on("click", function () {
+let lastTranscriptStatus = false;
+$('#settingButton').on('click', function () {
+  transcriptSwitch.checked = lastTranscriptStatus;
   const videoPreview = document.getElementById('videoPreview');
-  let audioConstraints = localStorage.getItem("audioConstraints");
-  let videoConstraints = localStorage.getItem("videoConstraints");
+  videoPreview.muted = true;
+  let audioConstraints = localStorage.getItem('audioConstraints');
+  let videoConstraints = localStorage.getItem('videoConstraints');
   let constraints = {
     video: true,
     audio: true
@@ -18743,8 +18857,8 @@ $("#settingButton").on("click", function () {
     const audioTrack = stream.getAudioTracks()[0];
     if (videoTrack) {
       console.log('Video Track Device ID:', videoTrack.label);
-      $("#cameraCurrent").text(videoTrack.label);
-      let dropdownMenu = document.getElementById("cameraDropdownMenu");
+      $('#cameraCurrent').text(videoTrack.label);
+      let dropdownMenu = document.getElementById('cameraDropdownMenu');
       const items = dropdownMenu.querySelectorAll('.dropdown-item');
       items.forEach(item => {
         console.log(item.textContent);
@@ -18755,8 +18869,8 @@ $("#settingButton").on("click", function () {
     }
     if (audioTrack) {
       console.log('Audio Track Device ID:', audioTrack.label);
-      $("#microphoneCurrent").text(audioTrack.label);
-      let dropdownMenu = document.getElementById("micDropdownMenu");
+      $('#microphoneCurrent').text(audioTrack.label);
+      let dropdownMenu = document.getElementById('micDropdownMenu');
       const items = dropdownMenu.querySelectorAll('.dropdown-item');
       items.forEach(item => {
         if (item.textContent.trim() === audioTrack.label) {
@@ -18768,7 +18882,6 @@ $("#settingButton").on("click", function () {
     console.error('Error when accessing devices:', error);
     //constraints = {video: true, audio: true};
   });
-  ;
 });
 async function changeMediaDevice(type, deviceId) {
   try {
@@ -18792,10 +18905,10 @@ async function changeMediaDevice(type, deviceId) {
       });
       if (!stream) {
         /*let stream = await getUserMediaWithConstraints(true, true);
-        let videoTrack = stream.getVideoTracks()[0];
-        let videoSettings = videoTrack.getSettings();
-        const videoDeviceId = videoSettings.deviceId;
-          let videoConstraints = { deviceId: { exact: videoDeviceId } };*/
+                    let videoTrack = stream.getVideoTracks()[0];
+                    let videoSettings = videoTrack.getSettings();
+                    const videoDeviceId = videoSettings.deviceId;
+                      let videoConstraints = { deviceId: { exact: videoDeviceId } };*/
         videoElement.srcObject = audioStream;
         //videoElement.srcObject.addTrack(audioStream.getVideoTracks()[0]);
         //localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints))
@@ -18824,10 +18937,10 @@ async function changeMediaDevice(type, deviceId) {
       });
       if (!stream) {
         /*let stream = await getUserMediaWithConstraints(true, true);
-        let videoTrack = stream.getVideoTracks()[0];
-        let videoSettings = videoTrack.getSettings();
-        const videoDeviceId = videoSettings.deviceId;
-          let videoConstraints = { deviceId: { exact: videoDeviceId } };*/
+                    let videoTrack = stream.getVideoTracks()[0];
+                    let videoSettings = videoTrack.getSettings();
+                    const videoDeviceId = videoSettings.deviceId;
+                      let videoConstraints = { deviceId: { exact: videoDeviceId } };*/
         videoElement.srcObject = videoStream;
         //localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
       } else {
@@ -18836,12 +18949,12 @@ async function changeMediaDevice(type, deviceId) {
           stream.removeTrack(videoTracks[0]);
           stream.addTrack(videoStream.getVideoTracks()[0]);
           console.log(videoStream.getVideoTracks()[0]);
-          console.log("REPLACE VIDEO TRACK");
+          console.log('REPLACE VIDEO TRACK');
           //localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
         } else {
           stream.addTrack(videoStream.getVideoTracks()[0]);
           console.log(videoStream.getVideoTracks()[0]);
-          console.log("REPLACE VIDEO TRACK");
+          console.log('REPLACE VIDEO TRACK');
           //localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
         }
         videoTracks[0].stop();
@@ -18876,14 +18989,25 @@ async function populateDropdown(dropdownId, devices, buttonId) {
     dropdownMenu.appendChild(li);
   });
 }
-$("#changeSourceButton").on("click", async function () {
+$('#changeSourceButton').on('click', async function () {
   try {
+    try {
+      if (transcriptSwitch.checked) {
+        recognition.stop();
+        lastTranscriptStatus = true;
+      } else {
+        lastTranscriptStatus = false;
+      }
+      recognition.lang = transcriptLanguage.value;
+    } catch (error) {
+      console.log(error);
+    }
     if (videoSrcChange == false && audioSrcChange == false) {
       stopBothPreviewStream();
       return;
     }
     let stream = localVideo.srcObject;
-    const videoPreview = document.getElementById("videoPreview");
+    const videoPreview = document.getElementById('videoPreview');
     let videoPreviewStream = videoPreview.srcObject;
     let videoTrackReplace = videoPreviewStream.getVideoTracks()[0];
     let videoTracks;
@@ -18942,7 +19066,7 @@ $("#changeSourceButton").on("click", async function () {
         // $("#divVideolocalVideo").removeClass("d-none");
         // $("#divAlterlocalVideo").addClass("d-none");
 
-        toggleButtonWhenProducerNotFound("video", webcamButton, false, "localVideo");
+        toggleButtonWhenProducerNotFound('video', webcamButton, false, 'localVideo');
       }
       let track = videoTrackReplace;
       let videoSettings = track.getSettings();
@@ -18952,8 +19076,8 @@ $("#changeSourceButton").on("click", async function () {
           exact: videoDeviceId
         }
       };
-      localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints));
-      console.log("CHANGE MEDIA SOURCE");
+      localStorage.setItem('videoConstraints', JSON.stringify(videoConstraints));
+      console.log('CHANGE MEDIA SOURCE');
       console.log(videoConstraints);
       videoSrcChange = false;
     }
@@ -18989,10 +19113,10 @@ $("#changeSourceButton").on("click", async function () {
             exact: audioDeviceId
           }
         };
-        localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints));
-        let id = "localVideo";
+        localStorage.setItem('audioConstraints', JSON.stringify(audioConstraints));
+        let id = 'localVideo';
         if (harkInstances[id]) {
-          console.log("EXISTS HARK INSTANCE");
+          console.log('EXISTS HARK INSTANCE');
           harkInstances[id].stop();
           harkInstances[id] = null;
           delete harkInstances[id];
@@ -19024,17 +19148,18 @@ $("#changeSourceButton").on("click", async function () {
       audioSrcChange = false;
     }
   } catch (error) {
-    console.log("error when change source: ", error);
+    console.log('error when change source: ', error);
   }
+  videoPreview.muted = true;
 });
-$("#changeSourceCloseButton").on("click", function () {
+$('#changeSourceCloseButton').on('click', function () {
   stopBothPreviewStream();
 });
-$("#closeSettingModalButton").on("click", function () {
+$('#closeSettingModalButton').on('click', function () {
   stopBothPreviewStream();
 });
 function stopBothPreviewStream() {
-  const videoPreview = document.getElementById("videoPreview");
+  const videoPreview = document.getElementById('videoPreview');
   let stream = videoPreview.srcObject;
   let videoTracks = stream.getVideoTracks();
   videoTracks.forEach(track => track.stop());
@@ -19048,18 +19173,18 @@ if (privateMeetingSwitch) {
   privateMeetingSwitch.addEventListener('change', function () {
     if (this.checked) {
       console.log('Toggle switch is ON');
-      $("#meetingAccessDes").text("This meeting is private");
+      $('#meetingAccessDes').text('This meeting is private');
       ws.send(JSON.stringify({
-        action: "settingsUpdate",
+        action: 'settingsUpdate',
         private: true,
         roomId: roomId,
         userId: id,
         userEmail: user.userEmail
       }));
     } else {
-      $("#meetingAccessDes").text("This meeting is public");
+      $('#meetingAccessDes').text('This meeting is public');
       ws.send(JSON.stringify({
-        action: "settingsUpdate",
+        action: 'settingsUpdate',
         private: false,
         roomId: roomId,
         userId: id,
@@ -19068,14 +19193,14 @@ if (privateMeetingSwitch) {
     }
   });
 }
-$("#acceptButton").on("click", function () {
-  const requestorId = $("#requestorId").val();
-  console.log("ACCEPT NEW USER");
+$('#acceptButton').on('click', function () {
+  const requestorId = $('#requestorId').val();
+  console.log('ACCEPT NEW USER');
   acceptRequest(requestorId);
 });
-$("#declineButton").on("click", function () {
-  const requestorId = $("#requestorId").val();
-  console.log("ACCEPT NEW USER");
+$('#declineButton').on('click', function () {
+  const requestorId = $('#requestorId').val();
+  console.log('ACCEPT NEW USER');
   declineRequest(requestorId);
 });
 
@@ -19088,10 +19213,10 @@ $("#declineButton").on("click", function () {
 //     }
 // }
 let invitedUsers = [];
-$("#input-invite").on("input", function () {
+$('#input-invite').on('input', function () {
   getUserByContainingEmail();
 });
-$("#inviteButton").on("click", function () {
+$('#inviteButton').on('click', function () {
   sendInvites();
 });
 function sendInvites() {
@@ -19113,11 +19238,11 @@ function sendInvites() {
   invitedUsers.forEach(email => {
     sendInvite(roomId, user.userEmail, email);
   });
-  $("#inviteToast").toast("show");
+  $('#inviteToast').toast('show');
   invitedUsers.forEach(email => {
     removeUser(email);
   });
-  $("#input-invite").val("");
+  $('#input-invite').val('');
 }
 function sendInvite(roomId, from, to) {
   try {
@@ -19132,7 +19257,7 @@ function sendInvite(roomId, from, to) {
       }),
       success: function (response) {
         ws.send(JSON.stringify({
-          action: "inviteUser",
+          action: 'inviteUser',
           userEmailInvited: to,
           roomId: roomId,
           id: user.id,
@@ -19160,12 +19285,11 @@ function sendInvite(roomId, from, to) {
       }
     });
   } catch (error) {
-    console.log("Error when sending invitation: ", error);
+    console.log('Error when sending invitation: ', error);
   }
 }
-;
 function getUserByContainingEmail() {
-  let email = $("#input-invite").val();
+  let email = $('#input-invite').val();
   if (email.trim().length < 5) {
     return;
   }
@@ -19181,15 +19305,15 @@ function getUserByContainingEmail() {
         const users = response;
         console.log(users);
         if (users.length == 0) {
-          $("#noUserDiv").removeClass("d-none");
+          $('#noUserDiv').removeClass('d-none');
         } else {
-          $("#noUserDiv").addClass("d-none");
-          const foundUser = $("#foundUser");
-          const foundUserDiv = $("#foundUser div");
+          $('#noUserDiv').addClass('d-none');
+          const foundUser = $('#foundUser');
+          const foundUserDiv = $('#foundUser div');
           foundUserDiv.remove();
           users.forEach(iUser => {
             if (iUser.email == user.userEmail && users.length == 1) {
-              $("#noUserDiv").removeClass("d-none");
+              $('#noUserDiv').removeClass('d-none');
               return;
             }
             const newUserFound = $(` 
@@ -19209,7 +19333,7 @@ function getUserByContainingEmail() {
           // $(document).on('change', '.invite-user-button', function() {
 
           // });
-          $(".invite-user-button").on("change", function () {
+          $('.invite-user-button').on('change', function () {
             const userEmail = $(this).data('email');
             const userAvatar = $(this).data('avatar');
             console.log(userEmail, userAvatar);
@@ -19225,7 +19349,7 @@ function getUserByContainingEmail() {
 }
 function removeUser(email) {
   invitedUsers = invitedUsers.filter(userEmail => userEmail != email);
-  const listOfUsersDiv = document.querySelectorAll("#listOfUsers div");
+  const listOfUsersDiv = document.querySelectorAll('#listOfUsers div');
   listOfUsersDiv.forEach(user => {
     if (user.getAttribute('data-id') === email) {
       user.remove();
@@ -19237,8 +19361,8 @@ function removeUser(email) {
   });
 }
 function inviteUser(email, checkbox, avatar) {
-  const listOfUsersDiv = document.querySelectorAll("#listOfUsers div");
-  const listOfUsers = $("#listOfUsers");
+  const listOfUsersDiv = document.querySelectorAll('#listOfUsers div');
+  const listOfUsers = $('#listOfUsers');
   if (checkbox.checked) {
     const newUserInvited = $(`
             <div data-id="${email}" class="invited-user col rounded-pill border border-secondary d-flex align-items-center p-0">
@@ -19249,10 +19373,10 @@ function inviteUser(email, checkbox, avatar) {
                 <i class="bi bi-x text-dark delete-invite-user" data-email='${email}'"></i>
             </div>
         `);
-    const input = $("#input-invite");
+    const input = $('#input-invite');
     input.before(newUserInvited);
     invitedUsers.push(email);
-    $(".delete-invite-user").on("click", function () {
+    $('.delete-invite-user').on('click', function () {
       const userEmail = $(this).data('email');
       console.log(userEmail);
       removeUser(userEmail);
@@ -19268,13 +19392,36 @@ function inviteUser(email, checkbox, avatar) {
     });
   }
 }
+function showRecordingUsers(recordingUsers) {
+  if (recordingUsers.length > 0) {
+    let users = '';
+    const specialUserIndex = recordingUsers.findIndex(user => user.userId === id);
+    if (specialUserIndex !== -1) {
+      const [specialUser] = recordingUsers.splice(specialUserIndex, 1);
+      specialUser.name = 'You';
+      recordingUsers.unshift(specialUser);
+    }
+    if (recordingUsers.length > 5) {
+      const firstFiveUsers = recordingUsers.slice(0, 5);
+      users = firstFiveUsers.map(user => user.name).join(', ') + ` and ${recordingUsers.length - 5} other users`;
+    } else {
+      users = recordingUsers.map(user => user.name).join(', ');
+    }
+    $('#recording-users').text(users.trim().replace(/,\s*$/, ''));
+    $('#recordings-container').removeClass('d-sm-none');
+    $('#recordings-container').addClass('d-sm-inline');
+  } else {
+    $('#recordings-container').removeClass('d-sm-inline');
+    $('#recordings-container').addClass('d-sm-none');
+  }
+}
 let offlineStartTime = null;
 const RECONNECT_DELAY = 7000;
 window.addEventListener('online', function () {
   console.log('Đã kết nối lại mạng.');
-  $(".reconnecting-layout").addClass("d-none");
+  $('.reconnecting-layout').addClass('d-none');
   if (offlineStartTime && Date.now() - offlineStartTime > RECONNECT_DELAY) {
-    console.log("Mất kết nối lâu hơn 7 giây. Khởi động lại cuộc gọi...");
+    console.log('Mất kết nối lâu hơn 7 giây. Khởi động lại cuộc gọi...');
     startCall();
     isReconnect = true;
     consumerTransports = {};
@@ -19284,8 +19431,8 @@ window.addEventListener('online', function () {
 });
 window.addEventListener('offline', function () {
   console.log('Mất kết nối mạng.');
-  $(".reconnecting-layout").removeClass("d-none");
-  console.log("Reconnecting...");
+  $('.reconnecting-layout').removeClass('d-none');
+  console.log('Reconnecting...');
   offlineStartTime = Date.now();
 });
 
@@ -19331,7 +19478,7 @@ async function toggleContainer(containerToShow, isActionContainerOpenGlobal) {
     }
     if (isThisContainerOpen) {
       actionContainer.classList.remove('open');
-      $(".main-container").removeClass("expanded");
+      $('.main-container').removeClass('expanded');
     } else {
       actionContainers.forEach(container => {
         container.style.display = 'none';
@@ -19339,7 +19486,7 @@ async function toggleContainer(containerToShow, isActionContainerOpenGlobal) {
       containerToShow.style.display = 'flex';
     }
   } else {
-    $(".main-container").addClass("expanded");
+    $('.main-container').addClass('expanded');
     actionContainers.forEach(container => {
       container.style.display = 'none';
     });
@@ -19354,18 +19501,17 @@ async function toggleContainer(containerToShow, isActionContainerOpenGlobal) {
 function closeActionContainer() {
   isActionContainerOpenGlobal = false;
   actionContainer.classList.remove('open');
-  $(".main-container").removeClass("expanded");
+  $('.main-container').removeClass('expanded');
 }
-;
 function getCurrentTime() {
   const now = new Date();
   const hours = now.getHours().toString().padStart(2, '0');
   const minutes = now.getMinutes().toString().padStart(2, '0');
   return `${hours}:${minutes}`;
 }
-$("#time").text(getCurrentTime());
+$('#time').text(getCurrentTime());
 setInterval(() => {
-  $("#time").text(getCurrentTime());
+  $('#time').text(getCurrentTime());
 }, 30000);
 async function addItem(id, name, avatar) {
   const itemIdExists = document.getElementById(id);
@@ -19374,7 +19520,7 @@ async function addItem(id, name, avatar) {
   }
   const container = document.querySelector('.grid-container');
   const item = document.createElement('div');
-  item.id = "divVideo" + id;
+  item.id = 'divVideo' + id;
   item.classList.add('video-container');
   item.classList.add('grid-item');
   container.appendChild(item);
@@ -19382,7 +19528,7 @@ async function addItem(id, name, avatar) {
   video.classList.add('default-border-class-video');
   video.id = id;
   video.autoplay = true;
-  if (id == "localVideo") {
+  if (id == 'localVideo') {
     video.muted = true;
   }
   video.playsInline = true;
@@ -19392,6 +19538,9 @@ async function addItem(id, name, avatar) {
   nameDisplay.classList.add('me-1');
   nameDisplay.innerText = name;
   item.appendChild(nameDisplay);
+  const transcriptContainer = document.createElement('div');
+  transcriptContainer.className = `transcripts transcripts-${id}`;
+  item.appendChild(transcriptContainer);
   const mutedMic = document.createElement('div');
   mutedMic.className = `mutedMic${id} d-none position-absolute top-0 end-0 muted-mic mt-2 me-2 text-white fs-5 bg-dark rounded-circle d-flex align-items-center justify-content-center`;
   const icon = document.createElement('i');
@@ -19407,27 +19556,27 @@ async function addItem(id, name, avatar) {
     `;
   item.append(micActive);
   const divAlternative = document.createElement('div');
-  divAlternative.classList.add("d-none");
-  divAlternative.classList.add("bg-secondary");
-  divAlternative.classList.add("grid-item");
-  divAlternative.id = "divAlter" + id;
+  divAlternative.classList.add('d-none');
+  divAlternative.classList.add('bg-secondary');
+  divAlternative.classList.add('grid-item');
+  divAlternative.id = 'divAlter' + id;
   container.appendChild(divAlternative);
   divAlternative.classList.add('video-container-altenative');
   divAlternative.classList.add('position-relative');
   // divAlternative.classList.add('d-none');
   const image = document.createElement('img');
-  image.classList.add("user-avatar-display");
-  image.classList.add("position-absolute");
-  image.classList.add("top-50");
-  image.classList.add("start-50");
-  image.classList.add("translate-middle");
+  image.classList.add('user-avatar-display');
+  image.classList.add('position-absolute');
+  image.classList.add('top-50');
+  image.classList.add('start-50');
+  image.classList.add('translate-middle');
   // image.classList.add("d-flex");
   // image.classList.add("justify-content-center");
   // image.classList.add("align-items-center");
   if (avatar) {
     image.src = avatar;
   } else {
-    image.src = "/images/GoLogoNBg.png";
+    image.src = '/images/GoLogoNBg.png';
   }
   divAlternative.appendChild(image);
   const nameDisplay2 = document.createElement('div');
@@ -19435,11 +19584,12 @@ async function addItem(id, name, avatar) {
   nameDisplay2.classList.add('me-1');
   nameDisplay2.innerText = name;
   divAlternative.appendChild(nameDisplay2);
+  const transcriptContainerClone = transcriptContainer.cloneNode(true);
+  divAlternative.appendChild(transcriptContainerClone);
   const muteMicClone = mutedMic.cloneNode(true);
   divAlternative.appendChild(muteMicClone);
   const micActiveClone = micActive.cloneNode(true);
   divAlternative.appendChild(micActiveClone);
-  const num = container.childElementCount;
 
   // if (num == 1) {
   //     item.addEventListener('click', () => {
@@ -19455,25 +19605,25 @@ async function addItem(id, name, avatar) {
   resizeVideo();
 }
 function addOtherUsersUIDiv() {
-  const itemIdExists = document.getElementById("divOtherUsers");
+  const itemIdExists = document.getElementById('divOtherUsers');
   if (itemIdExists) {
     return;
   }
   const container = document.querySelector('.grid-container');
   const divAlternative = document.createElement('div');
-  divAlternative.classList.add("bg-secondary");
-  divAlternative.classList.add("grid-item");
-  divAlternative.id = "divOtherUsers";
+  divAlternative.classList.add('bg-secondary');
+  divAlternative.classList.add('grid-item');
+  divAlternative.id = 'divOtherUsers';
   container.appendChild(divAlternative);
   divAlternative.classList.add('video-container');
   divAlternative.classList.add('position-relative');
   // divAlternative.classList.add('d-none');
   const image = document.createElement('img');
-  image.classList.add("user-avatar-display");
-  image.classList.add("position-absolute");
-  image.classList.add("top-50");
-  image.classList.add("start-50");
-  image.classList.add("translate-middle");
+  image.classList.add('user-avatar-display');
+  image.classList.add('position-absolute');
+  image.classList.add('top-50');
+  image.classList.add('start-50');
+  image.classList.add('translate-middle');
   // image.classList.add("d-flex");
   // image.classList.add("justify-content-center");
   // image.classList.add("align-items-center");
@@ -19482,25 +19632,25 @@ function addOtherUsersUIDiv() {
   const nameDisplay2 = document.createElement('div');
   nameDisplay2.classList.add('name-display');
   nameDisplay2.classList.add('me-1');
-  nameDisplay2.innerText = "Other users";
+  nameDisplay2.innerText = 'Other users';
   divAlternative.appendChild(nameDisplay2);
   resizeVideo();
 
   // moveDivToPosition("divOtherUsers", 3);
 
-  divAlternative.addEventListener("click", function () {
+  divAlternative.addEventListener('click', function () {
     toggleContainer(peopleContainer, isActionContainerOpenGlobal);
   });
 }
 function removeOtherUsersDiv() {
-  const itemIdExists = document.getElementById("divOtherUsers");
+  const itemIdExists = document.getElementById('divOtherUsers');
   if (itemIdExists) {
     itemIdExists.remove();
   }
 }
 function updateDots(volume, userId) {
   // console.log(userId);
-  const dotsContainers = document.getElementsByClassName("micActive" + userId);
+  const dotsContainers = document.getElementsByClassName('micActive' + userId);
   for (const container of dotsContainers) {
     const dots = container.querySelectorAll('.dot');
     const normalizedVolume = Math.max(0, Math.min((volume + 100) / 1, 100));
@@ -19511,13 +19661,12 @@ function updateDots(volume, userId) {
   }
 }
 function stopDots(userId) {
-  const dotsContainers = document.getElementsByClassName("micActive" + userId);
+  const dotsContainers = document.getElementsByClassName('micActive' + userId);
   for (const container of dotsContainers) {
-    container.classList.add("d-none");
+    container.classList.add('d-none');
   }
-  ;
   const videoItem = document.getElementById(userId);
-  const divAlter = document.getElementById("divAlter" + userId);
+  const divAlter = document.getElementById('divAlter' + userId);
   if (videoItem) {
     videoItem.classList.remove('custom-border-class');
     videoItem.classList.add('default-border-class-video');
@@ -19528,17 +19677,16 @@ function stopDots(userId) {
   }
 }
 function showDots(userId) {
-  const dotsContainers = document.getElementsByClassName("micActive" + userId);
+  const dotsContainers = document.getElementsByClassName('micActive' + userId);
   for (const container of dotsContainers) {
-    container.classList.remove("d-none");
+    container.classList.remove('d-none');
   }
-  ;
   const videoItem = document.getElementById(userId);
   if (videoItem) {
     videoItem.classList.remove('default-border-class-video');
     videoItem.classList.add('custom-border-class');
   }
-  const divAlter = document.getElementById("divAlter" + userId);
+  const divAlter = document.getElementById('divAlter' + userId);
   if (divAlter) {
     divAlter.classList.remove('default-border-class-video');
     divAlter.classList.add('custom-border-class');
@@ -19567,9 +19715,9 @@ function resizeSharing() {
   const sharingVideoContainer = document.querySelectorAll('.sharing-video-container');
   const num = sharingVideoContainer.length;
   if (num > 0) {
-    container.classList.add("col-9");
+    container.classList.add('col-9');
   } else {
-    container.classList.remove("col-9");
+    container.classList.remove('col-9');
   }
   const width = window.innerWidth;
 
@@ -19663,12 +19811,12 @@ function resizeVideo() {
   // console.log(width);
 
   const sharingContainer = document.querySelector('.sharing-container');
-  if (!sharingContainer.classList.contains("d-none")) {
-    container.classList.add("col-3");
+  if (!sharingContainer.classList.contains('d-none')) {
+    container.classList.add('col-3');
     let columns = 1;
     let rows = 1;
     if (num > 4) {
-      $(".grid-container").addClass("hide-extra");
+      $('.grid-container').addClass('hide-extra');
       // addOtherUsersUIDiv();
       // moveDivToPosition("divOtherUsers", 7);
       rows = Math.ceil(4);
@@ -19696,9 +19844,9 @@ function resizeVideo() {
     container.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
     return;
   } else {
-    container.classList.remove("col-3");
+    container.classList.remove('col-3');
   }
-  $(".grid-container").removeClass("hide-extra");
+  $('.grid-container').removeClass('hide-extra');
   let columns = 1;
   let rows = 1;
   removeOtherUsersDiv();
@@ -19720,7 +19868,7 @@ function resizeVideo() {
       rows = Math.ceil(num / 5);
     } else {
       addOtherUsersUIDiv();
-      moveDivToPosition("divOtherUsers", 25);
+      moveDivToPosition('divOtherUsers', 25);
       rows = Math.ceil(5);
     }
   } else if (width > 800) {
@@ -19744,7 +19892,7 @@ function resizeVideo() {
       rows = Math.ceil(4);
     } else {
       addOtherUsersUIDiv();
-      moveDivToPosition("divOtherUsers", 16);
+      moveDivToPosition('divOtherUsers', 16);
       rows = Math.ceil(4);
     }
   } else {
@@ -19768,7 +19916,7 @@ function resizeVideo() {
       rows = Math.ceil(num / 3);
     } else {
       addOtherUsersUIDiv();
-      moveDivToPosition("divOtherUsers", 12);
+      moveDivToPosition('divOtherUsers', 12);
       rows = Math.ceil(3);
     }
   }
@@ -19796,11 +19944,11 @@ peopleButtonOnMobile.addEventListener('click', function () {
   toggleContainer(peopleContainer, isActionContainerOpenGlobal);
 });
 chatButton.addEventListener('click', function () {
-  $("#new-message").addClass("d-none");
+  $('#new-message').addClass('d-none');
   toggleContainer(chatContainer, isActionContainerOpenGlobal);
 });
 chatButtonOnMobile.addEventListener('click', function () {
-  $("#new-message").addClass("d-none");
+  $('#new-message').addClass('d-none');
   toggleContainer(chatContainer, isActionContainerOpenGlobal);
 });
 if (controlButton) {
@@ -19840,8 +19988,8 @@ document.querySelector('.contributor').addEventListener('click', function () {
   }
 });
 function moveDivToPosition(divId, position) {
-  var div = document.getElementById("divVideo" + divId);
-  var alterDiv = document.getElementById("divAlter" + divId);
+  var div = document.getElementById('divVideo' + divId);
+  var alterDiv = document.getElementById('divAlter' + divId);
   var parent = div.parentNode;
   let targetIndex = Math.min(position, parent.children.length - 1);
   if (parent.children[targetIndex] === div && parent.children[targetIndex + 1] === alterDiv) {
@@ -19861,14 +20009,14 @@ function moveDivToPositionGlobal(divId, position) {
 }
 function moveDivToPositionWhenSpeaking(divId) {
   let position = 0;
-  if (divId == "localVideo") {
+  if (divId == 'localVideo') {
     return;
   }
   // Sharing => day len vi tri thu 3
-  if ($(".grid-container").hasClass("hide-extra")) {
+  if ($('.grid-container').hasClass('hide-extra')) {
     position = 3 * 2 - 2;
-    var div = document.getElementById("divVideo" + divId);
-    var alterDiv = document.getElementById("divAlter" + divId);
+    var div = document.getElementById('divVideo' + divId);
+    var alterDiv = document.getElementById('divAlter' + divId);
     var parent = div.parentNode;
     let targetIndex = Math.min(position, parent.children.length - 1);
     console.log(targetIndex);
@@ -19881,8 +20029,8 @@ function moveDivToPositionWhenSpeaking(divId) {
     parent.insertBefore(alterDiv, parent.children[targetIndex + 1]);
   } else {
     position = 2 * 2 - 2;
-    var div = document.getElementById("divVideo" + divId);
-    var alterDiv = document.getElementById("divAlter" + divId);
+    var div = document.getElementById('divVideo' + divId);
+    var alterDiv = document.getElementById('divAlter' + divId);
     var parent = div.parentNode;
     if (parent.children.length < 8) {
       return;
@@ -19900,28 +20048,28 @@ function moveDivToPositionWhenSpeaking(divId) {
   // Không sharing => day len vi tri thu 2
 }
 function removeRequestorUi(id) {
-  const requestDIV = document.getElementById("requestor-" + id);
+  const requestDIV = document.getElementById('requestor-' + id);
   if (requestDIV) {
     requestDIV.remove();
     updateRequestorListUI();
   }
 }
 function updateRequestorListUI() {
-  const requestorsList = document.querySelectorAll(".requestorsContainer");
+  const requestorsList = document.querySelectorAll('.requestorsContainer');
   const videoContainer = document.querySelectorAll('.requestor-container');
   const num = videoContainer.length;
   if (num > 0) {
     requestorsList.forEach(div => {
-      div.classList.remove("d-none");
+      div.classList.remove('d-none');
     });
   } else {
     requestorsList.forEach(div => {
-      div.classList.add("d-none");
+      div.classList.add('d-none');
     });
   }
 }
 window.addEventListener('resize', resizeVideo);
-$("#copyButton").on("click", async function () {
+$('#copyButton').on('click', async function () {
   const textToCopy = document.getElementById('meetingLink').innerText.trim();
   try {
     await navigator.clipboard.writeText(textToCopy);
@@ -19943,10 +20091,10 @@ $("#copyButton").on("click", async function () {
     setTimeout(() => tooltip.hide(), 1000);
   }
 });
-$('#closeMeetingInfo').on("click", function () {
-  $("#meetingInfoContainer").removeClass("visible");
+$('#closeMeetingInfo').on('click', function () {
+  $('#meetingInfoContainer').removeClass('visible');
   setTimeout(() => {
-    $("#meetingInfoContainer").remove();
+    $('#meetingInfoContainer').remove();
   }, 500);
 });
 
