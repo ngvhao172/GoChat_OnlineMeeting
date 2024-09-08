@@ -13,7 +13,6 @@ const secret_key = process.env.SECRET_KEY;
 class AuthController {
   rememberMeMiddleware(req, res, next) {
     req.rememberMe = req.body.rememberMe === "on";
-    console.log(req.rememberMe);
     next();
   }
 
@@ -68,11 +67,11 @@ class AuthController {
       const token = jwt.sign({ userEmail }, secret_key, {
         expiresIn: expiresIn,
       });
-
+      console.log(req.rememberMe);
       res.cookie("authToken", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "Production",
-        maxAge: req.rememberMe ? 7 * 24 * 60 * 60 * 1000 : 7 * 60 * 1000,
+        secure: true,
+        maxAge: req.rememberMe ? 7 * 24 * 60 * 60 * 1000 : 7 * 60 * 60 * 1000,
       });
       res.locals.token = token;
       req.session.token = token;

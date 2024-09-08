@@ -1,38 +1,38 @@
-<html lang='en'>
+<html lang="en">
   <head>
-    <meta charset='UTF-8' />
-    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <meta property='og:title' content='GoChat - Online Meeting' />
+    <meta property="og:title" content="GoChat - Online Meeting" />
     <meta
-      property='og:description'
-      content='Cùng tham gia trò chuyện với bạn bè trong Go Chat'
+      property="og:description"
+      content="Cùng tham gia trò chuyện với bạn bè trong Go Chat"
     />
-    <meta property='og:image' content='/images/GoChatHo.png' />
-    <meta property='og:url' content='https://videochatapp.online' />
-    <meta property='og:site_name' content='GoChat' />
-    <meta property='og:type' content='website' />
+    <meta property="og:image" content="/images/GoChatHo.png" />
+    <meta property="og:url" content="https://videochatapp.online" />
+    <meta property="og:site_name" content="GoChat" />
+    <meta property="og:type" content="website" />
 
     <title>
       GoChat
     </title>
     <link
-      rel='stylesheet'
-      href='https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css'
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
     <link
-      href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css'
-      rel='stylesheet'
-      integrity='sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN'
-      crossorigin='anonymous'
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
     />
     <link
-      rel='stylesheet'
-      href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css'
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css"
     />
-    <link rel='icon' href='/images/GoLogoNBg.png' />
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-    <link rel='stylesheet' href='/stylesheets/switch.css' />
+    <link rel="icon" href="/images/GoLogoNBg.png" />
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <link rel="stylesheet" href="/stylesheets/switch.css" />
     <script>
       // Embed server-side data into a global JavaScript variable
       window.serverData = { user:
@@ -48,88 +48,107 @@
   </head>
 
   <body>
-    <div class='container-fluid body-container position-relative'>
+    <div class="container-fluid body-container position-relative">
       <div
-        class='reconnecting-layout d-none position-absolute d-flex justify-content-center align-items-center'
-        style='top: 0; right: 0; left: 0; bottom: 0; z-index: 21; background-color: black'
+        class="loadingdata-layout position-absolute d-flex justify-content-center align-items-center"
+        style="top: 0; right: 0; left: 0; bottom: 0; z-index: 21; background-color: black"
       >
-        <div class='m-2 fw-bold fs-3 text-white' id='spinnerLoading'>
-          <div class='p-2'>
-            <div class='d-flex justify-content-center'>
-              <div class='spinner-border text-center' role='status'>
-                <span class='visually-hidden'>
+        <div class="m-2 fw-bold fs-3 text-white" id="loadingData">
+          <div class="p-2">
+            <div class="d-flex justify-content-center">
+              <div class="spinner-border text-center" role="status">
+                <span class="visually-hidden">
                   Loading...
                 </span>
               </div>
             </div>
           </div>
         </div>
-        <div class='fw-bold fs-3 text-white'>
+        <div class="fw-bold fs-3 text-white">
+          Loading
+        </div>
+      </div>
+      <div
+        class="reconnecting-layout d-none position-absolute d-flex justify-content-center align-items-center"
+        style="top: 0; right: 0; left: 0; bottom: 0; z-index: 21; background-color: black"
+      >
+        <div class="m-2 fw-bold fs-3 text-white" id="spinnerLoading">
+          <div class="p-2">
+            <div class="d-flex justify-content-center">
+              <div class="spinner-border text-center" role="status">
+                <span class="visually-hidden">
+                  Loading...
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="fw-bold fs-3 text-white">
           Reconnecting...
         </div>
       </div>
-      <div class='row'>
-        <div class='main-container container-fluid position-relative'>
+      <div class="row">
+        <div class="main-container container-fluid position-relative">
           {{#if isNewRoomCreated}}
             <div
-              class='position-absolute left-0 bottom-0 rounded bg-white p-3 ms-3 visible'
-              id='meetingInfoContainer'
-              style='height: 400px; width: 400px; z-index:5'
+              class="position-absolute left-0 bottom-0 rounded bg-white p-3 ms-3 visible"
+              id="meetingInfoContainer"
+              style="height: 400px; width: 400px; z-index:5"
             >
               <div
-                class='header d-flex justify-content-between align-items-center'
+                class="header d-flex justify-content-between align-items-center"
               >
-                <div class='title fs-5 fw-bold'>
+                <div class="title fs-5 fw-bold">
                   Meeting is ready
                 </div>
                 <button
-                  class='buttons buttonsClose border-0'
-                  id='closeMeetingInfo'
+                  class="buttons buttonsClose border-0"
+                  id="closeMeetingInfo"
                 >
-                  <i class='bi bi-x-lg fs-5'></i>
+                  <i class="bi bi-x-lg fs-5"></i>
                 </button>
               </div>
-              <div class='body'>
+              <div class="body">
                 <div>
                   <button
-                    class='mt-2 border-0 rounded-pill p-2 d-flex align-items-center add-people-button'
-                    data-bs-toggle='modal'
-                    data-bs-target='#inviteModal'
+                    class="mt-2 border-0 rounded-pill p-2 d-flex align-items-center add-people-button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#inviteModal"
                   >
-                    <i class='bi bi-person-add fs-5'></i>
+                    <i class="bi bi-person-add fs-5"></i>
                     &ensp; Add more people
                   </button>
                 </div>
-                <p class='fw-bold mt-2'>
+                <p class="fw-bold mt-2">
                   Share this link to people who you want to join this meeting
                 </p>
                 <div
-                  class='border border-1 bg-light d-flex justify-content-center align-items-center mt-2 ms-auto me-auto p-1'
+                  class="border border-1 bg-light d-flex justify-content-center align-items-center mt-2 ms-auto me-auto p-1"
                 >
-                  <span class='text-dark' id='meetingLink'>
+                  <span class="text-dark" id="meetingLink">
                     {{meetingLink}}
                   </span>
                   <button
-                    type='button'
-                    id='copyButton'
-                    class='rounded-circle bg-transparent ms-2'
-                    style='height: 30px; width: 30px;'
+                    type="button"
+                    id="copyButton"
+                    class="rounded-circle bg-transparent ms-2"
+                    style="height: 30px; width: 30px;"
                   >
-                    <i class='bi bi-copy'></i>
+                    <i class="bi bi-copy"></i>
                   </button>
                 </div>
-                <p class='fw-bold mt-1'>
+                <p class="fw-bold mt-1">
                   They are still need to request if this meeting is private
                 </p>
               </div>
             </div>
           {{/if}}
-          <div class='container-grid'>
+          <div class="container-grid">
             <div
-              class='sharing-container d-none flex-grow-1'
-              style='padding: 10px;'
+              class="sharing-container d-none flex-grow-1"
+              style="padding: 10px;"
             ></div>
-            <div class='grid-container'>
+            <div class="grid-container">
               <!-- Video grid items will be dynamically added here -->
               {{! <div id="divVideolocalUser" class="video-container grid-item">
                             <video id="localUser" autoplay playsinline></video>
@@ -151,25 +170,25 @@
                         </div> }}
             </div>
           </div>
-          <div id='actionContainer' class='action-container'>
+          <div id="actionContainer" class="action-container">
             <div
-              id='chatContainer'
-              class='chat-container bg-red flex-column mb-3'
+              id="chatContainer"
+              class="chat-container bg-red flex-column mb-3"
             >
               <div
-                class='chat-header d-flex justify-content-between align-items-center'
+                class="chat-header d-flex justify-content-between align-items-center"
               >
-                <p class='fs-5 m-0'>
+                <p class="fs-5 m-0">
                   In-call messsages
                 </p>
                 <button
-                  id='closeChatButton'
-                  class='buttons buttonsClose border-0'
+                  id="closeChatButton"
+                  class="buttons buttonsClose border-0"
                 >
-                  <i class='bi bi-x-lg fw-bold'></i>
+                  <i class="bi bi-x-lg fw-bold"></i>
                 </button>
               </div>
-              <div class='chat-body ps-2 pe-2' id='chatBody'>
+              <div class="chat-body ps-2 pe-2" id="chatBody">
                 {{! <div class="chat-message mt-3">
                                     <div class="chat-author d-flex">
                                         <div class="fw-bold">Nguyen Van Hao &ensp;</div>
@@ -178,91 +197,91 @@
                                 </div>
                                 }}
               </div>
-              <div class='chat-footer mt-auto mb-3'>
-                <div class='input-container'>
+              <div class="chat-footer mt-auto mb-3">
+                <div class="input-container">
                   <input
-                    type='text'
-                    id='messageContent'
-                    placeholder='Send a message...'
+                    type="text"
+                    id="messageContent"
+                    placeholder="Send a message..."
                   />
-                  <button class='send-button' id='sendButton'>
-                    <i class='bi bi-telegram fs-5'></i>
+                  <button class="send-button" id="sendButton">
+                    <i class="bi bi-telegram fs-5"></i>
                   </button>
                 </div>
               </div>
             </div>
             {{! PEOPLE CONTAINER }}
             <div
-              id='peopleContainer'
-              class='people-container bg-red flex-column mb-3'
+              id="peopleContainer"
+              class="people-container bg-red flex-column mb-3"
             >
               <div
-                class='people-header d-flex justify-content-between align-items-center'
+                class="people-header d-flex justify-content-between align-items-center"
               >
-                <p class='fs-5 m-0'>
+                <p class="fs-5 m-0">
                   People
                 </p>
                 <button
-                  id='closePeopleButton'
-                  class='buttons buttonsClose border-0'
+                  id="closePeopleButton"
+                  class="buttons buttonsClose border-0"
                 >
-                  <i class='bi bi-x-lg fw-bold'></i>
+                  <i class="bi bi-x-lg fw-bold"></i>
                 </button>
               </div>
               {{#ifEqual isOwner true}}
                 <div>
                   <button
-                    class='mt-2 border-0 rounded-pill p-2 d-flex align-items-center add-people-button'
-                    data-bs-toggle='modal'
-                    data-bs-target='#inviteModal'
+                    class="mt-2 border-0 rounded-pill p-2 d-flex align-items-center add-people-button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#inviteModal"
                   >
-                    <i class='bi bi-person-add fs-5'></i>
+                    <i class="bi bi-person-add fs-5"></i>
                     &ensp; Add more people
                   </button>
                 </div>
               {{/ifEqual}}
               <div
-                class='d-flex justify-content-start p-2 mt-2 rounded-1 wrapper'
+                class="d-flex justify-content-start p-2 mt-2 rounded-1 wrapper"
               >
-                <i class='bi bi-search-heart fs-5 me-3 ms-2'></i>
+                <i class="bi bi-search-heart fs-5 me-3 ms-2"></i>
                 <input
-                  type='text'
-                  placeholder='Search for people'
-                  class='border-0 bg-transparent flex-fill search-people'
-                  id='searchPeopleInput'
+                  type="text"
+                  placeholder="Search for people"
+                  class="border-0 bg-transparent flex-fill search-people"
+                  id="searchPeopleInput"
                 />
               </div>
 
-              <div class='mt-2 ps-3'>
+              <div class="mt-2 ps-3">
                 IN MEETING
               </div>
 
               {{#ifEqual isOwner true}}
                 <div
-                  class='container-fluid mt-2 p-0 border border-1 rounded-top-2 ps-2 requestorsContainer d-none'
+                  class="container-fluid mt-2 p-0 border border-1 rounded-top-2 ps-2 requestorsContainer d-none"
                 >
-                  <div class='row d-flex align-items-center pt-2 pb-2'>
-                    <div class='col-4 pe-0 ps-3'>
+                  <div class="row d-flex align-items-center pt-2 pb-2">
+                    <div class="col-4 pe-0 ps-3">
                       Requestors
                     </div>
                     <button
-                      class='col-4 p-0 text-primary border-0 bg-transparent text-decoration-underline'
-                      id='acceptAllButton'
+                      class="col-4 p-0 text-primary border-0 bg-transparent text-decoration-underline"
+                      id="acceptAllButton"
                     >
                       Accept all
                     </button>
                     <button
-                      class='col-4 p-0 text-start text-danger border-0 bg-transparent text-decoration-underline'
-                      id='declineAllButton'
+                      class="col-4 p-0 text-start text-danger border-0 bg-transparent text-decoration-underline"
+                      id="declineAllButton"
                     >
                       Decline all
                     </button>
                   </div>
                 </div>
                 <div
-                  class='container-fluid p-0 border border-1 rounded-bottom-2 border-top-0 ps-2 pe-2 requestorsContainer d-none requestors-in-meeting'
+                  class="container-fluid p-0 border border-1 rounded-bottom-2 border-top-0 ps-2 pe-2 requestorsContainer d-none requestors-in-meeting"
                 >
-                  <div class='container-fluid p-0' id='requestorsList'>
+                  <div class="container-fluid p-0" id="requestorsList">
                   </div>
                   {{! <div class="container-fluid p-0">
                                     <div class="row d-flex align-items-center pt-2 pb-2">
@@ -298,88 +317,239 @@
               {{/ifEqual}}
 
               <div
-                class='container-fluid mt-2 p-0 border border-1 rounded-top-2 ps-2 pe-2 contributor'
+                class="container-fluid mt-2 p-0 border border-1 rounded-top-2 ps-2 pe-2 contributor"
               >
-                <div class='row d-flex align-items-center pt-2 pb-2'>
-                  <div class='col-8 pe-0 ps-3'>
+                <div class="row d-flex align-items-center pt-2 pb-2">
+                  <div class="col-8 pe-0 ps-3">
                     Contributors
                   </div>
-                  <div class='col-2 text-center' id='contributors-number'>
+                  <div class="col-2 text-center" id="contributors-number">
                     0
                   </div>
-                  <div class='col-2 text-center'>
-                    <i class='bi bi-caret-down fs-5 rotate'></i>
+                  <div class="col-2 text-center">
+                    <i class="bi bi-caret-down fs-5 rotate"></i>
                   </div>
                 </div>
               </div>
               <div
-                class='container-fluid p-0 border border-1 rounded-bottom-2 border-top-0 ps-2 pe-2 people-in-meeting'
+                class="container-fluid p-0 border border-1 rounded-bottom-2 border-top-0 ps-2 pe-2 people-in-meeting"
               >
-                <div class='container-fluid p-0' id='userslist'>
+                <div class="container-fluid p-0" id="userslist">
                 </div>
               </div>
             </div>
             {{! OWNER CONTROL }}
             {{#ifEqual isOwner true}}
               <div
-                id='controlContainer'
-                class='control-container bg-red flex-column mb-3'
+                id="controlContainer"
+                class="control-container bg-red flex-column mb-3"
               >
                 <div
-                  class='people-header d-flex justify-content-between align-items-center'
+                  class="people-header d-flex justify-content-between align-items-center"
                 >
-                  <p class='fs-5 m-0'>
+                  <p class="fs-5 m-0">
                     Meeting Access Controls
                   </p>
                   <button
-                    id='closeControlButton'
-                    class='buttons buttonsClose border-0'
+                    id="closeControlButton"
+                    class="buttons buttonsClose border-0"
                   >
-                    <i class='bi bi-x-lg fw-bold'></i>
+                    <i class="bi bi-x-lg fw-bold"></i>
                   </button>
                 </div>
                 <div
-                  class='container-fluid mt-2 p-0 border border-1 rounded-top-2 ps-2 pe-2'
+                  class="container-fluid mt-2 p-0 border border-1 rounded-top-2 ps-2 pe-2"
                 >
-                  <div class='row'>
-                    <div class='col-8'>
-                      <p class='fw-bold'>
+                  <div class="row">
+                    <div class="col-8">
+                      <p class="fw-bold">
                         Private meeting
                       </p>
-                      <p class='fst-italic fs-6' id='meetingAccessDes'>
+                      <p class="fst-italic fs-6" id="meetingAccessDes">
                         This meeting is public
                       </p>
                     </div>
-                    <div class='col-4 d-flex align-items-center'>
-                      <div class='button r' id='button-1'>
+                    <div class="col-4 d-flex align-items-center">
+                      <div class="button r" id="button-1">
                         <input
-                          type='checkbox'
-                          class='checkbox'
-                          id='toggleSwitch'
+                          type="checkbox"
+                          class="checkbox"
+                          id="toggleSwitch"
                         />
-                        <div class='knobs'></div>
-                        <div class='layer'></div>
+                        <div class="knobs"></div>
+                        <div class="layer"></div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             {{/ifEqual}}
+            <div
+              id="effectContainer"
+              class="chat-container bg-red flex-column mb-3"
+            >
+              <div
+                class="chat-header d-flex justify-content-between align-items-center"
+              >
+                <p class="fs-5 m-0">
+                  Effects
+                </p>
+                <button
+                  id="closeEffectButton"
+                  class="buttons buttonsClose border-0"
+                >
+                  <i class="bi bi-x-lg fw-bold"></i>
+                </button>
+              </div>
+              <div
+                class="controls"
+                style="overflow-y: auto; overflow-x: hidden"
+              >
+                <label>
+                  <input
+                    type="radio"
+                    name="mode"
+                    id="defaultMode"
+                    value="defaultMode"
+                    checked
+                  />
+                  <span class="fw-bold">Default Mode</span>
+                </label>
+                <br />
+                <label>
+                  <input
+                    type="radio"
+                    name="mode"
+                    id="blurMode"
+                    value="blurMode"
+                  />
+                  <span class="fw-bold">Blur Mode</span>
+                </label>
+                <br />
+                <label class="mb-2">
+                  <span class="fw-bold">Background Mode</span>
+                </label>
+                <div
+                  id="backgroundOptions"
+                  class="row row-cols-2 justify-content-between align-items-center"
+                >
+                  <div
+                    id="addBackground"
+                    class="d-flex justify-content-center align-items-center rounded-2 mb-2"
+                    style="
+            width: 100px;
+            height: 70px;
+            border: dashed 3px #202124;
+            cursor: pointer;
+            flex: 1;
+            margin: 0 38px 0 30px;
+          "
+                    onclick="document.getElementById('fileInput').click();"
+                  >
+                    <input
+                      type="file"
+                      id="fileInput"
+                      style="display: none"
+                      accept="image/*"
+                    />
+                    <span><i
+                        class="bi bi-plus-circle fs-5"
+                        style="color: #202124;"
+                      ></i></span>
+                  </div>
+                  <label for="backgroundImage1" class="mb-2">
+                    <input
+                      type="radio"
+                      name="mode"
+                      id="backgroundImage1"
+                      value="workspace-1.jpg"
+                    />
+                    <img
+                      src="images/bg/workspace-1.jpg"
+                      alt="Background 1"
+                      class="img-thumbnail"
+                      width="100"
+                      height="70"
+                    />
+                  </label>
+                  <label for="backgroundImage2" class="mb-2">
+                    <input
+                      type="radio"
+                      name="mode"
+                      id="backgroundImage2"
+                      value="workspace-2.jpg"
+                    />
+                    <img
+                      src="images/bg/workspace-2.jpg"
+                      alt="Background 2"
+                      class="img-thumbnail"
+                      width="100"
+                      height="70"
+                    />
+                  </label>
+                  <label for="backgroundImage3" class="mb-2">
+                    <input
+                      type="radio"
+                      name="mode"
+                      id="backgroundImage3"
+                      value="workspace-3.jpg"
+                    />
+                    <img
+                      src="images/bg/workspace-3.jpg"
+                      alt="Background 3"
+                      class="img-thumbnail"
+                      width="100"
+                      height="70"
+                    />
+                  </label>
+                  <label for="backgroundImage4" class="mb-2">
+                    <input
+                      type="radio"
+                      name="mode"
+                      id="backgroundImage4"
+                      value="workspace-4.jpg"
+                    />
+                    <img
+                      src="images/bg/workspace-4.jpg"
+                      alt="Background 4"
+                      class="img-thumbnail"
+                      width="100"
+                      height="70"
+                    />
+                  </label>
+                  <label for="backgroundImage5" class="mb-2">
+                    <input
+                      type="radio"
+                      name="mode"
+                      id="backgroundImage5"
+                      value="workspace-5.jpg"
+                    />
+                    <img
+                      src="images/bg/workspace-5.jpg"
+                      alt="Background 5"
+                      class="img-thumbnail"
+                      width="100"
+                      height="70"
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div
-          class='bottom-container row position-relative d-flex align-items-center mb-5'
+          class="bottom-container row position-relative d-flex align-items-center mb-5"
         >
           <div
-            class='col-sm-3 position-absolute bottom-0 start-0 d-none d-sm-none h-100'
-            id='recordings-container'
+            class="col-sm-3 position-absolute bottom-0 start-0 d-none d-sm-none h-100"
+            id="recordings-container"
           >
             <div
-              class='d-flex justify-content-start text-white flex-nowrap h-100'
-              style='padding-left: 20px;'
+              class="d-flex justify-content-start text-white flex-nowrap h-100"
+              style="padding-left: 20px;"
             >
-              <i class='bi bi-record-circle text-danger'>
-                <span id='recording-users'>
+              <i class="bi bi-record-circle text-danger">
+                <span id="recording-users">
                   Nguyễn Hào, Nguyễn Hào, Nguyễn Hào, Nguyễn Hào, Nguyễn Hào,
                   Nguyễn Hào, Nguyễn Hào
                 </span>
@@ -388,156 +558,170 @@
             </div>
           </div>
           <div
-            class='col-sm-3 position-absolute bottom-0 start-0 d-none d-sm-inline h-100'
+            class="col-sm-3 position-absolute bottom-0 start-0 d-none d-sm-inline h-100"
           >
             <div
-              class='d-flex justify-content-start align-items-center text-white fs-5 flex-nowrap h-100'
-              style='padding-left: 20px;'
+              class="d-flex justify-content-start align-items-center text-white fs-5 flex-nowrap h-100"
+              style="padding-left: 20px;"
             >
-              <div class='d-none d-lg-block' id='time'>
+              <div class="d-none d-lg-block" id="time">
                 2:10 PM
               </div>
-              <div class='d-none d-lg-inline'>
+              <div class="d-none d-lg-inline">
                 &ensp; | &ensp;
               </div>
-              <div class='d-none d-lg-inline' id='roomId'></div>
+              <div class="d-none d-lg-inline" id="roomId"></div>
             </div>
           </div>
           <div
-            class='col-10 col-sm-6 position-absolute bottom-0 start-50 translate-middle-x h-100 z-3'
+            class="col-10 col-sm-6 position-absolute bottom-0 start-50 translate-middle-x h-100 z-3"
           >
             <div
-              class='row d-flex justify-content-center align-items-center flex-nowrap h-100'
+              class="row d-flex justify-content-center align-items-center flex-nowrap h-100"
             >
               <button
-                id='micButton'
-                class='buttons me-4 btn'
-                data-bs-toggle='tooltip'
-                data-bs-placement='top'
-                title='Microphone'
+                id="micButton"
+                class="buttons me-4 btn"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="Microphone"
               >
-                <i id='micIcon' class='bi bi-mic text-white fs-5'></i>
+                <i id="micIcon" class="bi bi-mic text-white fs-5"></i>
               </button>
               <button
-                id='webcamButton'
-                class='buttons me-4 btn'
-                data-bs-toggle='tooltip'
-                data-bs-placement='top'
-                title='Camera'
+                id="webcamButton"
+                class="buttons me-4 btn"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="Camera"
               >
                 <i
-                  id='webcamIcon'
-                  class='bi bi-camera-video text-white fs-5'
+                  id="webcamIcon"
+                  class="bi bi-camera-video text-white fs-5"
                 ></i>
               </button>
               {{! <button id="emojiButton" class="buttons me-4 d-none d-sm-inline"><i
                                 class="bi bi-emoji-smile text-white"></i></button> }}
               <button
-                id='shareButton'
-                class='buttons me-4 d-none d-sm-inline btn'
-                data-bs-toggle='tooltip'
-                data-bs-placement='top'
-                title='Share your screen'
+                id="shareButton"
+                class="buttons me-4 d-none d-sm-inline btn"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="Share your screen"
               >
-                <i class='bi bi-file-play text-white fs-5'></i>
+                <i class="bi bi-file-play text-white fs-5"></i>
               </button>
               {{! <button id="raiseHandButton" class="buttons me-4 d-none d-sm-inline"><i
                                 class="bi bi-person-raised-hand text-white fs-5 fs-5"></i></button> }}
               <button
-                id='hangupButton'
-                type='button'
-                class='buttons btn btn-danger'
-                data-bs-toggle='tooltip'
-                data-bs-placement='top'
-                title='Hang up'
+                id="hangupButton"
+                type="button"
+                class="buttons btn btn-danger"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="Hang up"
               >
-                <i class='bi bi-telephone-x text-white fs-5 fs-5'></i>
+                <i class="bi bi-telephone-x text-white fs-5 fs-5"></i>
               </button>
               <div
-                class='dropup-center dropup d-flex align-items-center h-100'
-                style='width: max-content'
-                data-bs-toggle='tooltip'
-                data-bs-placement='right'
-                title='More'
+                class="dropup-center dropup d-flex align-items-center h-100"
+                style="width: max-content"
+                data-bs-toggle="tooltip"
+                data-bs-placement="right"
+                title="More"
               >
                 <button
-                  type='button'
-                  class='buttons buttonsAction'
-                  data-bs-toggle='dropdown'
-                  aria-expanded='false'
+                  type="button"
+                  class="buttons buttonsAction"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
                 >
-                  <i class='bi bi-three-dots-vertical text-white fs-5'></i>
+                  <i class="bi bi-three-dots-vertical text-white fs-5"></i>
                 </button>
                 <ul
-                  class='dropdown-menu bg-dark'
-                  style='width: max-content'
-                  id='optionsDiv'
+                  class="dropdown-menu bg-dark"
+                  style="width: max-content"
+                  id="optionsDiv"
                 >
-                  <li class='d-flex align-items-center' id='settingLi'>
+                  <li class="d-flex align-items-center" id="settingLi">
                     <button
-                      id='settingButton'
-                      class='dropdown-item buttons buttonsAction border-0 text-white'
-                      data-bs-toggle='modal'
-                      data-bs-target='#settingModal'
+                      id="settingButton"
+                      class="dropdown-item buttons buttonsAction border-0 text-white"
+                      data-bs-toggle="modal"
+                      data-bs-target="#settingModal"
                     >
-                      <i class='bi bi-gear text-white fs-5'>
+                      <i class="bi bi-gear text-white fs-5">
                       </i>
                       <span
-                        class='text-white text-center h-100 d-inline align-middle'
+                        class="text-white text-center h-100 d-inline align-middle"
                       >
                         Settings
                       </span>
                     </button>
                   </li>
-                  <li class='d-flex align-items-center' id='recordLi'>
+                  <li class="d-flex align-items-center" id="settingLi">
                     <button
-                      id='recordButton'
-                      class='dropdown-item buttons buttonsAction border-0 text-white'
+                      id="effectButton"
+                      class="dropdown-item buttons buttonsAction border-0 text-white"
                     >
-                      <i class='bi bi-record-circle text-white fs-5'>
+                      <i class="bi bi-magic text-white fs-5">
                       </i>
                       <span
-                        class='text-white text-center h-100 d-inline align-middle'
+                        class="text-white text-center h-100 d-inline align-middle"
+                      >
+                        Effects
+                      </span>
+                    </button>
+                  </li>
+                  <li class="d-flex align-items-center" id="recordLi">
+                    <button
+                      id="recordButton"
+                      class="dropdown-item buttons buttonsAction border-0 text-white"
+                    >
+                      <i class="bi bi-record-circle text-white fs-5">
+                      </i>
+                      <span
+                        class="text-white text-center h-100 d-inline align-middle"
                       >
                         Start record
                       </span>
                     </button>
                   </li>
-                  <li class='d-flex align-items-center d-none' id='pauseLi'>
+                  <li class="d-flex align-items-center d-none" id="pauseLi">
                     <button
-                      id='pauseButton'
-                      class='dropdown-item buttons buttonsAction border-0 text-white'
+                      id="pauseButton"
+                      class="dropdown-item buttons buttonsAction border-0 text-white"
                     >
-                      <i class='bi bi-pause-circle text-white fs-5'></i>
+                      <i class="bi bi-pause-circle text-white fs-5"></i>
                       <span
-                        class='text-white text-center h-100 d-inline align-middle'
+                        class="text-white text-center h-100 d-inline align-middle"
                       >
                         Pause record
                       </span>
                     </button>
                   </li>
-                  <li class='d-flex align-items-center d-none' id='resumeLi'>
+                  <li class="d-flex align-items-center d-none" id="resumeLi">
                     <button
-                      id='resumeButton'
-                      class='dropdown-item buttons buttonsAction border-0'
+                      id="resumeButton"
+                      class="dropdown-item buttons buttonsAction border-0"
                     >
-                      <i class='bi bi-play-circle text-white fs-5'></i>
+                      <i class="bi bi-play-circle text-white fs-5"></i>
                       <span
-                        class='text-white text-center h-100 d-inline align-middle'
+                        class="text-white text-center h-100 d-inline align-middle"
                       >
                         Resume record
                       </span>
                     </button>
                   </li>
-                  <li class='d-flex align-items-center d-none' id='stopLi'>
+                  <li class="d-flex align-items-center d-none" id="stopLi">
                     <button
-                      id='stopButton'
-                      class='dropdown-item buttons buttonsAction border-0 text-white'
+                      id="stopButton"
+                      class="dropdown-item buttons buttonsAction border-0 text-white"
                     >
-                      <i class='bi bi-stop-circle text-white fs-5'>
+                      <i class="bi bi-stop-circle text-white fs-5">
                       </i>
                       <span
-                        class='text-white text-center h-100 d-inline align-middle'
+                        class="text-white text-center h-100 d-inline align-middle"
                       >
                         Stop record
                       </span>
@@ -548,104 +732,104 @@
             </div>
           </div>
           <div
-            class='col-lg-4 position-absolute bottom-0 end-0 h-100 d-none d-lg-inline'
+            class="col-lg-4 position-absolute bottom-0 end-0 h-100 d-none d-lg-inline"
           >
             <div
-              class='row d-flex justify-content-end align-items-center h-100'
+              class="row d-flex justify-content-end align-items-center h-100"
             >
               <button
-                id='peopleButton'
-                class='peopleButton buttons buttonsAction border-0 position-relative'
-                data-bs-toggle='tooltip'
-                data-bs-placement='top'
-                title='Contributors'
+                id="peopleButton"
+                class="peopleButton buttons buttonsAction border-0 position-relative"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="Contributors"
               >
-                <i class='bi bi-people text-white fs-5'></i>
+                <i class="bi bi-people text-white fs-5"></i>
                 <span
-                  class='position-absolute top-0 righ-0 text-white fw-bold'
-                  style='font-size: smaller;'
-                  id='contributors-text-show'
+                  class="position-absolute top-0 righ-0 text-white fw-bold"
+                  style="font-size: smaller;"
+                  id="contributors-text-show"
                 >
                   1
                 </span>
               </button>
               <button
-                id='chatButton'
-                class='buttons buttonsAction border-0 position-relative'
-                data-bs-toggle='tooltip'
-                data-bs-placement='top'
-                title='Chat'
+                id="chatButton"
+                class="buttons buttonsAction border-0 position-relative"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="Chat"
               >
-                <i class='bi bi-chat-left-dots text-white fs-5'>
+                <i class="bi bi-chat-left-dots text-white fs-5">
                 </i>
                 <span
-                  class='new-noti position-absolute top-0 righ-0 text-white fw-bold d-none'
-                  style='font-size: smaller;'
-                  id='new-message'
+                  class="new-noti position-absolute top-0 righ-0 text-white fw-bold d-none"
+                  style="font-size: smaller;"
+                  id="new-message"
                 ></span>
               </button>
 
               {{#ifEqual isOwner true}}
                 <button
-                  id='controlButton'
-                  class='buttons buttonsAction border-0 me-4'
-                  data-bs-toggle='tooltip'
-                  data-bs-placement='top'
-                  title='Controls'
+                  id="controlButton"
+                  class="buttons buttonsAction border-0 me-4"
+                  data-bs-toggle="tooltip"
+                  data-bs-placement="top"
+                  title="Controls"
                 >
-                  <i class='bi bi-shield text-white fs-5'></i>
+                  <i class="bi bi-shield text-white fs-5"></i>
                 </button>
               {{/ifEqual}}
             </div>
           </div>
 
           <div
-            class='col-2 position-absolute bottom-0 end-0 h-100 d-inline d-lg-none'
+            class="col-2 position-absolute bottom-0 end-0 h-100 d-inline d-lg-none"
           >
             <div
-              class='dropup-center dropup d-flex align-items-center justify-content-end h-100'
+              class="dropup-center dropup d-flex align-items-center justify-content-end h-100"
             >
               <button
-                type='button'
-                class='buttons buttonsAction'
-                data-bs-toggle='dropdown'
-                aria-expanded='false'
+                type="button"
+                class="buttons buttonsAction"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
               >
-                <i class='bi bi-arrow-up-circle text-white fs-5'></i>
+                <i class="bi bi-arrow-up-circle text-white fs-5"></i>
               </button>
-              <ul class='dropdown-menu bg-dark' style='min-width: 20px'>
+              <ul class="dropdown-menu bg-dark" style="min-width: 20px">
                 <li>
                   <button
-                    id='peopleButtonOnMobile'
-                    class='dropdown-item buttons buttonsAction border-0'
+                    id="peopleButtonOnMobile"
+                    class="dropdown-item buttons buttonsAction border-0"
                   >
-                    <i class='bi bi-people text-white fs-5'></i>
+                    <i class="bi bi-people text-white fs-5"></i>
                   </button>
                 </li>
                 <li>
                   <button
-                    id='chatButtonOnMobile'
-                    class='dropdown-item buttons buttonsAction border-0'
+                    id="chatButtonOnMobile"
+                    class="dropdown-item buttons buttonsAction border-0"
                   >
-                    <i class='bi bi-chat-left-dots text-white fs-5'></i>
+                    <i class="bi bi-chat-left-dots text-white fs-5"></i>
                   </button>
                 </li>
                 {{#ifEqual isOwner true}}
                   <li>
                     <button
-                      id='controlButtonOnMobile'
-                      class='dropdown-item buttons buttonsAction border-0'
+                      id="controlButtonOnMobile"
+                      class="dropdown-item buttons buttonsAction border-0"
                     >
-                      <i class='bi bi-shield text-white fs-5'></i>
+                      <i class="bi bi-shield text-white fs-5"></i>
                     </button>
                   </li>
                 {{/ifEqual}}
                 <li>
                   <button
-                    id='shareButton'
-                    class='dropdown-item buttons buttonsAction border-0'
+                    id="shareButton"
+                    class="dropdown-item buttons buttonsAction border-0"
                   >
-                    <i class='bi bi-file-play text-white fs-5'></i>
+                    <i class="bi bi-file-play text-white fs-5"></i>
                   </button>
                 </li>
               </ul>
@@ -653,67 +837,67 @@
           </div>
         </div>
       </div>
-      <input type='hidden' id='userEmailHidden' value='{{user.userEmail}}' />
+      <input type="hidden" id="userEmailHidden" value="{{user.userEmail}}" />
     </div>
     <div
-      class='toast-container position-fixed bottom-0 end-0 pb-5 ps-3 mb-5 z-3'
+      class="toast-container position-fixed bottom-0 end-0 pb-5 ps-3 mb-5 z-3"
     >
       <div
-        id='inviteToast'
-        class='toast text-bg-success'
-        role='alert'
-        aria-live='assertive'
-        aria-atomic='true'
+        id="inviteToast"
+        class="toast text-bg-success"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
       >
-        <div class='toast-body fw-bold' id='toast-body-invite'>
+        <div class="toast-body fw-bold" id="toast-body-invite">
           Invite sent!
         </div>
       </div>
     </div>
     <div
-      class='toast-container position-fixed bottom-0 start-0 pb-5 ps-3 mb-5 z-3'
+      class="toast-container position-fixed bottom-0 start-0 pb-5 ps-3 mb-5 z-3"
     >
       <div
-        id='liveToast'
-        class='toast text-bg-secondary'
-        role='alert'
-        aria-live='assertive'
-        aria-atomic='true'
+        id="liveToast"
+        class="toast text-bg-secondary"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
       >
-        <div class='toast-body' id='toast-body'>
+        <div class="toast-body" id="toast-body">
           User left!
         </div>
       </div>
     </div>
     <div
-      class='toast-container position-fixed bottom-0 end-0 pb-5 ps-3 mb-5 z-3'
+      class="toast-container position-fixed bottom-0 end-0 pb-5 ps-3 mb-5 z-3"
     >
       <div
-        id='liveToast2'
-        class='toast text-bg-secondary'
-        role='alert'
-        aria-live='assertive'
-        aria-atomic='true'
+        id="liveToast2"
+        class="toast text-bg-secondary"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
       >
-        <div class='toast-body' id='toast-body2'>
+        <div class="toast-body" id="toast-body2">
           User join!
         </div>
       </div>
     </div>
 
     <div
-      class='toast-container position-fixed bottom-0 end-0 pb-5 ps-3 mb-5 z-3'
+      class="toast-container position-fixed bottom-0 end-0 pb-5 ps-3 mb-5 z-3"
     >
       <div
-        id='warningToast'
-        class='toast text-bg-warning'
-        role='alert'
-        aria-live='assertive'
-        aria-atomic='true'
+        id="warningToast"
+        class="toast text-bg-warning"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
       >
-        <div class='toast-body text-white fw-bold' id='warningToastBody'>
-          <i class='bi bi-exclamation-circle'></i>
-          <span id='warningToastText'>
+        <div class="toast-body text-white fw-bold" id="warningToastBody">
+          <i class="bi bi-exclamation-circle"></i>
+          <span id="warningToastText">
             DEVICE ALREADY IN USE OR ACCESS DENIED. PROGRAM MIGHT BE BUGGED. TRY
             USING AN AVAILABLE DEVICE.
           </span>
@@ -722,20 +906,20 @@
     </div>
 
     <div
-      class='toast-container position-fixed bottom-0 end-0 pb-5 ps-3 mb-5 z-3'
+      class="toast-container position-fixed bottom-0 end-0 pb-5 ps-3 mb-5 z-3"
     >
       <div
-        id='removeToast'
-        class='toast text-bg-danger'
-        role='alert'
-        aria-live='assertive'
-        aria-atomic='true'
+        id="removeToast"
+        class="toast text-bg-danger"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
       >
-        <div class='toast-body text-white fw-bold' id='removeToastBody'>
-          <i class='bi bi-exclamation-circle'></i>
-          <span id='removeToastText'>
+        <div class="toast-body text-white fw-bold" id="removeToastBody">
+          <i class="bi bi-exclamation-circle"></i>
+          <span id="removeToastText">
             YOU ARE BEING REMOVED FROM THIS MEETING AFTER
-            <span id='secondRemovingText'>
+            <span id="secondRemovingText">
               3
             </span>
             SECONDS
@@ -745,35 +929,35 @@
     </div>
 
     <div
-      class='toast-container position-fixed bottom-0 end-0 pb-5 ps-3 mb-5 z-3 me-3'
+      class="toast-container position-fixed bottom-0 end-0 pb-5 ps-3 mb-5 z-3 me-3"
     >
       <div
-        class='toast text-bg-secondary'
-        role='alert'
-        aria-live='assertive'
-        aria-atomic='true'
-        id='requestToast'
+        class="toast text-bg-secondary"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+        id="requestToast"
       >
-        <div class='toast-body'>
-          <span id='requestMessage'>
+        <div class="toast-body">
+          <span id="requestMessage">
             Nguyen Van Hao request to join.
           </span>
-          <input type='hidden' id='requestorId' />
-          <div class='mt-2 pt-2 border-top'>
-            <div class='d-flex justify-content-end'>
+          <input type="hidden" id="requestorId" />
+          <div class="mt-2 pt-2 border-top">
+            <div class="d-flex justify-content-end">
               <button
-                type='button'
-                class='btn btn-primary btn-sm'
-                data-bs-dismiss='toast'
-                id='acceptButton'
+                type="button"
+                class="btn btn-primary btn-sm"
+                data-bs-dismiss="toast"
+                id="acceptButton"
               >
                 Accept
               </button>
               <button
-                type='button'
-                class='btn btn-secondary btn-sm'
-                data-bs-dismiss='toast'
-                id='declineButton'
+                type="button"
+                class="btn btn-secondary btn-sm"
+                data-bs-dismiss="toast"
+                id="declineButton"
               >
                 Decline
               </button>
@@ -782,20 +966,25 @@
         </div>
       </div>
     </div>
+    <script src="/javascripts/HackTimer.js"></script>
     <script
-      src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js'
-      integrity='sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL'
-      crossorigin='anonymous'
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
     ></script>
     <script
-      src='https://code.jquery.com/jquery-3.7.1.min.js'
-      integrity='sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo='
-      crossorigin='anonymous'
+      src="https://code.jquery.com/jquery-3.7.1.min.js"
+      integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+      crossorigin="anonymous"
     ></script>
-    <script src='/javascripts/bundle.js' type='module'></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix"
+    ></script>
+    <script src="/javascripts/bundle.js" type="module"></script>
     {{!
         <script src="/javascripts/client.js" type="module"></script> }}
-    <script src='/javascripts/message-sw.js'></script>
+    <script src="/javascripts/message-sw.js"></script>
 
     <script>
       var tooltipTriggerList =
@@ -806,102 +995,102 @@
   </body>
   {{! Setting modal }}
   <div
-    class='modal fade'
-    id='settingModal'
-    tabindex='-1'
-    aria-labelledby='exampleModalLabel'
-    aria-hidden='true'
+    class="modal fade"
+    id="settingModal"
+    tabindex="-1"
+    aria-labelledby="exampleModalLabel"
+    aria-hidden="true"
   >
-    <div class='modal-dialog modal-lg'>
-      <div class='modal-content' style='min-height: 500px;'>
-        <div class='modal-header'>
-          <h5 class='modal-title' id='exampleModalLabel'>
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content" style="min-height: 500px;">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">
             Settings
           </h5>
           <button
-            type='button'
-            class='btn-close'
-            data-bs-dismiss='modal'
-            id='closeSettingModalButton'
-            aria-label='Close'
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            id="closeSettingModalButton"
+            aria-label="Close"
           ></button>
         </div>
-        <div class='modal-body'>
-          <div class='container'>
-            <div class='row'>
-              <div class='col-4'>
-                <div class='list-group' id='list-tab' role='tablist'>
+        <div class="modal-body">
+          <div class="container">
+            <div class="row">
+              <div class="col-4">
+                <div class="list-group" id="list-tab" role="tablist">
                   <a
-                    class='list-group-item list-group-item-action active'
-                    id='list-home-list'
-                    data-bs-toggle='list'
-                    href='#list-home'
-                    role='tab'
-                    aria-controls='list-home'
+                    class="list-group-item list-group-item-action active"
+                    id="list-home-list"
+                    data-bs-toggle="list"
+                    href="#list-home"
+                    role="tab"
+                    aria-controls="list-home"
                   >
-                    <i class='bi bi-mic'></i>
+                    <i class="bi bi-mic"></i>
                     &ensp; Microphone
                   </a>
                   <a
-                    class='list-group-item list-group-item-action'
-                    id='list-profile-list'
-                    data-bs-toggle='list'
-                    href='#list-profile'
-                    role='tab'
-                    aria-controls='list-profile'
+                    class="list-group-item list-group-item-action"
+                    id="list-profile-list"
+                    data-bs-toggle="list"
+                    href="#list-profile"
+                    role="tab"
+                    aria-controls="list-profile"
                   >
-                    <i class='bi bi-camera'></i>
+                    <i class="bi bi-camera"></i>
                     &ensp; Video
                   </a>
                   <a
-                    class='list-group-item list-group-item-action'
-                    id='list-profile-list'
-                    data-bs-toggle='list'
-                    href='#list-caption'
-                    role='tab'
-                    aria-controls='list-profile'
+                    class="list-group-item list-group-item-action"
+                    id="list-profile-list"
+                    data-bs-toggle="list"
+                    href="#list-caption"
+                    role="tab"
+                    aria-controls="list-profile"
                   >
-                    <i class='bi bi-badge-cc'></i>
+                    <i class="bi bi-badge-cc"></i>
                     &ensp; Transcription
                   </a>
                 </div>
               </div>
-              <div class='col-8'>
-                <div class='tab-content' id='nav-tabContent'>
+              <div class="col-8">
+                <div class="tab-content" id="nav-tabContent">
                   <div
-                    class='tab-pane fade show active'
-                    id='list-home'
-                    role='tabpanel'
-                    aria-labelledby='list-home-list'
+                    class="tab-pane fade show active"
+                    id="list-home"
+                    role="tabpanel"
+                    aria-labelledby="list-home-list"
                   >
-                    <div class='container'>
-                      <div class='row'>
-                        <p class='fw-bold text-primary'>
+                    <div class="container">
+                      <div class="row">
+                        <p class="fw-bold text-primary">
                           Micro
                         </p>
                       </div>
-                      <div class='row pt-2'>
-                        <div class='col'>
-                          <div class='row'>
-                            <div class='col text-start me-2 btn-group dropdown'>
+                      <div class="row pt-2">
+                        <div class="col">
+                          <div class="row">
+                            <div class="col text-start me-2 btn-group dropdown">
                               <button
-                                id='micButtonDropdown'
-                                class='device-options d-flex rounded-pill align-items-center dropdown-toggle'
-                                data-bs-toggle='dropdown'
-                                aria-expanded='false'
-                                style='max-width: 200px; height: 40px'
+                                id="micButtonDropdown"
+                                class="device-options d-flex rounded-pill align-items-center dropdown-toggle"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                                style="max-width: 200px; height: 40px"
                               >
-                                <i class='bi bi-mic fs-5 pe-2'></i>
+                                <i class="bi bi-mic fs-5 pe-2"></i>
                                 <p
-                                  class='device-options p-0 m-0 text-center border-0'
-                                  id='microphoneCurrent'
+                                  class="device-options p-0 m-0 text-center border-0"
+                                  id="microphoneCurrent"
                                 >
                                   Microphone
                                 </p>
                               </button>
                               <ul
-                                class='dropdown-menu'
-                                id='micDropdownMenu'
+                                class="dropdown-menu"
+                                id="micDropdownMenu"
                               ></ul>
                             </div>
                           </div>
@@ -918,94 +1107,94 @@
                     </div>
                   </div>
                   <div
-                    class='tab-pane fade'
-                    id='list-profile'
-                    role='tabpanel'
-                    aria-labelledby='list-profile-list'
+                    class="tab-pane fade"
+                    id="list-profile"
+                    role="tabpanel"
+                    aria-labelledby="list-profile-list"
                   >
-                    <div class='container'>
-                      <div class='row'>
-                        <div class='col'>
-                          <div class='row'>
-                            <p class='fw-bold text-primary'>
+                    <div class="container">
+                      <div class="row">
+                        <div class="col">
+                          <div class="row">
+                            <p class="fw-bold text-primary">
                               Video
                             </p>
                           </div>
-                          <div class='row pt-2'>
-                            <div class='col text-start me-2 btn-group dropdown'>
+                          <div class="row pt-2">
+                            <div class="col text-start me-2 btn-group dropdown">
                               <button
-                                id='cameraButtonDropdown'
-                                class='device-options d-flex rounded-pill align-items-center dropdown-toggle'
-                                data-bs-toggle='dropdown'
-                                aria-expanded='false'
-                                style='max-width: 200px;'
+                                id="cameraButtonDropdown"
+                                class="device-options d-flex rounded-pill align-items-center dropdown-toggle"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                                style="max-width: 200px;"
                               >
-                                <i class='bi bi-camera-video fs-5 pe-2'></i>
+                                <i class="bi bi-camera-video fs-5 pe-2"></i>
                                 <p
-                                  class='device-options p-0 m-0 text-center border-0'
-                                  id='cameraCurrent'
+                                  class="device-options p-0 m-0 text-center border-0"
+                                  id="cameraCurrent"
                                 >
                                   Camera
                                 </p>
                               </button>
                               <ul
-                                class='dropdown-menu'
-                                id='cameraDropdownMenu'
+                                class="dropdown-menu"
+                                id="cameraDropdownMenu"
                               ></ul>
                             </div>
                           </div>
                         </div>
-                        <div class='col'>
+                        <div class="col">
                           <video
-                            id='videoPreview'
+                            id="videoPreview"
                             autoplay
                             disablePictureInPicture
-                            height='100'
-                            style='width:100%; border-radius: 5px;'
+                            height="100"
+                            style="width:100%; border-radius: 5px;"
                           ></video>
                         </div>
                       </div>
                     </div>
                   </div>
                   <div
-                    class='tab-pane fade'
-                    id='list-caption'
-                    role='tabpanel'
-                    aria-labelledby='list-profile-list'
+                    class="tab-pane fade"
+                    id="list-caption"
+                    role="tabpanel"
+                    aria-labelledby="list-profile-list"
                   >
-                    <div class='container'>
-                      <div class='row'>
-                        <div class='col'>
-                          <div class='row'>
-                            <p class='fw-bold text-primary'>
+                    <div class="container">
+                      <div class="row">
+                        <div class="col">
+                          <div class="row">
+                            <p class="fw-bold text-primary">
                               Transcription
                             </p>
                           </div>
                         </div>
                         <div
-                          class='col d-flex align-items-center justify-content-end'
+                          class="col d-flex align-items-center justify-content-end"
                         >
-                          <div class='button r' id='button-1'>
+                          <div class="button r" id="button-1">
                             <input
-                              type='checkbox'
-                              class='checkbox'
-                              id='toggleSwitchTranscription'
+                              type="checkbox"
+                              class="checkbox"
+                              id="toggleSwitchTranscription"
                             />
-                            <div class='knobs'></div>
-                            <div class='layer'></div>
+                            <div class="knobs"></div>
+                            <div class="layer"></div>
                           </div>
                         </div>
                       </div>
-                      <div class='row mt-2 p-1'>
+                      <div class="row mt-2 p-1">
                         <select
-                          class='form-select'
-                          aria-label='Transcript language'
-                          id='transcriptLanguage'
+                          class="form-select"
+                          aria-label="Transcript language"
+                          id="transcriptLanguage"
                         >
-                          <option value='vi-VN'>
+                          <option value="vi-VN">
                             Vietnamese
                           </option>
-                          <option value='en-US'>
+                          <option value="en-US">
                             English
                           </option>
                         </select>
@@ -1017,20 +1206,20 @@
             </div>
           </div>
         </div>
-        <div class='modal-footer'>
+        <div class="modal-footer">
           <button
-            type='button'
-            class='btn btn-secondary'
-            data-bs-dismiss='modal'
-            id='changeSourceCloseButton'
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+            id="changeSourceCloseButton"
           >
             Close
           </button>
           <button
-            type='button'
-            class='btn btn-primary'
-            data-bs-dismiss='modal'
-            id='changeSourceButton'
+            type="button"
+            class="btn btn-primary"
+            data-bs-dismiss="modal"
+            id="changeSourceButton"
           >
             Save changes
           </button>
@@ -1042,36 +1231,36 @@
   {{#ifEqual isOwner true}}
     <!--INVITE  Modal -->
     <div
-      class='modal fade'
-      id='inviteModal'
-      tabindex='-1'
-      aria-labelledby='staticBackdropLabel'
-      aria-hidden='true'
+      class="modal fade"
+      id="inviteModal"
+      tabindex="-1"
+      aria-labelledby="staticBackdropLabel"
+      aria-hidden="true"
     >
-      <div class='modal-dialog'>
-        <div class='modal-content'>
-          <div class='modal-header'>
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
             <div>
-              <h5 class='modal-title' id='staticBackdropLabel'>
+              <h5 class="modal-title" id="staticBackdropLabel">
                 Invite people
               </h5>
-              <h6 class='fst-italic fw-lighter'>
+              <h6 class="fst-italic fw-lighter">
                 People who are invited won't need permission to join this
                 meeting
               </h6>
             </div>
             <button
-              type='button'
-              class='btn-close'
-              data-bs-dismiss='modal'
-              aria-label='Close'
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
             ></button>
           </div>
-          <div class='modal-body' style='height: 400px'>
+          <div class="modal-body" style="height: 400px">
             <div
-              id='listOfUsers'
-              class='row d-flex border-secondary rounded'
-              style='max-height: 70px; overflow-y: auto; padding-left: 17px;'
+              id="listOfUsers"
+              class="row d-flex border-secondary rounded"
+              style="max-height: 70px; overflow-y: auto; padding-left: 17px;"
             >
               <!-- <div class="invited-user col-6 rounded-pill border border-secondary d-flex align-items-center p-0" style="width: 220px; height: 30px; margin-right: 5px; margin-top: 2px;">
                 <div style="width: 200px; height: 100%; white-space: nowrap; overflow: hidden;text-overflow: ellipsis; padding-left: 1px;" class="text-center">
@@ -1099,23 +1288,23 @@
             </div> -->
 
               <input
-                type='text'
-                id='input-invite'
-                placeholder='Enter name or email'
-                class='border-0 col p-0'
-                style='width: 220px; height: 30px; margin-top: 2px; margin-right: 5px'
+                type="text"
+                id="input-invite"
+                placeholder="Enter name or email"
+                class="border-0 col p-0"
+                style="width: 220px; height: 30px; margin-top: 2px; margin-right: 5px"
               />
             </div>
-            <div class='mt-2'>
+            <div class="mt-2">
               Users
             </div>
-            <div class='mt-2 d-none' id='noUserDiv'>
+            <div class="mt-2 d-none" id="noUserDiv">
               No user found
             </div>
             <div
-              id='foundUser'
-              class='mt-3'
-              style='max-height: 260px; overflow-y: auto;'
+              id="foundUser"
+              class="mt-3"
+              style="max-height: 260px; overflow-y: auto;"
             >
               {{! <div class="list-group">
                 <label class="list-group-item d-flex align-items-center">
@@ -1128,19 +1317,19 @@
             </div> }}
             </div>
           </div>
-          <div class='modal-footer'>
+          <div class="modal-footer">
             <button
-              type='button'
-              class='btn btn-secondary'
-              data-bs-dismiss='modal'
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
             >
               Close
             </button>
             <button
-              type='button'
-              class='btn btn-primary'
-              data-bs-dismiss='modal'
-              id='inviteButton'
+              type="button"
+              class="btn btn-primary"
+              data-bs-dismiss="modal"
+              id="inviteButton"
             >
               Invite
             </button>
@@ -1151,53 +1340,53 @@
 
     <!-- Remove Modal -->
     <div
-      class='modal fade'
-      id='blockUserModal'
-      tabindex='-1'
-      aria-labelledby='exampleModalLabel'
-      aria-hidden='true'
+      class="modal fade"
+      id="blockUserModal"
+      tabindex="-1"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
     >
-      <div class='modal-dialog'>
-        <div class='modal-content'>
-          <div class='modal-header'>
-            <h5 class='modal-title' id='exampleModalLabel'>
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">
               Remove this user from meeting.
             </h5>
             <button
-              type='button'
-              class='btn-close'
-              data-bs-dismiss='modal'
-              aria-label='Close'
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
             ></button>
           </div>
-          <div class='modal-body'>
-            <ul class='list-group'>
-              <label class='list-group-item'>
+          <div class="modal-body">
+            <ul class="list-group">
+              <label class="list-group-item">
                 <input
-                  class='form-check-input me-1'
-                  type='checkbox'
-                  value=''
-                  aria-label='...'
-                  id='blockUserInput'
+                  class="form-check-input me-1"
+                  type="checkbox"
+                  value=""
+                  aria-label="..."
+                  id="blockUserInput"
                 />
                 Block this user
               </label>
             </ul>
           </div>
-          <input type='hidden' id='removeUserId' />
-          <div class='modal-footer'>
+          <input type="hidden" id="removeUserId" />
+          <div class="modal-footer">
             <button
-              type='button'
-              class='btn btn-secondary'
-              data-bs-dismiss='modal'
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
             >
               Close
             </button>
             <button
-              type='button'
-              class='btn btn-primary'
-              data-bs-dismiss='modal'
-              id='removeUserButton'
+              type="button"
+              class="btn btn-primary"
+              data-bs-dismiss="modal"
+              id="removeUserButton"
             >
               DO IT
             </button>

@@ -1,189 +1,215 @@
-<!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta property="og:title" content="GoChat - Online Meeting" />
-    <meta property="og:description" content="Cùng tham gia trò chuyện với bạn bè trong Go Chat" />
+    <meta
+      property="og:description"
+      content="Cùng tham gia trò chuyện với bạn bè trong Go Chat"
+    />
     <meta property="og:image" content="/images/GoChatHo.png" />
     <meta property="og:url" content="https://videochatapp.online" />
     <meta property="og:site_name" content="GoChat" />
     <meta property="og:type" content="website" />
     <title>GoChat</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="icon" href="/images/GoLogoNBg.png">
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-</head>
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap');
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link rel="icon" href="/images/GoLogoNBg.png" />
+    <script
+      src="https://code.jquery.com/jquery-3.7.1.min.js"
+      integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <style>
+    @import
+    url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap');
+    body { font-family: 'Open Sans', Helvetica, Arial, sans-serif; background:
+    #ffffff; } button { transition: .5s; transform: translate(0px, 0px); }
+    button:hover { box-shadow: 0px 8px 15px -10px rgb(61, 61, 61); transform:
+    translate(0px, -3px); } .box-area { width: 930px; } .right-box { padding:
+    40px 30px 40px 40px; } ::placeholder { font-size: 16px; } .rounded-4 {
+    border-radius: 20px; } .rounded-5 { border-radius: 30px; }
+    .position-relative { position: relative; } .position-absolute { position:
+    absolute; top: 50%; right: 20px; transform: translateY(-50%); cursor:
+    pointer; } @media only screen and (max-width: 768px) { .box-area { margin: 0
+    10px; } .left-box { height: 0px; overflow: hidden; } .right-box { padding:
+    20px; } }
+  </style>
 
-    body {
-        font-family: 'Open Sans', Helvetica, Arial, sans-serif;
-        background: #ffffff;
-    }
-
-    button {
-        transition: .5s;
-        transform: translate(0px, 0px);
-    }
-
-    button:hover {
-        box-shadow: 0px 8px 15px -10px rgb(61, 61, 61);
-        transform: translate(0px, -3px);
-    }
-
-    .box-area {
-        width: 930px;
-    }
-
-    .right-box {
-        padding: 40px 30px 40px 40px;
-    }
-
-    ::placeholder {
-        font-size: 16px;
-    }
-
-    .rounded-4 {
-        border-radius: 20px;
-    }
-
-    .rounded-5 {
-        border-radius: 30px;
-    }
-
-    .position-relative {
-        position: relative;
-    }
-
-    .position-absolute {
-        position: absolute;
-        top: 50%;
-        right: 20px;
-        transform: translateY(-50%);
-        cursor: pointer;
-    }
-
-    @media only screen and (max-width: 768px) {
-        .box-area {
-            margin: 0 10px;
-        }
-
-        .left-box {
-            height: 0px;
-            overflow: hidden;
-        }
-
-        .right-box {
-            padding: 20px;
-        }
-    }
-</style>
-
-<body>
-    <div class="container d-flex justify-content-center align-items-center min-vh-100">
-        <div class="row border rounded-5 p-3 bg-white shadow box-area">
-            <div class="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box"
-                style="background: #103cbe;">
-                <div class="featured-image mb-3">
-                    <img src="/images/GoChatNBg.png" class="img-fluid" style="width: 250px;">
-                </div>
-                <br>
-                <p class="text-white text-wrap text-center"
-                    style="width: 17rem;font-family: 'Courier New', Courier, monospace;">
-                    Connect Face-to-Face, Anytime,
-                    Anywhere.</p>
-            </div>
-
-            <div class="col-md-6 right-box " id="login">
-                <div class="row align-items-center">
-                    <div class="header-text mb-4">
-                        <h2>Welcome</h2>
-                        <p>We are happy to have you back.</p>
-                        {{#if messages.error}}
-                        <div id="passport-alert" class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <strong>Failed!</strong> {{messages.error}}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                            </button>
-                        </div>
-                        {{/if}}
-                        {{#if messages.message}}
-                            <div id="passport-alert" class="alert alert-{{messages.type}} alert-dismissible fade show" role="alert">
-                                <strong>{{messages.type}}!</strong> {{messages.message}}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                                </button>
-                            </div>
-                        {{/if}}
-                    </div>
-                    <form action="login" class="w-100" method="post">
-
-                        <!-- email -->
-                        <div class="input-group mb-4">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text bg-white px-3 border-md border-right-0">
-                                    <i class="bi bi-envelope-fill"></i>
-                                </span>
-                            </div>
-                            <input id="email" type="text" name="email" placeholder="Email"
-                                class="form-control bg-white border-left-0 border-md" required>
-                        </div>
-                        <!-- password -->
-                        <div class="input-group mb-4">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text bg-white px-3 border-md border-right-0">
-                                    <i class="bi bi-lock-fill"></i>
-                                </span>
-                            </div>
-                            <input id="password" type="password" name="password" placeholder="Password"
-                                class="form-control bg-white border-left-0 border-md" required>
-                                 <i class="bi bi-eye-slash position-absolute" id="togglePassword"
-                                onclick="togglePasswordVisibility('password', 'togglePassword')"></i>
-                        </div>
-                        <div class="input-group mb-5 d-flex justify-content-between">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="rememberMe">
-                                <label for="formCheck" class="form-check-label text-secondary"><small>Remember
-                                        Me</small></label>
-                            </div>
-                            <div class="forgot">
-                                <small><a href="/forgotpassword">Forgot Password?</a></small>
-                            </div>
-                        </div>
-                        <button class="btn btn-lg w-100 fs-6 btn-primary mb-3" type="submit"
-                            style=" color: white">Login</button>
-                    </form>
-                    <form action="/auth/google" method="get">
-                        <button class="btn btn-lg btn-light w-100 fs-6  mb-5"><img src="/images/google.png"
-                            style="width:20px" class="me-2"><small> Sign In with Google</small></button>
-                    </form>
-                    <small>Don't have account? <a class="links" href="/signup" id="registerLink">Sign Up</a>
-                    </small>
-
-                </div>
-
-            </div>
+  <body>
+    <div
+      class="container d-flex justify-content-center align-items-center min-vh-100"
+    >
+      <div class="row border rounded-5 p-3 bg-white shadow box-area">
+        <div
+          class="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box"
+          style="background: #103cbe;"
+        >
+          <div class="featured-image mb-3">
+            <img
+              src="/images/GoChatNBg.png"
+              class="img-fluid"
+              style="width: 250px;"
+            />
+          </div>
+          <br />
+          <p
+            class="text-white text-wrap text-center"
+            style="width: 17rem;font-family: 'Courier New', Courier, monospace;"
+          >
+            Connect Face-to-Face, Anytime, Anywhere.</p>
         </div>
+
+        <div class="col-md-6 right-box" id="login">
+          <div class="row align-items-center">
+            <div class="header-text mb-4">
+              <h2>Welcome</h2>
+              <p>We are happy to have you back.</p>
+              {{#if messages.error}}
+                <div
+                  id="passport-alert"
+                  class="alert alert-danger alert-dismissible fade show"
+                  role="alert"
+                >
+                  <strong>Failed!</strong>
+                  {{messages.error}}
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"
+                  >
+                  </button>
+                </div>
+              {{/if}}
+              {{#if messages.message}}
+                <div
+                  id="passport-alert"
+                  class="alert alert-{{messages.type}}
+                    alert-dismissible fade show"
+                  role="alert"
+                >
+                  <strong>{{messages.type}}!</strong>
+                  {{messages.message}}
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"
+                  >
+                  </button>
+                </div>
+              {{/if}}
+            </div>
+            <form action="login" class="w-100" method="post">
+
+              <!-- email -->
+              <div class="input-group mb-4">
+                <div class="input-group-prepend">
+                  <span
+                    class="input-group-text bg-white px-3 border-md border-right-0"
+                    style="height: 100%;"
+                  >
+                    <i class="bi bi-envelope-fill"></i>
+                  </span>
+                </div>
+                <input
+                  id="email"
+                  type="text"
+                  name="email"
+                  placeholder="Email"
+                  class="form-control bg-white border-left-0 border-md"
+                  required
+                />
+              </div>
+              <!-- password -->
+              <div class="input-group mb-4">
+                <div class="input-group-prepend">
+                  <span
+                    class="input-group-text bg-white px-3 border-md border-right-0"
+                    style="height: 100%;"
+                  >
+                    <i class="bi bi-lock-fill"></i>
+                  </span>
+                </div>
+                <input
+                  id="password"
+                  type="password"
+                  name="password"
+                  placeholder="Password"
+                  class="form-control bg-white border-left-0 border-md"
+                  required
+                />
+                <i
+                  class="bi bi-eye-slash position-absolute"
+                  id="togglePassword"
+                  onclick="togglePasswordVisibility('password', 'togglePassword')"
+                ></i>
+              </div>
+              <div class="input-group mb-5 d-flex justify-content-between">
+                <div class="form-check">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    name="rememberMe"
+                    id="rememberMe"
+                  />
+                  <label
+                    for="formCheck"
+                    class="form-check-label text-secondary"
+                  ><small>Remember Me</small></label>
+                </div>
+                <div class="forgot">
+                  <small><a href="/forgotpassword">Forgot Password?</a></small>
+                </div>
+              </div>
+              <button
+                class="btn btn-lg w-100 fs-6 btn-primary mb-3"
+                type="submit"
+                style=" color: white"
+              >Login</button>
+            </form>
+            <form action="/auth/google" method="get">
+              <button class="btn btn-lg btn-light w-100 fs-6 mb-5"><img
+                  src="/images/google.png"
+                  style="width:20px"
+                  class="me-2"
+                /><small> Sign In with Google</small></button>
+            </form>
+            <small>Don't have account?
+              <a class="links" href="/signup" id="registerLink">Sign Up</a>
+            </small>
+
+          </div>
+
+        </div>
+      </div>
     </div>
     <script>
-    function togglePasswordVisibility(inputId, toggleIconId) {
-        const passwordInput = document.getElementById(inputId);
-        const togglePassword = document.getElementById(toggleIconId);
-
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            togglePassword.classList.remove('bi-eye-slash');
-            togglePassword.classList.add('bi-eye');
-        } else {
-            passwordInput.type = 'password';
-            togglePassword.classList.remove('bi-eye');
-            togglePassword.classList.add('bi-eye-slash');
-        }
-    }
-</script>
-</body>
+      function togglePasswordVisibility(inputId, toggleIconId) { const
+      passwordInput = document.getElementById(inputId); const togglePassword =
+      document.getElementById(toggleIconId); if (passwordInput.type ===
+      'password') { passwordInput.type = 'text';
+      togglePassword.classList.remove('bi-eye-slash');
+      togglePassword.classList.add('bi-eye'); } else { passwordInput.type =
+      'password'; togglePassword.classList.remove('bi-eye');
+      togglePassword.classList.add('bi-eye-slash'); } }
+    </script>
+  </body>
 
 </html>

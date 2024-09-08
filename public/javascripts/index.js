@@ -4,14 +4,14 @@ export async function toggleContainer(
 ) {
   isActionContainerOpenGlobal = !isActionContainerOpenGlobal;
   let isActionContainerOpen = false;
-  const actionContainers = document.querySelectorAll('.action-container > div');
-  if (actionContainer.classList.contains('open')) {
+  const actionContainers = document.querySelectorAll(".action-container > div");
+  if (actionContainer.classList.contains("open")) {
     isActionContainerOpen = true;
   }
   if (isActionContainerOpen) {
     let isThisContainerOpen = false;
     for (const container of actionContainers) {
-      if (container.style.display === 'flex') {
+      if (container.style.display === "flex") {
         if (container === containerToShow) {
           isThisContainerOpen = true;
           break;
@@ -19,43 +19,43 @@ export async function toggleContainer(
       }
     }
     if (isThisContainerOpen) {
-      actionContainer.classList.remove('open');
-      $('.main-container').removeClass('expanded');
+      actionContainer.classList.remove("open");
+      $(".main-container").removeClass("expanded");
     } else {
       actionContainers.forEach((container) => {
-        container.style.display = 'none';
+        container.style.display = "none";
       });
-      containerToShow.style.display = 'flex';
+      containerToShow.style.display = "flex";
     }
   } else {
-    $('.main-container').addClass('expanded');
+    $(".main-container").addClass("expanded");
     actionContainers.forEach((container) => {
-      container.style.display = 'none';
+      container.style.display = "none";
     });
-    containerToShow.style.display = 'flex';
+    containerToShow.style.display = "flex";
     // actionContainer.style.display = 'block';
     setTimeout(() => {
-      actionContainer.classList.toggle('open');
+      actionContainer.classList.toggle("open");
       // document.querySelector('.grid-container').classList.toggle('reduced');
     }, 10);
   }
 }
 export function closeActionContainer() {
   isActionContainerOpenGlobal = false;
-  actionContainer.classList.remove('open');
-  $('.main-container').removeClass('expanded');
+  actionContainer.classList.remove("open");
+  $(".main-container").removeClass("expanded");
 }
 
 export function getCurrentTime() {
   const now = new Date();
-  const hours = now.getHours().toString().padStart(2, '0');
-  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const hours = now.getHours().toString().padStart(2, "0");
+  const minutes = now.getMinutes().toString().padStart(2, "0");
   return `${hours}:${minutes}`;
 }
 
-$('#time').text(getCurrentTime());
+$("#time").text(getCurrentTime());
 setInterval(() => {
-  $('#time').text(getCurrentTime());
+  $("#time").text(getCurrentTime());
 }, 30000);
 
 export async function addItem(id, name, avatar) {
@@ -63,44 +63,52 @@ export async function addItem(id, name, avatar) {
   if (itemIdExists) {
     return;
   }
-  const container = document.querySelector('.grid-container');
-  const item = document.createElement('div');
-  item.id = 'divVideo' + id;
-  item.classList.add('video-container');
-  item.classList.add('grid-item');
+  const container = document.querySelector(".grid-container");
+  const item = document.createElement("div");
+  item.id = "divVideo" + id;
+  item.classList.add("video-container");
+  item.classList.add("grid-item");
   container.appendChild(item);
 
-  const video = document.createElement('video');
-  video.classList.add('default-border-class-video');
+  const video = document.createElement("video");
+  video.classList.add("default-border-class-video");
   video.id = id;
   video.autoplay = true;
-  if (id == 'localVideo') {
+  if (id == "localVideo") {
     video.muted = true;
+    video.classList.add("d-none");
   }
   video.playsInline = true;
   item.appendChild(video);
 
-  const nameDisplay = document.createElement('div');
-  nameDisplay.classList.add('name-display');
-  nameDisplay.classList.add('me-1');
+  if (id == "localVideo") {
+    const canvas = document.createElement("canvas");
+    canvas.id = "outputCanvas";
+    canvas.classList.add("default-border-class-video");
+    item.appendChild(canvas);
+  }
+
+  const nameDisplay = document.createElement("div");
+  nameDisplay.classList.add("name-display");
+  nameDisplay.classList.add("me-1");
   nameDisplay.innerText = name;
   item.appendChild(nameDisplay);
 
-  const transcriptContainer = document.createElement('div');
+  const transcriptContainer = document.createElement("div");
   transcriptContainer.className = `transcripts transcripts-${id}`;
   item.appendChild(transcriptContainer);
 
-  const mutedMic = document.createElement('div');
+  const mutedMic = document.createElement("div");
 
   mutedMic.className = `mutedMic${id} d-none position-absolute top-0 end-0 muted-mic mt-2 me-2 text-white fs-5 bg-dark rounded-circle d-flex align-items-center justify-content-center`;
 
-  const icon = document.createElement('i');
-  icon.className = 'bi bi-mic-mute p-0';
+  const icon = document.createElement("i");
+  icon.className = "bi bi-mic-mute p-0";
 
   mutedMic.appendChild(icon);
   item.append(mutedMic);
 
-  const micActive = document.createElement('div');
+  const micActive = document.createElement("div");
 
   micActive.className = `micActive${id} d-none mic-container position-absolute top-0 end-0 muted-mic mt-2 me-2 text-white fs-5 rounded-circle d-flex align-items-center justify-content-center`;
   micActive.innerHTML = `
@@ -110,34 +118,34 @@ export async function addItem(id, name, avatar) {
     `;
   item.append(micActive);
 
-  const divAlternative = document.createElement('div');
-  divAlternative.classList.add('d-none');
-  divAlternative.classList.add('bg-secondary');
-  divAlternative.classList.add('grid-item');
-  divAlternative.id = 'divAlter' + id;
+  const divAlternative = document.createElement("div");
+  divAlternative.classList.add("d-none");
+  divAlternative.classList.add("bg-secondary");
+  divAlternative.classList.add("grid-item");
+  divAlternative.id = "divAlter" + id;
   container.appendChild(divAlternative);
 
-  divAlternative.classList.add('video-container-altenative');
-  divAlternative.classList.add('position-relative');
+  divAlternative.classList.add("video-container-altenative");
+  divAlternative.classList.add("position-relative");
   // divAlternative.classList.add('d-none');
-  const image = document.createElement('img');
-  image.classList.add('user-avatar-display');
-  image.classList.add('position-absolute');
-  image.classList.add('top-50');
-  image.classList.add('start-50');
-  image.classList.add('translate-middle');
+  const image = document.createElement("img");
+  image.classList.add("user-avatar-display");
+  image.classList.add("position-absolute");
+  image.classList.add("top-50");
+  image.classList.add("start-50");
+  image.classList.add("translate-middle");
   // image.classList.add("d-flex");
   // image.classList.add("justify-content-center");
   // image.classList.add("align-items-center");
   if (avatar) {
     image.src = avatar;
   } else {
-    image.src = '/images/GoLogoNBg.png';
+    image.src = "/images/GoLogoNBg.png";
   }
   divAlternative.appendChild(image);
-  const nameDisplay2 = document.createElement('div');
-  nameDisplay2.classList.add('name-display');
-  nameDisplay2.classList.add('me-1');
+  const nameDisplay2 = document.createElement("div");
+  nameDisplay2.classList.add("name-display");
+  nameDisplay2.classList.add("me-1");
   nameDisplay2.innerText = name;
   divAlternative.appendChild(nameDisplay2);
 
@@ -165,47 +173,47 @@ export async function addItem(id, name, avatar) {
 }
 
 export function addOtherUsersUIDiv() {
-  const itemIdExists = document.getElementById('divOtherUsers');
+  const itemIdExists = document.getElementById("divOtherUsers");
   if (itemIdExists) {
     return;
   }
-  const container = document.querySelector('.grid-container');
+  const container = document.querySelector(".grid-container");
 
-  const divAlternative = document.createElement('div');
-  divAlternative.classList.add('bg-secondary');
-  divAlternative.classList.add('grid-item');
-  divAlternative.id = 'divOtherUsers';
+  const divAlternative = document.createElement("div");
+  divAlternative.classList.add("bg-secondary");
+  divAlternative.classList.add("grid-item");
+  divAlternative.id = "divOtherUsers";
   container.appendChild(divAlternative);
 
-  divAlternative.classList.add('video-container');
-  divAlternative.classList.add('position-relative');
+  divAlternative.classList.add("video-container");
+  divAlternative.classList.add("position-relative");
   // divAlternative.classList.add('d-none');
-  const image = document.createElement('img');
-  image.classList.add('user-avatar-display');
-  image.classList.add('position-absolute');
-  image.classList.add('top-50');
-  image.classList.add('start-50');
-  image.classList.add('translate-middle');
+  const image = document.createElement("img");
+  image.classList.add("user-avatar-display");
+  image.classList.add("position-absolute");
+  image.classList.add("top-50");
+  image.classList.add("start-50");
+  image.classList.add("translate-middle");
   // image.classList.add("d-flex");
   // image.classList.add("justify-content-center");
   // image.classList.add("align-items-center");
-  image.src = './images/GoLogoNBg.png';
+  image.src = "./images/GoLogoNBg.png";
   divAlternative.appendChild(image);
-  const nameDisplay2 = document.createElement('div');
-  nameDisplay2.classList.add('name-display');
-  nameDisplay2.classList.add('me-1');
-  nameDisplay2.innerText = 'Other users';
+  const nameDisplay2 = document.createElement("div");
+  nameDisplay2.classList.add("name-display");
+  nameDisplay2.classList.add("me-1");
+  nameDisplay2.innerText = "Other users";
   divAlternative.appendChild(nameDisplay2);
   resizeVideo();
 
   // moveDivToPosition("divOtherUsers", 3);
 
-  divAlternative.addEventListener('click', function () {
+  divAlternative.addEventListener("click", function () {
     toggleContainer(peopleContainer, isActionContainerOpenGlobal);
   });
 }
 export function removeOtherUsersDiv() {
-  const itemIdExists = document.getElementById('divOtherUsers');
+  const itemIdExists = document.getElementById("divOtherUsers");
   if (itemIdExists) {
     itemIdExists.remove();
   }
@@ -213,9 +221,9 @@ export function removeOtherUsersDiv() {
 
 export function updateDots(volume, userId) {
   // console.log(userId);
-  const dotsContainers = document.getElementsByClassName('micActive' + userId);
+  const dotsContainers = document.getElementsByClassName("micActive" + userId);
   for (const container of dotsContainers) {
-    const dots = container.querySelectorAll('.dot');
+    const dots = container.querySelectorAll(".dot");
 
     const normalizedVolume = Math.max(0, Math.min((volume + 100) / 1, 100));
     const height = normalizedVolume / 10 + 5;
@@ -226,70 +234,70 @@ export function updateDots(volume, userId) {
 }
 
 export function stopDots(userId) {
-  const dotsContainers = document.getElementsByClassName('micActive' + userId);
+  const dotsContainers = document.getElementsByClassName("micActive" + userId);
   for (const container of dotsContainers) {
-    container.classList.add('d-none');
+    container.classList.add("d-none");
   }
   const videoItem = document.getElementById(userId);
-  const divAlter = document.getElementById('divAlter' + userId);
+  const divAlter = document.getElementById("divAlter" + userId);
   if (videoItem) {
-    videoItem.classList.remove('custom-border-class');
-    videoItem.classList.add('default-border-class-video');
+    videoItem.classList.remove("custom-border-class");
+    videoItem.classList.add("default-border-class-video");
   }
   if (divAlter) {
-    divAlter.classList.remove('custom-border-class');
-    divAlter.classList.add('default-border-class-video');
+    divAlter.classList.remove("custom-border-class");
+    divAlter.classList.add("default-border-class-video");
   }
 }
 export function showDots(userId) {
-  const dotsContainers = document.getElementsByClassName('micActive' + userId);
+  const dotsContainers = document.getElementsByClassName("micActive" + userId);
   for (const container of dotsContainers) {
-    container.classList.remove('d-none');
+    container.classList.remove("d-none");
   }
 
   const videoItem = document.getElementById(userId);
   if (videoItem) {
-    videoItem.classList.remove('default-border-class-video');
-    videoItem.classList.add('custom-border-class');
+    videoItem.classList.remove("default-border-class-video");
+    videoItem.classList.add("custom-border-class");
   }
-  const divAlter = document.getElementById('divAlter' + userId);
+  const divAlter = document.getElementById("divAlter" + userId);
   if (divAlter) {
-    divAlter.classList.remove('default-border-class-video');
-    divAlter.classList.add('custom-border-class');
+    divAlter.classList.remove("default-border-class-video");
+    divAlter.classList.add("custom-border-class");
   }
 }
 
 export function filterUsersByName(nameFilter) {
   if (nameFilter.length == 0) {
-    const users = document.querySelectorAll('.contributor-showing');
+    const users = document.querySelectorAll(".contributor-showing");
     users.forEach((user) => {
-      user.classList.remove('d-none');
+      user.classList.remove("d-none");
     });
     return;
   }
-  const users = document.querySelectorAll('.contributor-showing');
+  const users = document.querySelectorAll(".contributor-showing");
   users.forEach((user) => {
-    const userName = user.getAttribute('data-name').toLowerCase();
+    const userName = user.getAttribute("data-name").toLowerCase();
     if (userName.includes(nameFilter.toLowerCase())) {
-      user.classList.remove('d-none');
+      user.classList.remove("d-none");
     } else {
-      user.classList.add('d-none');
+      user.classList.add("d-none");
     }
   });
 }
 
 export function resizeSharing() {
-  const container = document.querySelector('.sharing-container');
+  const container = document.querySelector(".sharing-container");
 
   const sharingVideoContainer = document.querySelectorAll(
-    '.sharing-video-container'
+    ".sharing-video-container"
   );
   const num = sharingVideoContainer.length;
 
   if (num > 0) {
-    container.classList.add('col-9');
+    container.classList.add("col-9");
   } else {
-    container.classList.remove('col-9');
+    container.classList.remove("col-9");
   }
   const width = window.innerWidth;
 
@@ -378,21 +386,21 @@ export function resizeSharing() {
 }
 
 export function resizeVideo() {
-  const container = document.querySelector('.grid-container');
+  const container = document.querySelector(".grid-container");
 
-  const videoContainer = document.querySelectorAll('.video-container');
+  const videoContainer = document.querySelectorAll(".video-container");
   const num = videoContainer.length;
   const width = window.innerWidth;
 
   // console.log(width);
 
-  const sharingContainer = document.querySelector('.sharing-container');
-  if (!sharingContainer.classList.contains('d-none')) {
-    container.classList.add('col-3');
+  const sharingContainer = document.querySelector(".sharing-container");
+  if (!sharingContainer.classList.contains("d-none")) {
+    container.classList.add("col-3");
     let columns = 1;
     let rows = 1;
     if (num > 4) {
-      $('.grid-container').addClass('hide-extra');
+      $(".grid-container").addClass("hide-extra");
       // addOtherUsersUIDiv();
       // moveDivToPosition("divOtherUsers", 7);
       rows = Math.ceil(4);
@@ -421,10 +429,10 @@ export function resizeVideo() {
 
     return;
   } else {
-    container.classList.remove('col-3');
+    container.classList.remove("col-3");
   }
 
-  $('.grid-container').removeClass('hide-extra');
+  $(".grid-container").removeClass("hide-extra");
 
   let columns = 1;
   let rows = 1;
@@ -449,7 +457,7 @@ export function resizeVideo() {
       rows = Math.ceil(num / 5);
     } else {
       addOtherUsersUIDiv();
-      moveDivToPosition('divOtherUsers', 25);
+      moveDivToPosition("divOtherUsers", 25);
       rows = Math.ceil(5);
     }
   } else if (width > 800) {
@@ -473,7 +481,7 @@ export function resizeVideo() {
       rows = Math.ceil(4);
     } else {
       addOtherUsersUIDiv();
-      moveDivToPosition('divOtherUsers', 16);
+      moveDivToPosition("divOtherUsers", 16);
       rows = Math.ceil(4);
     }
   } else {
@@ -497,7 +505,7 @@ export function resizeVideo() {
       rows = Math.ceil(num / 3);
     } else {
       addOtherUsersUIDiv();
-      moveDivToPosition('divOtherUsers', 12);
+      moveDivToPosition("divOtherUsers", 12);
       rows = Math.ceil(3);
     }
   }
@@ -506,63 +514,80 @@ export function resizeVideo() {
   container.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
 }
 
-const actionContainer = document.getElementById('actionContainer');
+const actionContainer = document.getElementById("actionContainer");
 
-const chatContainer = document.getElementById('chatContainer');
-const chatButton = document.getElementById('chatButton');
-const chatButtonOnMobile = document.getElementById('chatButtonOnMobile');
+const chatContainer = document.getElementById("chatContainer");
+const chatButton = document.getElementById("chatButton");
+const chatButtonOnMobile = document.getElementById("chatButtonOnMobile");
 
-const closeChatButton = document.getElementById('closeChatButton');
-const closePeopleButton = document.getElementById('closePeopleButton');
-const closeControlButton = document.getElementById('closeControlButton');
+const closeChatButton = document.getElementById("closeChatButton");
+const closePeopleButton = document.getElementById("closePeopleButton");
+const closeControlButton = document.getElementById("closeControlButton");
+const closeEffectButton = document.getElementById("closeEffectButton");
 
-const peopleContainer = document.getElementById('peopleContainer');
-const peopleButton = document.getElementById('peopleButton');
-const peopleButtonOnMobile = document.getElementById('peopleButtonOnMobile');
+const peopleContainer = document.getElementById("peopleContainer");
+const peopleButton = document.getElementById("peopleButton");
+const peopleButtonOnMobile = document.getElementById("peopleButtonOnMobile");
 
-const controlContainer = document.getElementById('controlContainer');
-const controlButton = document.getElementById('controlButton');
-const controlButtonOnMobile = document.getElementById('controlButtonOnMobile');
+const controlContainer = document.getElementById("controlContainer");
+const controlButton = document.getElementById("controlButton");
+const controlButtonOnMobile = document.getElementById("controlButtonOnMobile");
+
+const effectContainer = document.getElementById("effectContainer");
+const effectButton = document.getElementById("effectButton");
+const effectButtonOnMobile = document.getElementById("effectButtonOnMobile");
 
 let isActionContainerOpenGlobal = false;
 
-peopleButton.addEventListener('click', function () {
+peopleButton.addEventListener("click", function () {
   toggleContainer(peopleContainer, isActionContainerOpenGlobal);
 });
-peopleButtonOnMobile.addEventListener('click', function () {
+peopleButtonOnMobile.addEventListener("click", function () {
   toggleContainer(peopleContainer, isActionContainerOpenGlobal);
 });
 
-chatButton.addEventListener('click', function () {
-  $('#new-message').addClass('d-none');
+chatButton.addEventListener("click", function () {
+  $("#new-message").addClass("d-none");
   toggleContainer(chatContainer, isActionContainerOpenGlobal);
 });
-chatButtonOnMobile.addEventListener('click', function () {
-  $('#new-message').addClass('d-none');
+chatButtonOnMobile.addEventListener("click", function () {
+  $("#new-message").addClass("d-none");
   toggleContainer(chatContainer, isActionContainerOpenGlobal);
 });
+
+effectButton.addEventListener("click", function () {
+  toggleContainer(effectContainer, isActionContainerOpenGlobal);
+});
+
+// effectButtonOnMobile.addEventListener("click", function () {
+//   toggleContainer(effectContainer, isActionContainerOpenGlobal);
+// });
 
 if (controlButton) {
-  controlButton.addEventListener('click', function () {
+  controlButton.addEventListener("click", function () {
     toggleContainer(controlContainer, isActionContainerOpenGlobal);
   });
 }
 
 if (controlButtonOnMobile) {
-  controlButtonOnMobile.addEventListener('click', function () {
+  controlButtonOnMobile.addEventListener("click", function () {
     toggleContainer(controlContainer, isActionContainerOpenGlobal);
   });
 }
 
-closeChatButton.addEventListener('click', function () {
+closeChatButton.addEventListener("click", function () {
   closeActionContainer();
 });
-closePeopleButton.addEventListener('click', function () {
+closePeopleButton.addEventListener("click", function () {
+  closeActionContainer();
+});
+
+closeEffectButton.addEventListener("click", function () {
   closeActionContainer();
 });
 
 if (closeControlButton) {
-  closeControlButton.addEventListener('click', function () {
+  closeControlButton.addEventListener("click", function () {
     closeActionContainer();
   });
 }
@@ -571,20 +596,20 @@ if (closeControlButton) {
 
 // });
 
-document.querySelector('.contributor').addEventListener('click', function () {
-  const peopleInMeeting = document.querySelector('.people-in-meeting');
-  if (peopleInMeeting.classList.contains('d-none')) {
-    peopleInMeeting.classList.remove('d-none');
-    document.querySelector('.contributor').classList.remove('rounded-bottom-2');
+document.querySelector(".contributor").addEventListener("click", function () {
+  const peopleInMeeting = document.querySelector(".people-in-meeting");
+  if (peopleInMeeting.classList.contains("d-none")) {
+    peopleInMeeting.classList.remove("d-none");
+    document.querySelector(".contributor").classList.remove("rounded-bottom-2");
   } else {
-    peopleInMeeting.classList.toggle('d-none');
-    document.querySelector('.contributor').classList.add('rounded-bottom-2');
+    peopleInMeeting.classList.toggle("d-none");
+    document.querySelector(".contributor").classList.add("rounded-bottom-2");
   }
 });
 
 export function moveDivToPosition(divId, position) {
-  var div = document.getElementById('divVideo' + divId);
-  var alterDiv = document.getElementById('divAlter' + divId);
+  var div = document.getElementById("divVideo" + divId);
+  var alterDiv = document.getElementById("divAlter" + divId);
   var parent = div.parentNode;
 
   let targetIndex = Math.min(position, parent.children.length - 1);
@@ -615,14 +640,14 @@ export function moveDivToPositionGlobal(divId, position) {
 
 export function moveDivToPositionWhenSpeaking(divId) {
   let position = 0;
-  if (divId == 'localVideo') {
+  if (divId == "localVideo") {
     return;
   }
   // Sharing => day len vi tri thu 3
-  if ($('.grid-container').hasClass('hide-extra')) {
+  if ($(".grid-container").hasClass("hide-extra")) {
     position = 3 * 2 - 2;
-    var div = document.getElementById('divVideo' + divId);
-    var alterDiv = document.getElementById('divAlter' + divId);
+    var div = document.getElementById("divVideo" + divId);
+    var alterDiv = document.getElementById("divAlter" + divId);
     var parent = div.parentNode;
 
     let targetIndex = Math.min(position, parent.children.length - 1);
@@ -644,10 +669,10 @@ export function moveDivToPositionWhenSpeaking(divId) {
   } else {
     position = 2 * 2 - 2;
 
-    var div = document.getElementById('divVideo' + divId);
-    var alterDiv = document.getElementById('divAlter' + divId);
+    var div = document.getElementById("divVideo" + divId);
+    var alterDiv = document.getElementById("divAlter" + divId);
     var parent = div.parentNode;
-    if (parent.children.length < 8) {
+    if (parent.children.length < 4) {
       return;
     }
 
@@ -672,7 +697,7 @@ export function moveDivToPositionWhenSpeaking(divId) {
 }
 
 export function removeRequestorUi(id) {
-  const requestDIV = document.getElementById('requestor-' + id);
+  const requestDIV = document.getElementById("requestor-" + id);
   if (requestDIV) {
     requestDIV.remove();
     updateRequestorListUI();
@@ -680,45 +705,45 @@ export function removeRequestorUi(id) {
 }
 
 export function updateRequestorListUI() {
-  const requestorsList = document.querySelectorAll('.requestorsContainer');
-  const videoContainer = document.querySelectorAll('.requestor-container');
+  const requestorsList = document.querySelectorAll(".requestorsContainer");
+  const videoContainer = document.querySelectorAll(".requestor-container");
   const num = videoContainer.length;
   if (num > 0) {
     requestorsList.forEach((div) => {
-      div.classList.remove('d-none');
+      div.classList.remove("d-none");
     });
   } else {
     requestorsList.forEach((div) => {
-      div.classList.add('d-none');
+      div.classList.add("d-none");
     });
   }
 }
 
-window.addEventListener('resize', resizeVideo);
+window.addEventListener("resize", resizeVideo);
 
-$('#copyButton').on('click', async function () {
-  const textToCopy = document.getElementById('meetingLink').innerText.trim();
+$("#copyButton").on("click", async function () {
+  const textToCopy = document.getElementById("meetingLink").innerText.trim();
 
   try {
     await navigator.clipboard.writeText(textToCopy);
     const tooltip = new bootstrap.Tooltip(
-      document.getElementById('copyButton'),
+      document.getElementById("copyButton"),
       {
-        trigger: 'manual',
-        title: 'Copied!',
-        placement: 'top',
+        trigger: "manual",
+        title: "Copied!",
+        placement: "top",
       }
     );
     tooltip.show();
     setTimeout(() => tooltip.hide(), 1000);
   } catch (err) {
-    console.error('Failed to copy text: ', err);
+    console.error("Failed to copy text: ", err);
     const tooltip = new bootstrap.Tooltip(
-      document.getElementById('copyButton'),
+      document.getElementById("copyButton"),
       {
-        trigger: 'manual',
-        title: 'Failed to copy!',
-        placement: 'top',
+        trigger: "manual",
+        title: "Failed to copy!",
+        placement: "top",
       }
     );
     tooltip.show();
@@ -726,9 +751,53 @@ $('#copyButton').on('click', async function () {
   }
 });
 
-$('#closeMeetingInfo').on('click', function () {
-  $('#meetingInfoContainer').removeClass('visible');
+$("#closeMeetingInfo").on("click", function () {
+  $("#meetingInfoContainer").removeClass("visible");
   setTimeout(() => {
-    $('#meetingInfoContainer').remove();
+    $("#meetingInfoContainer").remove();
   }, 500);
+});
+
+const fileInput = document.getElementById("fileInput");
+const backgroundOptions = document.getElementById("backgroundOptions");
+
+fileInput.addEventListener("change", function () {
+  const file = this.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const imageUrl = e.target.result;
+
+      const newOptionId = `backgroundImage${backgroundOptions.children.length}`;
+      const label = document.createElement("label");
+      label.setAttribute("for", newOptionId);
+      label.setAttribute("class", "mb-2");
+
+      const input = document.createElement("input");
+      input.setAttribute("type", "radio");
+      input.setAttribute("name", "mode");
+      input.setAttribute("id", newOptionId);
+      input.setAttribute("value", imageUrl);
+
+      const img = document.createElement("img");
+      img.setAttribute("src", imageUrl);
+      img.setAttribute("alt", "New Background");
+      img.setAttribute("class", "img-thumbnail ms-1");
+      img.setAttribute("width", "100");
+      img.setAttribute("height", "70");
+
+      label.appendChild(input);
+      label.appendChild(img);
+
+      if (backgroundOptions.children.length > 0) {
+        backgroundOptions.insertBefore(
+          label,
+          backgroundOptions.children[1] || null
+        );
+      } else {
+        backgroundOptions.appendChild(label);
+      }
+    };
+    reader.readAsDataURL(file);
+  }
 });

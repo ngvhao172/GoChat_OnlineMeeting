@@ -16874,16 +16874,16 @@ function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e
 let lastMessageId = null;
 
 // HTML elements
-const sendButton = document.getElementById('sendButton');
-const webcamButton = $('#webcamButton');
-const micButton = $('#micButton');
-const hangupButton = $('#hangupButton');
-const shareButton = $('#shareButton');
-const recordButton = $('#recordButton');
-const pauseButton = $('#pauseButton');
-const stopButton = $('#stopButton');
-const resumeButton = $('#resumeButton');
-const searchPeopleInput = $('#searchPeopleInput');
+const sendButton = document.getElementById("sendButton");
+const webcamButton = $("#webcamButton");
+const micButton = $("#micButton");
+const hangupButton = $("#hangupButton");
+const shareButton = $("#shareButton");
+const recordButton = $("#recordButton");
+const pauseButton = $("#pauseButton");
+const stopButton = $("#stopButton");
+const resumeButton = $("#resumeButton");
+const searchPeopleInput = $("#searchPeopleInput");
 
 // const servers = {
 //     iceServers: [
@@ -16930,35 +16930,35 @@ const token = window.serverData.token;
 // const roomId = path.split("/")[1];
 
 // const roomText = $("#roomId");
-$('#roomId').text(roomId);
+$("#roomId").text(roomId);
 // let time = window.time;
 const username = user.fullName;
 const id = user.id;
 let recordingUsersOnClient = [];
 $(document).ready(async function () {
-  await (0, _index.addItem)('localVideo', 'You', user.avatar);
+  await (0, _index.addItem)("localVideo", "You", user.avatar);
 
   // addOtherUsersUIDiv();
 });
-const transcriptSwitch = document.getElementById('toggleSwitchTranscription');
+const transcriptSwitch = document.getElementById("toggleSwitchTranscription");
 const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-recognition.lang = 'vi-VN';
+recognition.lang = "vi-VN";
 recognition.continuous = true;
 recognition.interimResults = true;
 recognition.onresult = function (event) {
-  let interimTranscript = '';
-  let finalTranscript = '';
+  let interimTranscript = "";
+  let finalTranscript = "";
   for (let i = event.resultIndex; i < event.results.length; i++) {
     const result = event.results[i];
     if (!result.isFinal) {
-      interimTranscript += result[0].transcript + ' ';
+      interimTranscript += result[0].transcript + " ";
       //console.log(interimTranscript);
       //$('.transcripts-localVideo').text(interimTranscript);
       if (transcriptSwitch.checked) {
-        showTranscript('localVideo', interimTranscript);
+        showTranscript("localVideo", interimTranscript);
       }
       ws.send(JSON.stringify({
-        action: 'sendTranscript',
+        action: "sendTranscript",
         userId: id,
         userEmail: user.userEmail,
         roomId: roomId,
@@ -16968,16 +16968,16 @@ recognition.onresult = function (event) {
       //   $('.transcripts-localVideo').text('');
       // }, 5000);
     } else {
-      finalTranscript += result[0].transcript + ' ';
+      finalTranscript += result[0].transcript + " ";
     }
   }
 };
 recognition.onerror = function (event) {
-  console.error('Speech recognition error:', event.error);
+  console.error("Speech recognition error:", event.error);
   console.log(transcriptSwitch.checked);
   try {
-    let isMicEnabled = localStorage.getItem('micEnabled');
-    if (isMicEnabled == 'true') {
+    let isMicEnabled = localStorage.getItem("micEnabled");
+    if (isMicEnabled == "true") {
       recognition.stop();
       recognition.start();
     }
@@ -16986,9 +16986,9 @@ recognition.onerror = function (event) {
   }
 };
 recognition.onend = function () {
-  console.log('Speech recognition service has stopped.');
+  console.log("Speech recognition service has stopped.");
 };
-const transcriptLanguage = document.getElementById('transcriptLanguage');
+const transcriptLanguage = document.getElementById("transcriptLanguage");
 
 // transcriptLanguage.onchange = async function () {};
 
@@ -16999,37 +16999,37 @@ function showTranscript(userId, transcript) {
   }
   $(`.transcripts-${userId}`).text(transcript);
   timeoutMap[userId] = setTimeout(() => {
-    $(`.transcripts-${userId}`).text('');
+    $(`.transcripts-${userId}`).text("");
   }, 5000);
 }
 const iceServers = [{
-  urls: 'stun:stun.l.google.com:19302'
+  urls: "stun:stun.l.google.com:19302"
 }, {
-  urls: 'stun:stun.relay.metered.ca:80'
+  urls: "stun:stun.relay.metered.ca:80"
 }, {
-  urls: 'turn:global.relay.metered.ca:80',
-  username: 'ad5b1b255ff7868080c67d5a',
-  credential: 'pq8cUtoQPWmQ2u69'
+  urls: "turn:global.relay.metered.ca:80",
+  username: "ad5b1b255ff7868080c67d5a",
+  credential: "pq8cUtoQPWmQ2u69"
 }, {
-  urls: 'turn:global.relay.metered.ca:80?transport=tcp',
-  username: 'ad5b1b255ff7868080c67d5a',
-  credential: 'pq8cUtoQPWmQ2u69'
+  urls: "turn:global.relay.metered.ca:80?transport=tcp",
+  username: "ad5b1b255ff7868080c67d5a",
+  credential: "pq8cUtoQPWmQ2u69"
 }, {
-  urls: 'turn:global.relay.metered.ca:443',
-  username: 'ad5b1b255ff7868080c67d5a',
-  credential: 'pq8cUtoQPWmQ2u69'
+  urls: "turn:global.relay.metered.ca:443",
+  username: "ad5b1b255ff7868080c67d5a",
+  credential: "pq8cUtoQPWmQ2u69"
 }, {
-  urls: 'turns:global.relay.metered.ca:443?transport=tcp',
-  username: 'ad5b1b255ff7868080c67d5a',
-  credential: 'pq8cUtoQPWmQ2u69'
+  urls: "turns:global.relay.metered.ca:443?transport=tcp",
+  username: "ad5b1b255ff7868080c67d5a",
+  credential: "pq8cUtoQPWmQ2u69"
 }];
 function updateUIVideo(userLeftId) {
   console.log(userLeftId);
-  const userVideo = document.getElementById('divVideo' + userLeftId);
+  const userVideo = document.getElementById("divVideo" + userLeftId);
   if (userVideo) {
     userVideo.remove();
   }
-  const divAlternative = document.getElementById('divAlter' + userLeftId);
+  const divAlternative = document.getElementById("divAlter" + userLeftId);
   if (divAlternative) {
     divAlternative.remove();
   }
@@ -17037,27 +17037,27 @@ function updateUIVideo(userLeftId) {
 }
 function notifyUserLeft(username, isSharing) {
   console.log(username);
-  const toastBody = $('#toast-body');
+  const toastBody = $("#toast-body");
   if (isSharing) {
     if (isSharing == true) {
-      toastBody.text(username + ' stop sharing');
+      toastBody.text(username + " stop sharing");
     } else {
-      toastBody.text(username + ' left');
+      toastBody.text(username + " left");
     }
   } else {
-    toastBody.text(username + ' left');
+    toastBody.text(username + " left");
   }
-  $('#liveToast').toast('show');
+  $("#liveToast").toast("show");
 }
 function notifyNewRequest(username, email) {
   //update ui request toast
-  $('#requestMessage').text(username + ' request to join.');
-  $('#requestorId').val(email);
-  $('#requestToast').toast('show');
+  $("#requestMessage").text(username + " request to join.");
+  $("#requestorId").val(email);
+  $("#requestToast").toast("show");
 }
 function acceptRequest(email) {
   ws.send(JSON.stringify({
-    action: 'acceptRequest',
+    action: "acceptRequest",
     roomId: roomId,
     email: email,
     id: id,
@@ -17067,7 +17067,7 @@ function acceptRequest(email) {
 }
 function declineRequest(email) {
   ws.send(JSON.stringify({
-    action: 'declineRequest',
+    action: "declineRequest",
     roomId: roomId,
     email: email,
     id: id,
@@ -17081,7 +17081,7 @@ function removeUserFromMeeting(userId, isBlock) {
     return;
   } else {
     ws.send(JSON.stringify({
-      action: 'removeUserFromMeeting',
+      action: "removeUserFromMeeting",
       userId: id,
       roomId: roomId,
       userRemoveId: userId,
@@ -17090,19 +17090,19 @@ function removeUserFromMeeting(userId, isBlock) {
     }));
   }
 }
-$('#removeUserButton').on('click', function () {
-  let removeUserId = $('#removeUserId').val();
+$("#removeUserButton").on("click", function () {
+  let removeUserId = $("#removeUserId").val();
   if (!removeUserId || !removeUserId.trim()) {
     return;
   } else {
-    let blockOption = $('#blockUserInput');
+    let blockOption = $("#blockUserInput");
     console.log(blockOption);
-    removeUserFromMeeting(removeUserId, blockOption.prop('checked'));
+    removeUserFromMeeting(removeUserId, blockOption.prop("checked"));
   }
 });
 function muteUser(userId) {
   ws.send(JSON.stringify({
-    action: 'muteUser',
+    action: "muteUser",
     userId: id,
     roomId: roomId,
     mutedUserId: userId,
@@ -17116,9 +17116,9 @@ function updateUserList({
   idUserLeft,
   ownerEmail
 }) {
-  $('#contributors-number').text(users.length);
-  $('#contributors-text-show').text(users.length);
-  const userListContainer = $('#userslist');
+  $("#contributors-number").text(users.length);
+  $("#contributors-text-show").text(users.length);
+  const userListContainer = $("#userslist");
   if (idUserLeft) {
     let userLeft = document.getElementById(`contributor-${idUserLeft}`);
     if (userLeft) {
@@ -17131,10 +17131,10 @@ function updateUserList({
     if (!existedUser) {
       const userDiv = `
                 <div class="row d-flex align-items-center pt-2 pb-2 contributor-showing" data-name="${user.name}" id="contributor-${user.id}">
-                    <div class="col-2 avatar"><img class="user-avatar" src="${user.avatar ? user.avatar : '/images/GoLogoNBg.png'}" alt="" srcset=""></div>
-                    <div class="col-6 p-0 fs-6 ps-2"><span>${user.name}${user.id === clientId ? ' (You) ' : ''} ${user.email === ownerEmail ? "<span class='fw-bold fs-6'>(Host)</span>" : ''}</span></div>
-                    <div class="col-2 text-center d-none mutedMic${user.id === clientId ? 'localVideo' : user.id}"><i class="bi bi-mic-mute"></i></div>
-                    <div class="col-2 text-center d-none micActive${user.id === clientId ? 'localVideo' : user.id}">
+                    <div class="col-2 avatar"><img class="user-avatar" src="${user.avatar ? user.avatar : "/images/GoLogoNBg.png"}" alt="" srcset=""></div>
+                    <div class="col-6 p-0 fs-6 ps-2"><span>${user.name}${user.id === clientId ? " (You) " : ""} ${user.email === ownerEmail ? "<span class='fw-bold fs-6'>(Host)</span>" : ""}</span></div>
+                    <div class="col-2 text-center d-none mutedMic${user.id === clientId ? "localVideo" : user.id}"><i class="bi bi-mic-mute"></i></div>
+                    <div class="col-2 text-center d-none micActive${user.id === clientId ? "localVideo" : user.id}">
                         <div class="mic-container muted-mic text-white fs-5 rounded-circle d-flex align-items-center justify-content-center">
                             <div class="dot rounded-pill"></div>
                             <div class="dot rounded-pill"></div>
@@ -17149,7 +17149,7 @@ function updateUserList({
                             <li><a class="dropdown-item mute-button" id="mutedButton${user.id}" data-id=${user.id}>Mute</a></li>
                             <li><a class="dropdown-item remove-button" data-id=${user.id} data-bs-toggle="modal" data-bs-target="#blockUserModal">Remove</a></li>
                         </ul>
-                    </div>` : ''}
+                    </div>` : ""}
                 </div>
             `;
       userListContainer.append(userDiv);
@@ -17158,18 +17158,18 @@ function updateUserList({
       }
     }
   });
-  $('.mute-button').on('click', function () {
-    const targetId = $(this).data('id');
+  $(".mute-button").on("click", function () {
+    const targetId = $(this).data("id");
     muteUser(targetId);
   });
-  $('.remove-button').on('click', function () {
-    const targetId = $(this).data('id');
-    $('#removeUserId').val(targetId);
+  $(".remove-button").on("click", function () {
+    const targetId = $(this).data("id");
+    $("#removeUserId").val(targetId);
   });
 }
 let requestorIds = [];
 function updateRequestorsList(requestingUsers) {
-  const requestorsList = $('#requestorsList');
+  const requestorsList = $("#requestorsList");
   requestorsList.empty();
   if (requestingUsers.length > 0) {
     requestingUsers.forEach(requestor => {
@@ -17177,7 +17177,7 @@ function updateRequestorsList(requestingUsers) {
                 <div class="container-fluid p-0 requestor-container" id="requestor-${requestor.email}">
                     <div class="row d-flex align-items-center pt-2 pb-2">
                         <div class="col-2 avatar"><img class="user-avatar"
-                                src="${requestor.avatar ? requestor.avatar : '/images/GoLogoNBg.png'}"
+                                src="${requestor.avatar ? requestor.avatar : "/images/GoLogoNBg.png"}"
                                 alt="" srcset=""></div>
                         <div class="col-6 p-0 fs-6 ps-2">${requestor.name}</div>
                         <button class="col-2 p-0 text-primary border-0 bg-transparent text-decoration-underline accept-button" style="font-size: 12px;" data-id="${requestor.email}">Accept</button>
@@ -17188,43 +17188,43 @@ function updateRequestorsList(requestingUsers) {
       requestorsList.append(div);
       requestorIds.push(requestor.email);
     });
-    $('.accept-button').on('click', function () {
-      const requestorId = $(this).data('id');
+    $(".accept-button").on("click", function () {
+      const requestorId = $(this).data("id");
       acceptRequest(requestorId);
     });
-    $('.decline-button').on('click', function () {
-      const requestorId = $(this).data('id');
+    $(".decline-button").on("click", function () {
+      const requestorId = $(this).data("id");
       declineRequest(requestorId);
     });
   }
   (0, _index.updateRequestorListUI)();
 }
-$('#acceptAllButton').on('click', function () {
+$("#acceptAllButton").on("click", function () {
   requestorIds.forEach(id => {
     acceptRequest(id);
   });
   requestorIds = [];
 });
-$('#declineAllButton').on('click', function () {
+$("#declineAllButton").on("click", function () {
   requestorIds.forEach(id => {
     declineRequest(id);
   });
   requestorIds = [];
 });
 function notifyUserJoin(username, isSharing) {
-  const toastBody = $('#toast-body2');
+  const toastBody = $("#toast-body2");
   if (isSharing) {
     if (isSharing == true) {
-      toastBody.text(username + ' is sharing');
+      toastBody.text(username + " is sharing");
     } else {
-      toastBody.text(username + ' join');
+      toastBody.text(username + " join");
     }
   } else {
-    toastBody.text(username + ' join');
+    toastBody.text(username + " join");
   }
-  $('#liveToast2').toast('show');
+  $("#liveToast2").toast("show");
 }
-const mediasoupClient = require('mediasoup-client');
+const mediasoupClient = require("mediasoup-client");
 let device;
 let rtpCapabilities;
 let producerTransport;
@@ -17255,17 +17255,17 @@ let params = {
   //     },
   // ],
   encodings: [{
-    rid: 'r0',
+    rid: "r0",
     maxBitrate: 50000,
-    scalabilityMode: 'S1T3'
+    scalabilityMode: "S1T3"
   }, {
-    rid: 'r1',
+    rid: "r1",
     maxBitrate: 150000,
-    scalabilityMode: 'S1T3'
+    scalabilityMode: "S1T3"
   }, {
-    rid: 'r2',
+    rid: "r2",
     maxBitrate: 300000,
-    scalabilityMode: 'S1T3'
+    scalabilityMode: "S1T3"
   }],
   // https://mediasoup.org/documentation/v3/mediasoup-client/api/#ProducerCodecOptions
   codecOptions: {
@@ -17287,29 +17287,32 @@ async function getLocalStream() {
     if (isReconnect == true) {
       return;
     }
-    let audioConstraints = localStorage.getItem('audioConstraints');
-    let videoConstraints = localStorage.getItem('videoConstraints');
+    let audioConstraints = localStorage.getItem("audioConstraints");
+    let videoConstraints = localStorage.getItem("videoConstraints");
     let audioStreamPromise = navigator.mediaDevices.getUserMedia({
       audio: audioConstraints ? JSON.parse(audioConstraints) : true
     });
     let videoStreamPromise = navigator.mediaDevices.getUserMedia({
-      video: videoConstraints ? JSON.parse(videoConstraints) : true
+      video: videoConstraints ? JSON.parse(videoConstraints) : {
+        width: 640,
+        height: 480
+      }
     });
     let audioStream = null;
     let videoStream = null;
     try {
       audioStream = await audioStreamPromise;
     } catch (error) {
-      console.warn('Audio permission denied or other issue:', error);
-      $('#warningToastText').text('ERROR GETTING AUDIO: ' + error + ', PROGRAM MIGHT BE BUGGED.');
-      $('#warningToast').toast('show');
+      console.warn("Audio permission denied or other issue:", error);
+      $("#warningToastText").text("ERROR GETTING AUDIO: " + error + ", PROGRAM MIGHT BE BUGGED.");
+      $("#warningToast").toast("show");
     }
     try {
       videoStream = await videoStreamPromise;
     } catch (error) {
-      console.warn('Video permission denied or other issue:', error);
-      $('#warningToastText').text('ERROR GETTING VIDEO: ' + error + ', PROGRAM MIGHT BE BUGGED.');
-      $('#warningToast').toast('show');
+      console.warn("Video permission denied or other issue:", error);
+      $("#warningToastText").text("ERROR GETTING VIDEO: " + error + ", PROGRAM MIGHT BE BUGGED.");
+      $("#warningToast").toast("show");
     }
 
     // Create a combined stream if both streams are available
@@ -17333,7 +17336,7 @@ async function getLocalStream() {
       ...videoParams
     };
     if (videoTrack) {
-      addTrackToVideoElement(videoTrack, 'localVideo');
+      await addTrackToVideoElement(videoTrack, "localVideo");
       let videoSettings = videoTrack.getSettings();
       const videoDeviceId = videoSettings.deviceId;
       videoConstraints = {
@@ -17341,10 +17344,11 @@ async function getLocalStream() {
           exact: videoDeviceId
         }
       };
-      localStorage.setItem('videoConstraints', JSON.stringify(videoConstraints));
+      localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints));
+      await setupWebRTCAndCanvas();
     }
     if (audioTrack) {
-      addTrackToVideoElement(audioTrack, 'localVideo');
+      addTrackToVideoElement(audioTrack, "localVideo");
       let audioSettings = audioTrack.getSettings();
       const audioDeviceId = audioSettings.deviceId;
       audioConstraints = {
@@ -17352,18 +17356,18 @@ async function getLocalStream() {
           exact: audioDeviceId
         }
       };
-      localStorage.setItem('audioConstraints', JSON.stringify(audioConstraints));
+      localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints));
     }
-    console.log('GET LOCAL STREAM');
+    console.log("GET LOCAL STREAM");
   } catch (error) {
     // Handle errors
-    $('#warningToastText').text('ERROR GETTING LOCAL STREAM: ' + error + ', PROGRAM MIGHT BE BUGGED.');
-    $('#warningToast').toast('show');
-    console.error('Error getting local stream:', error);
+    $("#warningToastText").text("ERROR GETTING LOCAL STREAM: " + error + ", PROGRAM MIGHT BE BUGGED.");
+    $("#warningToast").toast("show");
+    console.error("Error getting local stream:", error);
   }
 }
 async function getVideoTrackReplace() {
-  let videoConstraints = localStorage.getItem('videoConstraints');
+  let videoConstraints = localStorage.getItem("videoConstraints");
   let constraints = {
     video: true
   };
@@ -17374,8 +17378,21 @@ async function getVideoTrackReplace() {
   let videoTrack = stream.getVideoTracks()[0];
   return videoTrack;
 }
+
+// async function getVideoCanvasTrackReplace() {
+//   let videoConstraints = localStorage.getItem("videoConstraints");
+//   let constraints = { video: true };
+//   if (videoConstraints) {
+//     constraints.video = JSON.parse(videoConstraints);
+//   }
+
+//   let stream = await navigator.mediaDevices.getUserMedia(constraints);
+//   let videoTrack = stream.getVideoTracks()[0];
+//   return videoTrack;
+// }
+
 async function getAudioTrackReplace() {
-  let audioConstraints = localStorage.getItem('audioConstraints');
+  let audioConstraints = localStorage.getItem("audioConstraints");
   let constraints = {
     audio: true
   };
@@ -17394,7 +17411,7 @@ async function startCall() {
     try {
       getLocalStream().then(() => {
         ws.send(JSON.stringify({
-          action: 'join',
+          action: "join",
           roomId: roomId,
           userId: id,
           name: username,
@@ -17402,22 +17419,33 @@ async function startCall() {
           userEmail: user.userEmail
         }));
         ws.send(JSON.stringify({
-          action: 'getRtpCapabilities',
+          action: "getRtpCapabilities",
           roomId: roomId,
           userId: id,
           userEmail: user.userEmail
         }));
+        $(".loadingdata-layout").addClass("d-none");
+        // const setCanvasSize = () => {
+        //   canvas.width = video.videoWidth;
+        //   canvas.height = video.videoHeight;
+        //   backgroundCanvas.width = video.videoWidth;
+        //   backgroundCanvas.height = video.videoHeight;
+        //   videoCanvas.width = video.videoWidth;
+        //   videoCanvas.height = video.videoHeight;
+        //   blurCanvas.width = video.videoWidth;
+        //   blurCanvas.height = video.videoHeight;
+        // };
       });
-      console.log('ws on open');
+      console.log("ws on open");
     } catch (error) {
-      console.error('Error during WebSocket onopen:', error);
+      console.error("Error during WebSocket onopen:", error);
     }
   };
   ws.onmessage = async event => {
     const data = JSON.parse(event.data);
-    console.log('Data send to client', data);
+    console.log("Data send to client", data);
     switch (data.action) {
-      case 'user-list':
+      case "user-list":
         updateUserList({
           users: data.users,
           clientId: id,
@@ -17427,10 +17455,10 @@ async function startCall() {
         if (data.newUser.id != id) {
           notifyUserJoin(data.newUser.name);
         }
-        $('.reconnecting-layout').addClass('d-none');
+        $(".reconnecting-layout").addClass("d-none");
         break;
-      case 'leave':
-        console.log('LEAVE: ', data);
+      case "leave":
+        console.log("LEAVE: ", data);
         updateUserList({
           users: data.users,
           idUserLeft: data.userLeftId
@@ -17438,35 +17466,35 @@ async function startCall() {
         updateUIVideo(data.userLeftId, data.username);
         notifyUserLeft(data.username, false);
         break;
-      case 'getRtpCapabilities':
+      case "getRtpCapabilities":
         rtpCapabilities = data.rtpCapabilities;
         await createDevice();
         ws.send(JSON.stringify({
-          action: 'createProducerTransport',
+          action: "createProducerTransport",
           roomId: data.roomId,
           userId: data.userId,
           userEmail: user.userEmail
         }));
         break;
-      case 'producerTransportCreated':
+      case "producerTransportCreated":
         console.log(data.id);
         await createSendTransport(data);
         break;
-      case 'producerTransportConnected':
+      case "producerTransportConnected":
         break;
-      case 'produced':
+      case "produced":
         {
           console.log(data);
-          console.log('Producer created:', data.id);
+          console.log("Producer created:", data.id);
           callbackId = data.id;
           isCallbackCalled = false;
         }
         break;
-      case 'newProducer':
+      case "newProducer":
         {
-          console.log('New producer:', data.producerId);
+          console.log("New producer:", data.producerId);
           ws.send(JSON.stringify({
-            action: 'createConsumerTransport',
+            action: "createConsumerTransport",
             producerId: data.producerId,
             roomId: data.roomId,
             userId: id,
@@ -17475,14 +17503,14 @@ async function startCall() {
           }));
         }
         break;
-      case 'consumerTransportCreated':
+      case "consumerTransportCreated":
         createRecvTransport(data);
         break;
-      case 'consumerTransportConnected':
+      case "consumerTransportConnected":
         break;
-      case 'consumed':
-        console.log('DATA CONSUMED:', data);
-        console.log('ConsumerTransport needed: ', consumerTransports[data.producerUserId]);
+      case "consumed":
+        console.log("DATA CONSUMED:", data);
+        console.log("ConsumerTransport needed: ", consumerTransports[data.producerUserId]);
         consumer = await consumerTransports[data.producerUserId].consume({
           id: data.id,
           producerId: data.producerId,
@@ -17490,19 +17518,19 @@ async function startCall() {
           rtpParameters: data.rtpParameters
         });
         ws.send(JSON.stringify({
-          action: 'consumer-resume',
+          action: "consumer-resume",
           id: consumer.producerId,
           roomId: data.roomId,
           userId: id,
           userEmail: user.userEmail
         }));
         let producerStatus = data.producerStatus;
-        console.log('CONSUMER PRODUCER ID', consumer.producerId);
+        console.log("CONSUMER PRODUCER ID", consumer.producerId);
         if (!Object.values(consumers)[data.producerUserId]) {
           consumers[data.producerUserId] = {};
         }
         if (data.isSharing && data.isSharing == true) {
-          consumers[data.producerUserId]['sharing'] = consumer;
+          consumers[data.producerUserId]["sharing"] = consumer;
         } else {
           consumers[data.producerUserId][data.kind] = consumer;
         }
@@ -17512,27 +17540,27 @@ async function startCall() {
         const {
           track
         } = consumer;
-        console.log('TRACK KIND:', data.kind, 'IS SHARING: ', data.isSharing);
+        console.log("TRACK KIND:", data.kind, "IS SHARING: ", data.isSharing);
         if (data.isSharing && data.isSharing == true) {
           // alert("IS SHARING")
-          await addSharingContainer(data.producerUserId + '-Sharing', data.name + ' is sharing');
-          addTrackToSharingElement(track, data.producerUserId + '-Sharing');
+          await addSharingContainer(data.producerUserId + "-Sharing", data.name + " is sharing");
+          addTrackToSharingElement(track, data.producerUserId + "-Sharing");
           (0, _index.resizeSharing)();
           (0, _index.resizeVideo)();
           (0, _index.moveDivToPosition)(data.producerUserId, 2);
           notifyUserJoin(data.name, true);
         } else {
           await (0, _index.addItem)(data.producerUserId, data.name, data.avatar);
-          console.log('ADDTRACK TO REMOTE STREAM', track);
+          console.log("ADDTRACK TO REMOTE STREAM", track);
           addTrackToVideoElement(track, data.producerUserId);
           console.log(producerStatus);
           if (producerStatus) {
-            if (producerStatus == 'off') {
-              if (data.kind == 'video') {
+            if (producerStatus == "off") {
+              if (data.kind == "video") {
                 enabledVideo(false, data.producerUserId);
               }
               //audio
-              else if (data.kind == 'audio') {
+              else if (data.kind == "audio") {
                 enabledMic(false, data.producerUserId);
               }
             }
@@ -17550,7 +17578,7 @@ async function startCall() {
         // console.log('Stream tracks:', remoteVideo.getTracks());
 
         break;
-      case 'producerNotProvided':
+      case "producerNotProvided":
         {
           const {
             kind,
@@ -17559,56 +17587,56 @@ async function startCall() {
             name,
             avatar
           } = data;
-          if (kind == 'audio') {
+          if (kind == "audio") {
             const muteButton = $(`#mutedButton${data.producerUserId}`);
             if (muteButton) {
-              muteButton.addClass('d-none');
+              muteButton.addClass("d-none");
             }
           }
           await (0, _index.addItem)(producerUserId, name, avatar);
           toggleButtonWhenProducerNotFound(kind, null, true, producerUserId);
         }
         break;
-      case 'onCamera':
-        console.log('ONCAMERA: ', data);
+      case "onCamera":
+        console.log("ONCAMERA: ", data);
         enabledVideo(true, data.producerUserId);
         break;
-      case 'offCamera':
-        console.log('OFFCAMERA: ', data);
+      case "offCamera":
+        console.log("OFFCAMERA: ", data);
         enabledVideo(false, data.producerUserId);
         break;
-      case 'muted':
+      case "muted":
         {
           const muteButton = $(`#mutedButton${data.producerUserId}`);
           if (muteButton) {
-            muteButton.addClass('d-none');
+            muteButton.addClass("d-none");
           }
           enabledMic(false, data.producerUserId);
         }
         break;
-      case 'unmuted':
+      case "unmuted":
         const muteButton = $(`#mutedButton${data.producerUserId}`);
         if (muteButton) {
-          muteButton.removeClass('d-none');
+          muteButton.removeClass("d-none");
         }
         enabledMic(true, data.producerUserId);
         break;
-      case 'message':
-        console.log('MESSAGE: ', data);
+      case "message":
+        console.log("MESSAGE: ", data);
         displayMessage(data.from, data.content, data.userId);
         lastMessageId = data.userId;
-        $('#new-message').removeClass('d-none');
+        $("#new-message").removeClass("d-none");
         break;
-      case 'stopSharing':
+      case "stopSharing":
         const {
           producerUserId,
           roomId,
           username
         } = data;
-        updateSharingVideo(producerUserId + '-Sharing');
+        updateSharingVideo(producerUserId + "-Sharing");
         notifyUserLeft(username, true);
         break;
-      case 'newRequest':
+      case "newRequest":
         //nguoi dung moi
         const {
           requestingUsers,
@@ -17617,23 +17645,23 @@ async function startCall() {
         notifyNewRequest(newUser.name, newUser.email, newUser.avatar);
         updateRequestorsList(requestingUsers);
         break;
-      case 'beingMuted':
+      case "beingMuted":
         if (audioProducer) {
           if (!audioProducer.paused) {
-            toggleButton('audio', micButton);
+            toggleButton("audio", micButton);
           }
         }
         break;
-      case 'actionNotPermitted':
+      case "actionNotPermitted":
         {
           const {
             message
           } = data;
-          $('#warningToastText').text(message);
-          $('#warningToast').toast('show');
+          $("#warningToastText").text(message);
+          $("#warningToast").toast("show");
         }
         break;
-      case 'recording':
+      case "recording":
         {
           const {
             recordingUsers
@@ -17643,7 +17671,7 @@ async function startCall() {
           showRecordingUsers(recordingUsers);
           break;
         }
-      case 'stopRecording':
+      case "stopRecording":
         {
           const {
             recordingUsers
@@ -17652,7 +17680,7 @@ async function startCall() {
           showRecordingUsers(recordingUsers);
           break;
         }
-      case 'receiveTranscript':
+      case "receiveTranscript":
         {
           const {
             userId,
@@ -17664,32 +17692,32 @@ async function startCall() {
           break;
         }
       default:
-        console.error('Unknown message action:', data.action);
+        console.error("Unknown message action:", data.action);
     }
   };
   ws.onclose = function (event) {
-    console.log('WebSocket connection closed:', event);
-    console.log('Code:', event.code);
-    console.log('Reason:', event.reason);
+    console.log("WebSocket connection closed:", event);
+    console.log("Code:", event.code);
+    console.log("Reason:", event.reason);
     if (event.code == 1008) {
-      $('#removeToast').toast('show');
+      $("#removeToast").toast("show");
       let seconds = 3;
       const interval = setInterval(function () {
-        $('#secondRemovingText').text(seconds.toString());
+        $("#secondRemovingText").text(seconds.toString());
         seconds--;
         if (seconds < 0) {
           clearInterval(interval);
-          $('#removeToast').toast('hide');
+          $("#removeToast").toast("hide");
         }
       }, 1000);
       setTimeout(() => {
-        window.location.href = '/' + roomId;
+        window.location.href = "/" + roomId;
       }, 3000);
     }
     if (event.code == 1006) {
       //try to reconnect
-      $('.reconnecting-layout').removeClass('d-none');
-      console.log('Reconnecting...');
+      $(".reconnecting-layout").removeClass("d-none");
+      console.log("Reconnecting...");
       //ws = new WebSocket(`${ws_url}?token=${encodeURIComponent(token)}`);
       isReconnect = true;
       consumerTransports = {};
@@ -17706,10 +17734,10 @@ const createDevice = async () => {
     await device.load({
       routerRtpCapabilities: rtpCapabilities
     });
-    console.log('RTP Capabilities', device.rtpCapabilities);
+    console.log("RTP Capabilities", device.rtpCapabilities);
   } catch (error) {
     console.log(error);
-    if (error.name === 'UnsupportedError') console.warn('browser not supported');
+    if (error.name === "UnsupportedError") console.warn("browser not supported");
   }
 };
 let allProduce = false;
@@ -17724,29 +17752,29 @@ const createSendTransport = async params => {
     console.log(params.error);
     return;
   }
-  console.log('Params on create send transport', params);
+  console.log("Params on create send transport", params);
 
   // creates a new WebRTC Transport to send media
   // based on the server's producer transport params
   // https://mediasoup.org/documentation/v3/mediasoup-client/api/#TransportOptions
   params.iceServers = iceServers;
   producerTransport = device.createSendTransport(params);
-  console.log('producerTransport created on client side', producerTransport);
+  console.log("producerTransport created on client side", producerTransport);
 
   // https://mediasoup.org/documentation/v3/communication-between-client-and-server/#producing-media
   // this event is raised when a first call to transport.produce() is made
   // see connectSendTransport() below
-  producerTransport.on('connect', async ({
+  producerTransport.on("connect", async ({
     dtlsParameters
   }, callback, errback) => {
-    console.log('DTLS', dtlsParameters);
+    console.log("DTLS", dtlsParameters);
     try {
       // Signal local DTLS parameters to the server side transport
       // see server's socket.on('transport-connect', ...)
       //let ws = wss[params.userId];
-      console.log('connect producer transport?', dtlsParameters);
+      console.log("connect producer transport?", dtlsParameters);
       ws.send(JSON.stringify({
-        action: 'connectProducerTransport',
+        action: "connectProducerTransport",
         dtlsParameters: dtlsParameters,
         roomId: roomId,
         userId: params.userId,
@@ -17759,7 +17787,7 @@ const createSendTransport = async params => {
       errback(error);
     }
   });
-  producerTransport.on('produce', async (parameters, callback, errback) => {
+  producerTransport.on("produce", async (parameters, callback, errback) => {
     console.log(parameters);
     try {
       // tell the server to create a Producer
@@ -17768,7 +17796,7 @@ const createSendTransport = async params => {
       // see server's socket.on('transport-produce', ...)
       //let ws = wss[params.userId];
       ws.send(JSON.stringify({
-        action: 'produce',
+        action: "produce",
         kind: parameters.kind,
         rtpParameters: parameters.rtpParameters,
         appData: parameters.appData,
@@ -17786,7 +17814,7 @@ const createSendTransport = async params => {
           isSharing = false;
           clearInterval(intervalId);
         } else {
-          console.log('Waiting for callbackId...');
+          console.log("Waiting for callbackId...");
         }
       }, 50);
     } catch (error) {
@@ -17819,7 +17847,7 @@ const connectSendTransport = async () => {
   //     alert("THIEU AUDIO PARAMS")
   //     audioParams.track = window.localStream.getAudioTracks()[0];
   // }
-  console.log('producerTransport created on client side', producerTransport);
+  console.log("producerTransport created on client side", producerTransport);
   // console.log("params", params);
   // producer = await producerTransport.produce(params)
   // alert("start");
@@ -17845,24 +17873,36 @@ const connectSendTransport = async () => {
   //   track: videoTrack,
   //   ...videoParams,
   // };
-  if (videoParams && videoParams.track) {
+
+  const canvas = document.getElementById("outputCanvas");
+  const streamFromCanvas = canvas.captureStream(30);
+  const video = document.getElementById("localVideo");
+  //localVideo.stream = streamFromCanvas;
+  if (!streamFromCanvas || !streamFromCanvas.getVideoTracks().length) {
+    console.error("Failed to capture stream from canvas.");
+    return;
+  }
+  const videoTrack = streamFromCanvas.getVideoTracks()[0];
+  videoParams.track = videoTrack;
+  console.log(videoParams);
+  if (videoParams && videoParams.track && video.srcObject.getVideoTracks()[0]) {
     videoProducer = await producerTransport.produce(videoParams);
-    videoProducer.on('trackended', () => {
-      console.log('track ended');
+    videoProducer.on("trackended", () => {
+      console.log("track ended");
 
       // close video track
     });
-    videoProducer.on('transportclose', () => {
-      console.log('transport ended');
+    videoProducer.on("transportclose", () => {
+      console.log("transport ended");
 
       // close video track
     });
   } else {
-    toggleButtonWhenProducerNotFound('video', webcamButton, true, 'localVideo');
-    webcamButton.attr('disabled', true);
+    toggleButtonWhenProducerNotFound("video", webcamButton, true, "localVideo");
+    webcamButton.attr("disabled", true);
     ws.send(JSON.stringify({
-      action: 'producerNotProvided',
-      kind: 'video',
+      action: "producerNotProvided",
+      kind: "video",
       userId: id,
       name: username,
       roomId: roomId,
@@ -17871,7 +17911,7 @@ const connectSendTransport = async () => {
   }
   //allProduce = true;
   // alert("Continue");
-  console.log('AUDIO PARAMS:');
+  console.log("AUDIO PARAMS:");
   console.log(audioParams);
   console.log(audioParams && audioParams.track);
   if (audioParams && audioParams.track) {
@@ -17882,22 +17922,22 @@ const connectSendTransport = async () => {
       opusMaxPlaybackRate: 48000,
       opusBitrate: 64000
     });
-    audioProducer.on('trackended', () => {
-      console.log('track ended');
+    audioProducer.on("trackended", () => {
+      console.log("track ended");
 
       // close video track
     });
-    audioProducer.on('transportclose', () => {
-      console.log('transport ended');
+    audioProducer.on("transportclose", () => {
+      console.log("transport ended");
 
       // close video track
     });
   } else {
-    toggleButtonWhenProducerNotFound('audio', micButton, true, 'localVideo');
-    micButton.attr('disabled', true);
+    toggleButtonWhenProducerNotFound("audio", micButton, true, "localVideo");
+    micButton.attr("disabled", true);
     ws.send(JSON.stringify({
-      action: 'producerNotProvided',
-      kind: 'audio',
+      action: "producerNotProvided",
+      kind: "audio",
       userId: id,
       name: username,
       roomId: roomId,
@@ -17908,11 +17948,11 @@ const connectSendTransport = async () => {
   // }
   // alert("Consume both AUDIO AND VIDEO");
 
-  console.log('PRODUCE BOTH', audioProducer);
-  console.log('AUDIO STATUS');
-  if (localStorage.getItem('micEnabled') == 'false') {
-    await toggleButton('audio', micButton);
-    console.log('TOGGLED');
+  console.log("PRODUCE BOTH", audioProducer);
+  console.log("AUDIO STATUS");
+  if (localStorage.getItem("micEnabled") == "false") {
+    await toggleButton("audio", micButton);
+    console.log("TOGGLED");
   } else {
     try {
       recognition.start();
@@ -17920,8 +17960,8 @@ const connectSendTransport = async () => {
       console.log(error);
     }
   }
-  if (localStorage.getItem('cameraEnabled') == 'false') {
-    await toggleButton('video', webcamButton);
+  if (localStorage.getItem("cameraEnabled") == "false") {
+    await toggleButton("video", webcamButton);
   }
 
   // if(sharingProducer){
@@ -17950,44 +17990,44 @@ function addTrackToSharingElement(track, id) {
   // if(id!="localVideo"){
   remoteVideo.srcObject.addTrack(track);
 }
-function addTrackToVideoElement(track, id) {
-  console.log('ADD TRACK TO: ', id);
+async function addTrackToVideoElement(track, id) {
+  console.log("ADD TRACK TO: ", id);
   // const container = document.getElementById('video-container');
   let remoteVideo = document.getElementById(id);
   if (!remoteVideo) {
-    remoteVideo = document.createElement('video');
+    remoteVideo = document.createElement("video");
     remoteVideo.id = id;
     remoteVideo.autoplay = true;
     //   container.appendChild(remoteVideo);
   }
   if (remoteVideo.srcObject) {
-    if (track.kind == 'video') {
+    if (track.kind == "video") {
       let videoTracks = remoteVideo.srcObject.getVideoTracks();
       if (videoTracks.length > 0) {
         let videoTrack = videoTracks[0];
         remoteVideo.srcObject.removeTrack(videoTrack);
       }
-    } else if (track.kind == 'audio') {
+    } else if (track.kind == "audio") {
       let audioTracks = remoteVideo.srcObject.getAudioTracks();
       if (audioTracks.length > 0) {
         let audioTrack = audioTracks[0];
         remoteVideo.srcObject.removeTrack(audioTrack);
       }
     }
-    remoteVideo.srcObject.addTrack(track);
+    await remoteVideo.srcObject.addTrack(track);
   } else {
     let newStream = new MediaStream();
     newStream.addTrack(track);
     remoteVideo.srcObject = newStream;
   }
-  if (id.includes('Sharing')) {
+  if (id.includes("Sharing")) {
     return;
   }
   console.log(harkInstances);
-  console.log('Added track to MediaStream:', track);
+  console.log("Added track to MediaStream:", track);
   // console.log('Updated MediaStream for video element with id:', id, remoteVideo.srcObject);
   // console.log('Stream tracks:', remoteVideo.getTracks());
-  if (track.kind === 'audio') {
+  if (track.kind === "audio") {
     if (harkInstances[id]) {
       harkInstances[id].stop();
       harkInstances[id] = null;
@@ -17999,24 +18039,33 @@ function addTrackToVideoElement(track, id) {
       threshold: -70
     };
     harkInstances[id] = (0, _hark.default)(audioStream, options);
-    harkInstances[id].on('speaking', () => {
+    harkInstances[id].on("speaking", () => {
       //console.log(`${id} is speaking on track ${track.id}`);
       (0, _index.showDots)(id);
+      if (id == "localVideo") {
+        (0, _index.showDots)("outputCanvas");
+      }
       (0, _index.moveDivToPositionWhenSpeaking)(id);
     });
-    harkInstances[id].on('stopped_speaking', () => {
+    harkInstances[id].on("stopped_speaking", () => {
       //console.log(`${id} speech stopped on track ${track.id}`);
       (0, _index.stopDots)(id);
+      if (id == "localVideo") {
+        (0, _index.stopDots)("outputCanvas");
+      }
     });
-    harkInstances[id].on('volume_change', (volume, threshold) => {
+    harkInstances[id].on("volume_change", (volume, threshold) => {
       //console.log(`Volume change: ${volume}, Threshold: ${threshold}`);
 
       (0, _index.updateDots)(volume, id);
+      if (id == "localVideo") {
+        (0, _index.updateDots)("outputCanvas");
+      }
     });
   }
 }
 const createRecvTransport = async params => {
-  console.log('PARAMS VALUE:', params);
+  console.log("PARAMS VALUE:", params);
   // see server's socket.on('consume', sender?, ...)
   // this is a call from Consumer, so sender = false
 
@@ -18029,9 +18078,9 @@ const createRecvTransport = async params => {
   } else {
     params.iceServers = iceServers;
     consumerTransport = device.createRecvTransport(params);
-    console.log('COnsumerTransport created: ', consumerTransport.id);
+    console.log("COnsumerTransport created: ", consumerTransport.id);
     consumerTransports[params.producerUserId] = consumerTransport;
-    consumerTransport.on('connect', async ({
+    consumerTransport.on("connect", async ({
       dtlsParameters
     }, callback, errback) => {
       try {
@@ -18039,7 +18088,7 @@ const createRecvTransport = async params => {
         // see server's socket.on('transport-recv-connect', ...)
         //ws = wss[params.producerUserId];
         ws.send(JSON.stringify({
-          action: 'connectConsumerTransport',
+          action: "connectConsumerTransport",
           dtlsParameters,
           producerId: params.producerId,
           roomId: roomId,
@@ -18063,7 +18112,7 @@ const createRecvTransport = async params => {
 };
 const connectRecvTransport = async (producerId, producerUserId, producerStatus) => {
   ws.send(JSON.stringify({
-    action: 'consume',
+    action: "consume",
     producerUserId: producerUserId,
     producerId: producerId,
     rtpCapabilities: device.rtpCapabilities,
@@ -18073,20 +18122,20 @@ const connectRecvTransport = async (producerId, producerUserId, producerStatus) 
     userEmail: user.userEmail
   }));
 };
-sendButton.addEventListener('click', function () {
-  const content = $('#messageContent').val();
+sendButton.addEventListener("click", function () {
+  const content = $("#messageContent").val();
   if (content.trim().length == 0) {
     return;
   }
   if (lastMessageId == user.id) {
-    if (content.trim() !== '') {
-      const lastYourChatElement = $('.yourchat').last();
+    if (content.trim() !== "") {
+      const lastYourChatElement = $(".yourchat").last();
       lastYourChatElement.append(`<p>${content}</p>`);
-      $('#messageContent').val('');
+      $("#messageContent").val("");
 
       // sendMessage("message", content);
       ws.send(JSON.stringify({
-        action: 'message',
+        action: "message",
         content: content,
         roomId: roomId,
         userId: user.id,
@@ -18105,12 +18154,12 @@ sendButton.addEventListener('click', function () {
                         </div>
                     </div>
                 `;
-    $('#chatContainer .chat-body').append(messageHTML);
-    $('#messageContent').val('');
+    $("#chatContainer .chat-body").append(messageHTML);
+    $("#messageContent").val("");
 
     // sendMessage("message", content);
     ws.send(JSON.stringify({
-      action: 'message',
+      action: "message",
       content: content,
       roomId: roomId,
       userId: user.id,
@@ -18118,11 +18167,11 @@ sendButton.addEventListener('click', function () {
     }));
   }
   lastMessageId = user.id;
-  const chatBody = document.getElementById('chatBody');
+  const chatBody = document.getElementById("chatBody");
   chatBody.scrollTop = chatBody.scrollHeight - chatBody.clientHeight;
 });
-$('#messageContent').keydown(function (event) {
-  if (event.key === 'Enter') {
+$("#messageContent").keydown(function (event) {
+  if (event.key === "Enter") {
     event.preventDefault();
     sendButton.click();
   }
@@ -18143,24 +18192,24 @@ function displayMessage(from, content, userId) {
                     </div>
                 </div>
             `;
-    $('#chatContainer .chat-body').append(messageHTML);
+    $("#chatContainer .chat-body").append(messageHTML);
   }
-  const chatBody = document.getElementById('chatBody');
+  const chatBody = document.getElementById("chatBody");
   chatBody.scrollTop = chatBody.scrollHeight - chatBody.clientHeight;
 }
-hangupButton.on('click', () => {
-  console.log('click');
+hangupButton.on("click", () => {
+  console.log("click");
 
   // sendMessage('leave');
   // endCall();
-  window.location.href = '/';
+  window.location.href = "/";
 });
-webcamButton.on('click', async () => {
-  console.log('click');
-  await toggleButton('video', webcamButton);
+webcamButton.on("click", async () => {
+  console.log("click");
+  await toggleButton("video", webcamButton);
 });
-micButton.on('click', async () => {
-  await toggleButton('audio', micButton);
+micButton.on("click", async () => {
+  await toggleButton("audio", micButton);
 });
 async function startCapture(displayMediaOptions) {
   let captureStream = null;
@@ -18176,12 +18225,12 @@ async function startCapture(displayMediaOptions) {
       };
     }
   } catch (err) {
-    console.error('Error: ' + err);
+    console.error("Error: " + err);
   }
   return captureStream;
 }
 function updateSharingVideo(id) {
-  const divSharingVideo = document.getElementById('divSharing' + id);
+  const divSharingVideo = document.getElementById("divSharing" + id);
   if (divSharingVideo) {
     divSharingVideo.remove();
   }
@@ -18189,11 +18238,11 @@ function updateSharingVideo(id) {
   if (sharingVideo) {
     sharingVideo.remove();
   }
-  const sharingContainer = document.querySelector('.sharing-container');
-  const sharingVideoContainer = document.querySelectorAll('.sharing-video-container');
+  const sharingContainer = document.querySelector(".sharing-container");
+  const sharingVideoContainer = document.querySelectorAll(".sharing-video-container");
   const num = sharingVideoContainer.length;
   if (num == 0) {
-    sharingContainer.classList.add('d-none');
+    sharingContainer.classList.add("d-none");
   }
   (0, _index.resizeSharing)();
 }
@@ -18205,23 +18254,23 @@ function stopSharing(id) {
       track.stop();
     });
     updateSharingVideo(id);
-    console.log('Screen sharing stopped.');
+    console.log("Screen sharing stopped.");
   } else {
-    console.log('No active stream to stop.');
+    console.log("No active stream to stop.");
   }
 }
-shareButton.on('click', async () => {
+shareButton.on("click", async () => {
   if (myShareStream != null) {
-    stopSharing(id + '-Sharing');
+    stopSharing(id + "-Sharing");
     ws.send(JSON.stringify({
-      action: 'stopSharing',
+      action: "stopSharing",
       producerUserId: id,
       roomId: roomId,
       username: username,
       userEmail: user.userEmail
     }));
     myShareStream = null;
-    shareButton.removeClass('bg-primary');
+    shareButton.removeClass("bg-primary");
     return;
   }
   myShareStream = await startCapture({
@@ -18230,21 +18279,21 @@ shareButton.on('click', async () => {
   if (!myShareStream) {
     return;
   }
-  shareButton.addClass('bg-primary');
+  shareButton.addClass("bg-primary");
   isSharing = true;
   sharingProducer = await producerTransport.produce(sharingParams);
-  sharingProducer.on('trackended', () => {
-    console.log('track ended');
+  sharingProducer.on("trackended", () => {
+    console.log("track ended");
 
     // close video track
   });
-  sharingProducer.on('transportclose', () => {
-    console.log('transport ended');
+  sharingProducer.on("transportclose", () => {
+    console.log("transport ended");
 
     // close video track
   });
-  await addSharingContainer(id + '-Sharing', username + ' is sharing');
-  addTrackToSharingElement(myShareStream.getVideoTracks()[0], id + '-Sharing');
+  await addSharingContainer(id + "-Sharing", username + " is sharing");
+  addTrackToSharingElement(myShareStream.getVideoTracks()[0], id + "-Sharing");
 
   // ws.send(JSON.stringify({ action: 'join', roomId: roomId, userId: id+"-Sharing", name: username +' is sharing' }));
   // ws.send(JSON.stringify({ action: 'getRtpCapabilities', roomId: roomId, userId: id+"-Sharing" }));
@@ -18255,19 +18304,19 @@ shareButton.on('click', async () => {
 
   myShareStream.getVideoTracks()[0].onended = () => {
     // alert('Stream ended');
-    updateSharingVideo(id + '-Sharing');
+    updateSharingVideo(id + "-Sharing");
     //gọi đến ws
     ws.send(JSON.stringify({
-      action: 'stopSharing',
+      action: "stopSharing",
       producerUserId: id,
       roomId: roomId,
       username: username,
       userEmail: user.userEmail
     }));
-    shareButton.removeClass('bg-primary');
+    shareButton.removeClass("bg-primary");
   };
-  const sharingContainer = document.querySelector('.sharing-container');
-  sharingContainer.classList.remove('d-none');
+  const sharingContainer = document.querySelector(".sharing-container");
+  sharingContainer.classList.remove("d-none");
 
   // await addItem("123","Hao 2");
   // await addItem("1234","Hao 3");
@@ -18280,37 +18329,37 @@ async function addSharingContainer(id, name) {
   if (itemIdExists) {
     return;
   }
-  const container = document.querySelector('.sharing-container');
-  const item = document.createElement('div');
-  item.id = 'divSharing' + id;
-  item.classList.add('grid-item');
-  item.classList.add('sharing-video-container');
-  item.style.backgroundColor = '#202124';
+  const container = document.querySelector(".sharing-container");
+  const item = document.createElement("div");
+  item.id = "divSharing" + id;
+  item.classList.add("grid-item");
+  item.classList.add("sharing-video-container");
+  item.style.backgroundColor = "#202124";
   container.appendChild(item);
-  const video = document.createElement('video');
+  const video = document.createElement("video");
   video.id = id;
-  video.style.objectFit = 'contain';
+  video.style.objectFit = "contain";
   video.autoplay = true;
   video.playsInline = true;
   item.appendChild(video);
-  const nameDisplay = document.createElement('div');
-  nameDisplay.classList.add('name-display');
-  nameDisplay.classList.add('me-3');
+  const nameDisplay = document.createElement("div");
+  nameDisplay.classList.add("name-display");
+  nameDisplay.classList.add("me-3");
   nameDisplay.innerText = name;
   item.appendChild(nameDisplay);
-  container.classList.remove('d-none');
+  container.classList.remove("d-none");
 }
 function enabledVideo(bool, userId) {
   // alert("Second");
   // let videoPlayer = remoteStream.getTracks().find(track => track.kind === "video")
-  let alterDiv = document.getElementById('divAlter' + userId);
-  let videoDiv = document.getElementById('divVideo' + userId);
+  let alterDiv = document.getElementById("divAlter" + userId);
+  let videoDiv = document.getElementById("divVideo" + userId);
   if (bool) {
-    alterDiv.classList.add('d-none');
-    videoDiv.classList.remove('d-none');
+    alterDiv.classList.add("d-none");
+    videoDiv.classList.remove("d-none");
   } else {
-    alterDiv.classList.remove('d-none');
-    videoDiv.classList.add('d-none');
+    alterDiv.classList.remove("d-none");
+    videoDiv.classList.add("d-none");
   }
 }
 function enabledMic(bool, userId) {
@@ -18323,89 +18372,89 @@ function enabledMic(bool, userId) {
   // console.log(videoPlayer);
   // let alterDiv = document.getElementById("div"+userId);
   // let videoDiv = document.getElementById("remoteUser"+userId);
-  let micDiv = document.getElementsByClassName('mutedMic' + userId);
+  let micDiv = document.getElementsByClassName("mutedMic" + userId);
   if (bool) {
     // videoPlayer.enabled = bool;
     // videoPlayer.muted = bool;
-    micDiv[0].classList.add('d-none');
-    micDiv[1].classList.add('d-none');
-    micDiv[2].classList.add('d-none');
+    micDiv[0].classList.add("d-none");
+    micDiv[1].classList.add("d-none");
+    micDiv[2].classList.add("d-none");
   } else {
     // videoPlayer.enabled = bool;
     // videoPlayer.muted = bool;
-    micDiv[0].classList.remove('d-none');
-    micDiv[1].classList.remove('d-none');
-    micDiv[2].classList.remove('d-none');
+    micDiv[0].classList.remove("d-none");
+    micDiv[1].classList.remove("d-none");
+    micDiv[2].classList.remove("d-none");
   }
 }
 function toggleButtonWhenProducerNotFound(type, button, status, userId) {
-  let micDiv = document.getElementsByClassName('mutedMic' + userId);
-  let alterDiv = document.getElementById('divAlter' + userId);
-  let videoDiv = document.getElementById('divVideo' + userId);
-  if (type == 'audio') {
+  let micDiv = document.getElementsByClassName("mutedMic" + userId);
+  let alterDiv = document.getElementById("divAlter" + userId);
+  let videoDiv = document.getElementById("divVideo" + userId);
+  if (type == "audio") {
     if (status == true) {
       if (button) {
-        button.addClass('bg-danger');
-        $('#micIcon').addClass('bi-mic-mute');
-        $('#micIcon').removeClass('bi-mic');
+        button.addClass("bg-danger");
+        $("#micIcon").addClass("bi-mic-mute");
+        $("#micIcon").removeClass("bi-mic");
       }
-      $('.micActivelocalVideo').addClass('d-none');
-      micDiv[0].classList.remove('d-none');
-      micDiv[1].classList.remove('d-none');
-      micDiv[2].classList.remove('d-none');
+      $(".micActivelocalVideo").addClass("d-none");
+      micDiv[0].classList.remove("d-none");
+      micDiv[1].classList.remove("d-none");
+      micDiv[2].classList.remove("d-none");
     } else {
       if (button) {
-        button.removeClass('bg-danger');
-        $('#micIcon').removeClass('bi-mic-mute');
-        $('#micIcon').addClass('bi-mic');
+        button.removeClass("bg-danger");
+        $("#micIcon").removeClass("bi-mic-mute");
+        $("#micIcon").addClass("bi-mic");
       }
-      micDiv[0].classList.add('d-none');
-      micDiv[1].classList.add('d-none');
-      micDiv[2].classList.add('d-none');
+      micDiv[0].classList.add("d-none");
+      micDiv[1].classList.add("d-none");
+      micDiv[2].classList.add("d-none");
     }
   } else {
     if (status == true) {
       if (button) {
-        button.addClass('bg-danger');
-        $('#webcamIcon').addClass('bi-camera-video-off');
-        $('#webcamIcon').removeClass('bi-camera-video');
+        button.addClass("bg-danger");
+        $("#webcamIcon").addClass("bi-camera-video-off");
+        $("#webcamIcon").removeClass("bi-camera-video");
       }
-      alterDiv.classList.remove('d-none');
-      videoDiv.classList.add('d-none');
+      alterDiv.classList.remove("d-none");
+      videoDiv.classList.add("d-none");
     } else {
       if (button) {
-        button.removeClass('bg-danger');
-        $('#webcamIcon').removeClass('bi-camera-video-off');
-        $('#webcamIcon').addClass('bi-camera-video');
+        button.removeClass("bg-danger");
+        $("#webcamIcon").removeClass("bi-camera-video-off");
+        $("#webcamIcon").addClass("bi-camera-video");
       }
-      alterDiv.classList.add('d-none');
-      videoDiv.classList.remove('d-none');
+      alterDiv.classList.add("d-none");
+      videoDiv.classList.remove("d-none");
     }
   }
 }
 async function toggleButton(type, button) {
   let stream = localVideo.srcObject;
   let track = stream.getTracks().find(track => track.kind === type);
-  let micDiv = document.getElementsByClassName('mutedMiclocalVideo');
-  let alterDiv = document.getElementById('divAlterlocalVideo');
-  let videoDiv = document.getElementById('divVideolocalVideo');
-  if (type == 'audio') {
+  let micDiv = document.getElementsByClassName("mutedMiclocalVideo");
+  let alterDiv = document.getElementById("divAlterlocalVideo");
+  let videoDiv = document.getElementById("divVideolocalVideo");
+  if (type == "audio") {
     console.log(audioProducer);
     if (audioProducer) {
-      const audioState = audioProducer.paused ? 'paused' : 'active';
-      if (audioState == 'active') {
+      const audioState = audioProducer.paused ? "paused" : "active";
+      if (audioState == "active") {
         audioProducer.pause();
         stream.getAudioTracks()[0].stop();
         track.enabled = false;
-        button.addClass('bg-danger');
-        $('#micIcon').addClass('bi-mic-mute');
-        $('#micIcon').removeClass('bi-mic');
-        $('.micActivelocalVideo').addClass('d-none');
-        micDiv[0].classList.remove('d-none');
-        micDiv[1].classList.remove('d-none');
-        micDiv[2].classList.remove('d-none');
+        button.addClass("bg-danger");
+        $("#micIcon").addClass("bi-mic-mute");
+        $("#micIcon").removeClass("bi-mic");
+        $(".micActivelocalVideo").addClass("d-none");
+        micDiv[0].classList.remove("d-none");
+        micDiv[1].classList.remove("d-none");
+        micDiv[2].classList.remove("d-none");
         ws.send(JSON.stringify({
-          action: 'muted',
+          action: "muted",
           producerUserId: id,
           roomId: roomId,
           userEmail: user.userEmail
@@ -18415,7 +18464,7 @@ async function toggleButton(type, button) {
         } catch (error) {
           console.log(error);
         }
-        localStorage.setItem('micEnabled', false);
+        localStorage.setItem("micEnabled", false);
       } else {
         let audioTrackReplace = await getAudioTrackReplace();
         const audioTracks = stream.getAudioTracks();
@@ -18423,21 +18472,21 @@ async function toggleButton(type, button) {
           stream.removeTrack(audioTracks[0]);
           stream.addTrack(audioTrackReplace);
         } else {
-          console.error('No video tracks found in local video stream.');
+          console.error("No video tracks found in local video stream.");
         }
         await audioProducer.replaceTrack({
           track: audioTrackReplace
         });
         audioProducer.resume();
         ws.send(JSON.stringify({
-          action: 'unmuted',
+          action: "unmuted",
           producerUserId: id,
           roomId: roomId,
           userEmail: user.userEmail
         }));
-        let harkid = 'localVideo';
+        let harkid = "localVideo";
         if (harkInstances[harkid]) {
-          console.log('EXISTS HARK INSTANCE');
+          console.log("EXISTS HARK INSTANCE");
           harkInstances[harkid].stop();
           harkInstances[harkid] = null;
           delete harkInstances[harkid];
@@ -18449,62 +18498,71 @@ async function toggleButton(type, button) {
           threshold: -70
         };
         harkInstances[harkid] = (0, _hark.default)(audioStream, options);
-        harkInstances[harkid].on('speaking', () => {
+        harkInstances[harkid].on("speaking", () => {
           //console.log(`${harkid} is speaking on track ${track.id}`);
           (0, _index.showDots)(harkid);
+          if (harkid == "localVideo") {
+            (0, _index.showDots)("outputCanvas");
+          }
           (0, _index.moveDivToPositionWhenSpeaking)(harkid);
         });
-        harkInstances[harkid].on('stopped_speaking', () => {
+        harkInstances[harkid].on("stopped_speaking", () => {
           //console.log(`${harkid} speech stopped on track ${track.id}`);
           (0, _index.stopDots)(harkid);
+          if (harkid == "localVideo") {
+            (0, _index.stopDots)("outputCanvas");
+          }
         });
-        harkInstances[harkid].on('volume_change', (volume, threshold) => {
+        harkInstances[harkid].on("volume_change", (volume, threshold) => {
           //console.log(`Volume change: ${volume}, Threshold: ${threshold}`);
 
           (0, _index.updateDots)(volume, harkid);
+          if (harkid == "localVideo") {
+            (0, _index.updateDots)(volume, "outputCanvas");
+          }
         });
         track.enabled = true;
-        button.removeClass('bg-danger');
-        $('#micIcon').removeClass('bi-mic-mute');
-        $('#micIcon').addClass('bi-mic');
-        micDiv[0].classList.add('d-none');
-        micDiv[1].classList.add('d-none');
-        micDiv[2].classList.add('d-none');
+        button.removeClass("bg-danger");
+        $("#micIcon").removeClass("bi-mic-mute");
+        $("#micIcon").addClass("bi-mic");
+        micDiv[0].classList.add("d-none");
+        micDiv[1].classList.add("d-none");
+        micDiv[2].classList.add("d-none");
         try {
           recognition.start();
         } catch (error) {
           console.log(error);
         }
-        localStorage.setItem('micEnabled', true);
+        localStorage.setItem("micEnabled", true);
       }
     } else {
-      console.log('ERROR: KHONG TIM THAY AUDIOPRODUCER');
+      console.log("ERROR: KHONG TIM THAY AUDIOPRODUCER");
     }
   }
   //video
   else {
     // console.log(videoState);
     if (videoProducer) {
-      const videoState = videoProducer.paused ? 'paused' : 'active';
-      console.log('VIDEO STATE', videoState);
-      console.log(videoState == 'active');
-      if (videoState == 'active') {
+      const videoState = videoProducer.paused ? "paused" : "active";
+      console.log("VIDEO STATE", videoState);
+      console.log(videoState == "active");
+      if (videoState == "active") {
         await videoProducer.pause();
         // track.stop();
         stream.getVideoTracks()[0].stop();
         track.enabled = false;
-        button.addClass('bg-danger');
-        $('#webcamIcon').addClass('bi-camera-video-off');
-        $('#webcamIcon').removeClass('bi-camera-video');
-        alterDiv.classList.remove('d-none');
-        videoDiv.classList.add('d-none');
+        button.addClass("bg-danger");
+        $("#webcamIcon").addClass("bi-camera-video-off");
+        $("#webcamIcon").removeClass("bi-camera-video");
+        alterDiv.classList.remove("d-none");
+        videoDiv.classList.add("d-none");
         ws.send(JSON.stringify({
-          action: 'offCamera',
+          action: "offCamera",
           producerUserId: id,
           roomId: roomId,
           userEmail: user.userEmail
         }));
-        localStorage.setItem('cameraEnabled', false);
+        localStorage.setItem("cameraEnabled", false);
       } else {
         // track.resume();
         // getLocalStream();
@@ -18514,28 +18572,36 @@ async function toggleButton(type, button) {
           stream.removeTrack(videoTracks[0]);
           stream.addTrack(videoTrackReplace);
         } else {
-          console.error('No video tracks found in local video stream.');
+          console.error("No video tracks found in local video stream.");
         }
+        const canvas = document.getElementById("outputCanvas");
+        const streamFromCanvas = canvas.captureStream();
+        //localVideo.stream = streamFromCanvas;
+        if (!streamFromCanvas || !streamFromCanvas.getVideoTracks().length) {
+          console.error("Failed to capture stream from canvas.");
+          return;
+        }
+        const videoTrack = streamFromCanvas.getVideoTracks()[0];
         await videoProducer.replaceTrack({
-          track: videoTrackReplace
+          track: videoTrack
         });
         await videoProducer.resume();
         track.enabled = true;
-        button.removeClass('bg-danger');
-        $('#webcamIcon').removeClass('bi-camera-video-off');
-        $('#webcamIcon').addClass('bi-camera-video');
-        alterDiv.classList.add('d-none');
-        videoDiv.classList.remove('d-none');
+        button.removeClass("bg-danger");
+        $("#webcamIcon").removeClass("bi-camera-video-off");
+        $("#webcamIcon").addClass("bi-camera-video");
+        alterDiv.classList.add("d-none");
+        videoDiv.classList.remove("d-none");
         ws.send(JSON.stringify({
-          action: 'onCamera',
+          action: "onCamera",
           producerUserId: id,
           roomId: roomId,
           userEmail: user.userEmail
         }));
-        localStorage.setItem('cameraEnabled', true);
+        localStorage.setItem("cameraEnabled", true);
       }
     } else {
-      console.log('ERROR: KHONG TIM THAY VIDEOPRODUCER');
+      console.log("ERROR: KHONG TIM THAY VIDEOPRODUCER");
     }
   }
 }
@@ -18552,7 +18618,7 @@ async function getAudioStream() {
   });
 }
 async function getRemoteAudioTracks() {
-  return Array.from(consumers).map(consumer => consumer.track).filter(track => track.kind === 'audio');
+  return Array.from(consumers).map(consumer => consumer.track).filter(track => track.kind === "audio");
 }
 async function createCombinedStream() {
   const combinedStream = new MediaStream();
@@ -18560,20 +18626,20 @@ async function createCombinedStream() {
     const screenStream = await getScreenStream();
     screenStream.getTracks().forEach(track => combinedStream.addTrack(track));
   } catch (error) {
-    console.error('Failed to get screen stream:', error);
+    console.error("Failed to get screen stream:", error);
     throw error;
   }
   try {
     const remoteAudioTracks = await getRemoteAudioTracks();
     remoteAudioTracks.forEach(track => combinedStream.addTrack(track));
   } catch (error) {
-    console.error('Failed to get remote audio tracks:', error);
+    console.error("Failed to get remote audio tracks:", error);
   }
   try {
     const audioStream = await getAudioStream();
     audioStream.getTracks().forEach(track => combinedStream.addTrack(track));
   } catch (error) {
-    console.warn('Failed to get audio stream:', error);
+    console.warn("Failed to get audio stream:", error);
   }
   return combinedStream;
 }
@@ -18583,54 +18649,54 @@ function setupMediaRecorder(combinedStream) {
     chunks.push(event.data);
   };
   mediaRecorder.onstart = function () {
-    console.log('Recording started');
+    console.log("Recording started");
   };
   mediaRecorder.onstop = function () {
     const blob = new Blob(chunks, {
-      type: 'video/webm'
+      type: "video/webm"
     });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.style.display = 'none';
+    const a = document.createElement("a");
+    a.style.display = "none";
     a.href = url;
-    a.download = 'recording.webm';
+    a.download = "recording.webm";
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
     chunks = [];
   };
   mediaRecorder.onpause = function () {
-    console.log('Recording paused');
+    console.log("Recording paused");
   };
   mediaRecorder.onresume = function () {
-    console.log('Recording resumed');
+    console.log("Recording resumed");
   };
 }
 async function startRecording() {
   const combinedStream = await createCombinedStream();
   setupMediaRecorder(combinedStream);
   mediaRecorder.start();
-  console.log('Recording started');
+  console.log("Recording started");
   //chi show len pause va stop
-  showLiOptions(['pauseLi', 'stopLi']);
+  showLiOptions(["pauseLi", "stopLi"]);
   ws.send(JSON.stringify({
-    action: 'recording',
+    action: "recording",
     userEmail: user.userEmail,
     userId: id,
     roomId: roomId
   }));
   recordingUsersOnClient.unshift({
     userId: user.id,
-    name: 'You'
+    name: "You"
   });
   showRecordingUsers(recordingUsersOnClient);
 }
 function pauseRecording() {
-  if (mediaRecorder && mediaRecorder.state === 'recording') {
+  if (mediaRecorder && mediaRecorder.state === "recording") {
     mediaRecorder.pause();
-    console.log('Recording paused');
+    console.log("Recording paused");
     ws.send(JSON.stringify({
-      action: 'stopRecording',
+      action: "stopRecording",
       userEmail: user.userEmail,
       userId: id,
       roomId: roomId
@@ -18640,61 +18706,61 @@ function pauseRecording() {
   }
 }
 function resumeRecording() {
-  if (mediaRecorder && mediaRecorder.state === 'paused') {
+  if (mediaRecorder && mediaRecorder.state === "paused") {
     mediaRecorder.resume();
-    console.log('Recording resumed');
+    console.log("Recording resumed");
     ws.send(JSON.stringify({
-      action: 'recording',
+      action: "recording",
       userEmail: user.userEmail,
       userId: id,
       roomId: roomId
     }));
     recordingUsersOnClient.unshift({
       userId: user.id,
-      name: 'You'
+      name: "You"
     });
     showRecordingUsers(recordingUsersOnClient);
   }
 }
 function stopRecording() {
-  if (mediaRecorder && (mediaRecorder.state === 'recording' || mediaRecorder.state === 'paused')) {
+  if (mediaRecorder && (mediaRecorder.state === "recording" || mediaRecorder.state === "paused")) {
     mediaRecorder.stop();
-    console.log('Recording stopped');
+    console.log("Recording stopped");
   }
 }
 function showLiOptions(ids) {
-  console.log($('#optionsDiv li'));
-  $('#optionsDiv li').slice(1).each(function () {
-    const liId = $(this).attr('id');
+  console.log($("#optionsDiv li"));
+  $("#optionsDiv li").slice(1).each(function () {
+    const liId = $(this).attr("id");
     //console.log(liId);
     //console.log(ids.includes(liId));
     if (ids.includes(liId)) {
-      $(this).removeClass('d-none');
+      $(this).removeClass("d-none");
     } else {
-      $(this).addClass('d-none');
+      $(this).addClass("d-none");
     }
   });
 }
-console.log($('#optionsDiv li'));
-recordButton.on('click', function () {
+console.log($("#optionsDiv li"));
+recordButton.on("click", function () {
   startRecording();
 });
-pauseButton.on('click', function () {
+pauseButton.on("click", function () {
   pauseRecording();
   //chi show len resume, stop
-  showLiOptions(['resumeLi', 'stopLi']);
+  showLiOptions(["resumeLi", "stopLi"]);
 });
-resumeButton.on('click', function () {
+resumeButton.on("click", function () {
   resumeRecording();
   //chi show len pause, stop
-  showLiOptions(['pauseLi', 'stopLi']);
+  showLiOptions(["pauseLi", "stopLi"]);
 });
-stopButton.on('click', function () {
+stopButton.on("click", function () {
   stopRecording();
   //chi show len record
-  showLiOptions(['recordLi']);
+  showLiOptions(["recordLi"]);
   ws.send(JSON.stringify({
-    action: 'stopRecording',
+    action: "stopRecording",
     userEmail: user.userEmail,
     userId: id,
     roomId: roomId
@@ -18702,7 +18768,7 @@ stopButton.on('click', function () {
   recordingUsersOnClient = recordingUsersOnClient.filter(user => user.userId != id);
   showRecordingUsers(recordingUsersOnClient);
 });
-searchPeopleInput.on('input', function () {
+searchPeopleInput.on("input", function () {
   let filter = searchPeopleInput.val();
   (0, _index.filterUsersByName)(filter);
 });
@@ -18711,23 +18777,23 @@ let audioSrcChange = false;
 async function checkDeviceConstraints(audioConstraints, videoConstraints) {
   try {
     const devices = await navigator.mediaDevices.enumerateDevices();
-    const audioInputs = devices.filter(device => device.kind === 'audioinput');
+    const audioInputs = devices.filter(device => device.kind === "audioinput");
     //const audioOutputs = devices.filter(device => device.kind === 'audiooutput');
-    const videoInputs = devices.filter(device => device.kind === 'videoinput');
-    populateDropdown('micDropdownMenu', audioInputs, 'micButtonDropdown');
+    const videoInputs = devices.filter(device => device.kind === "videoinput");
+    populateDropdown("micDropdownMenu", audioInputs, "micButtonDropdown");
     //populateDropdown('speakerDropdownMenu', audioOutputs, 'speakerButtonDropdown');
-    populateDropdown('cameraDropdownMenu', videoInputs, 'cameraButtonDropdown');
+    populateDropdown("cameraDropdownMenu", videoInputs, "cameraButtonDropdown");
     videoConstraints = JSON.parse(videoConstraints);
     audioConstraints = JSON.parse(audioConstraints);
     let audioDeviceExists;
     if (audioConstraints.deviceId && audioConstraints) {
-      audioDeviceExists = devices.some(device => device.kind === 'audioinput' && device.deviceId === audioConstraints.deviceId.exact);
+      audioDeviceExists = devices.some(device => device.kind === "audioinput" && device.deviceId === audioConstraints.deviceId.exact);
     } else {
       audioDeviceExists = false;
     }
     let videoDeviceExists;
     if (videoConstraints.deviceId && videoConstraints) {
-      videoDeviceExists = devices.some(device => device.kind === 'videoinput' && device.deviceId === videoConstraints.deviceId.exact);
+      videoDeviceExists = devices.some(device => device.kind === "videoinput" && device.deviceId === videoConstraints.deviceId.exact);
     } else {
       videoDeviceExists = false;
     }
@@ -18736,7 +18802,7 @@ async function checkDeviceConstraints(audioConstraints, videoConstraints) {
       videoDeviceExists
     };
   } catch (error) {
-    console.error('Error checking device constraints:', error);
+    console.error("Error checking device constraints:", error);
     return {
       audioDeviceExists: false,
       videoDeviceExists: false
@@ -18744,12 +18810,12 @@ async function checkDeviceConstraints(audioConstraints, videoConstraints) {
   }
 }
 let lastTranscriptStatus = false;
-$('#settingButton').on('click', function () {
+$("#settingButton").on("click", function () {
   transcriptSwitch.checked = lastTranscriptStatus;
-  const videoPreview = document.getElementById('videoPreview');
+  const videoPreview = document.getElementById("videoPreview");
   videoPreview.muted = true;
-  let audioConstraints = localStorage.getItem('audioConstraints');
-  let videoConstraints = localStorage.getItem('videoConstraints');
+  let audioConstraints = localStorage.getItem("audioConstraints");
+  let videoConstraints = localStorage.getItem("videoConstraints");
   let constraints = {
     video: true,
     audio: true
@@ -18761,8 +18827,8 @@ $('#settingButton').on('click', function () {
     constraints.video = JSON.parse(videoConstraints);
   }
   checkDeviceConstraints(audioConstraints, videoConstraints).then(async result => {
-    console.log('Audio device exists:', result.audioDeviceExists);
-    console.log('Video device exists:', result.videoDeviceExists);
+    console.log("Audio device exists:", result.audioDeviceExists);
+    console.log("Video device exists:", result.videoDeviceExists);
     if (!result.audioDeviceExists) {
       constraints.audio = true;
     }
@@ -18833,13 +18899,13 @@ $('#settingButton').on('click', function () {
       audioStream = await audioStreamPromise;
     } catch (error) {
       //disableButton("audio", micButton);
-      console.warn('Audio permission denied or other issue:', error);
+      console.warn("Audio permission denied or other issue:", error);
     }
     try {
       videoStream = await videoStreamPromise;
     } catch (error) {
       //disableButton("video", webcamButton);
-      console.warn('Video permission denied or other issue:', error);
+      console.warn("Video permission denied or other issue:", error);
     }
 
     // Create a combined stream if both streams are available
@@ -18856,36 +18922,36 @@ $('#settingButton').on('click', function () {
     const videoTrack = stream.getVideoTracks()[0];
     const audioTrack = stream.getAudioTracks()[0];
     if (videoTrack) {
-      console.log('Video Track Device ID:', videoTrack.label);
-      $('#cameraCurrent').text(videoTrack.label);
-      let dropdownMenu = document.getElementById('cameraDropdownMenu');
-      const items = dropdownMenu.querySelectorAll('.dropdown-item');
+      console.log("Video Track Device ID:", videoTrack.label);
+      $("#cameraCurrent").text(videoTrack.label);
+      let dropdownMenu = document.getElementById("cameraDropdownMenu");
+      const items = dropdownMenu.querySelectorAll(".dropdown-item");
       items.forEach(item => {
         console.log(item.textContent);
         if (item.textContent.trim() === videoTrack.label) {
-          item.classList.add('active');
+          item.classList.add("active");
         }
       });
     }
     if (audioTrack) {
-      console.log('Audio Track Device ID:', audioTrack.label);
-      $('#microphoneCurrent').text(audioTrack.label);
-      let dropdownMenu = document.getElementById('micDropdownMenu');
-      const items = dropdownMenu.querySelectorAll('.dropdown-item');
+      console.log("Audio Track Device ID:", audioTrack.label);
+      $("#microphoneCurrent").text(audioTrack.label);
+      let dropdownMenu = document.getElementById("micDropdownMenu");
+      const items = dropdownMenu.querySelectorAll(".dropdown-item");
       items.forEach(item => {
         if (item.textContent.trim() === audioTrack.label) {
-          item.classList.add('active');
+          item.classList.add("active");
         }
       });
     }
   }).catch(function (error) {
-    console.error('Error when accessing devices:', error);
+    console.error("Error when accessing devices:", error);
     //constraints = {video: true, audio: true};
   });
 });
 async function changeMediaDevice(type, deviceId) {
   try {
-    const videoElement = document.getElementById('videoPreview');
+    const videoElement = document.getElementById("videoPreview");
     // if (!window.stream) {
     //     let stream = await getUserMediaWithConstraints(true, true);
     //     window.stream = stream
@@ -18894,7 +18960,7 @@ async function changeMediaDevice(type, deviceId) {
     let stream = videoElement.srcObject;
     let audioConstraints = null;
     let videoConstraints = null;
-    if (type === 'audioinput') {
+    if (type === "audioinput") {
       audioConstraints = {
         deviceId: {
           exact: deviceId
@@ -18925,7 +18991,7 @@ async function changeMediaDevice(type, deviceId) {
         }
       }
       audioSrcChange = true;
-    } else if (type === 'videoinput') {
+    } else if (type === "videoinput") {
       videoConstraints = {
         deviceId: {
           exact: deviceId
@@ -18949,12 +19015,12 @@ async function changeMediaDevice(type, deviceId) {
           stream.removeTrack(videoTracks[0]);
           stream.addTrack(videoStream.getVideoTracks()[0]);
           console.log(videoStream.getVideoTracks()[0]);
-          console.log('REPLACE VIDEO TRACK');
+          console.log("REPLACE VIDEO TRACK");
           //localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
         } else {
           stream.addTrack(videoStream.getVideoTracks()[0]);
           console.log(videoStream.getVideoTracks()[0]);
-          console.log('REPLACE VIDEO TRACK');
+          console.log("REPLACE VIDEO TRACK");
           //localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints))
         }
         videoTracks[0].stop();
@@ -18962,34 +19028,34 @@ async function changeMediaDevice(type, deviceId) {
       videoSrcChange = true;
     }
   } catch (error) {
-    console.error('Lỗi khi thay đổi thiết bị media:', error);
+    console.error("Lỗi khi thay đổi thiết bị media:", error);
   }
 }
 async function populateDropdown(dropdownId, devices, buttonId) {
   const dropdownMenu = document.getElementById(dropdownId);
-  dropdownMenu.innerHTML = '';
+  dropdownMenu.innerHTML = "";
   devices.forEach(device => {
-    const li = document.createElement('li');
-    const a = document.createElement('a');
-    a.className = 'dropdown-item';
-    a.href = '#';
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.className = "dropdown-item";
+    a.href = "#";
     a.textContent = device.label || `Thiết bị không có tên (${device.deviceId})`;
     a.dataset.deviceId = device.deviceId;
-    a.addEventListener('click', async function (event) {
+    a.addEventListener("click", async function (event) {
       event.preventDefault();
       const button = document.getElementById(buttonId);
-      const buttonLabel = button.querySelector('p');
+      const buttonLabel = button.querySelector("p");
       buttonLabel.textContent = this.textContent;
-      const items = dropdownMenu.querySelectorAll('.dropdown-item');
-      items.forEach(item => item.classList.remove('active'));
-      this.classList.add('active');
+      const items = dropdownMenu.querySelectorAll(".dropdown-item");
+      items.forEach(item => item.classList.remove("active"));
+      this.classList.add("active");
       await changeMediaDevice(devices[0].kind, this.dataset.deviceId);
     });
     li.appendChild(a);
     dropdownMenu.appendChild(li);
   });
 }
-$('#changeSourceButton').on('click', async function () {
+$("#changeSourceButton").on("click", async function () {
   try {
     try {
       if (transcriptSwitch.checked) {
@@ -19007,7 +19073,7 @@ $('#changeSourceButton').on('click', async function () {
       return;
     }
     let stream = localVideo.srcObject;
-    const videoPreview = document.getElementById('videoPreview');
+    const videoPreview = document.getElementById("videoPreview");
     let videoPreviewStream = videoPreview.srcObject;
     let videoTrackReplace = videoPreviewStream.getVideoTracks()[0];
     let videoTracks;
@@ -19027,38 +19093,48 @@ $('#changeSourceButton').on('click', async function () {
         stream.removeTrack(videoTracks[0]);
         //
       } else {
-        console.log('No video tracks found in local video stream.');
+        console.log("No video tracks found in local video stream.");
       }
       videoTracks[0].stop();
       if (audioSrcChange == false) {
         audioTrackReplace.stop();
       }
       stream.addTrack(videoTrackReplace);
-      videoParams.track = videoTrackReplace;
+      //videoParams.track = videoTrackReplace;
       localVideo.srcObject = stream;
+      console.log(localVideo.srcObject);
+      const canvas = document.getElementById("outputCanvas");
+      const streamFromCanvas = canvas.captureStream();
+      //localVideo.stream = streamFromCanvas;
+      if (!streamFromCanvas || !streamFromCanvas.getVideoTracks().length) {
+        console.error("Failed to capture stream from canvas.");
+        return;
+      }
+      const videoTrack = streamFromCanvas.getVideoTracks()[0];
+      videoParams.track = videoTrack;
       if (videoProducer) {
         await videoProducer.replaceTrack({
-          track: videoTrackReplace
+          track: videoTrack
         });
-        const videoState = videoProducer.paused ? 'paused' : 'active';
+        const videoState = videoProducer.paused ? "paused" : "active";
         console.log(videoState);
-        if (videoState == 'paused') {
+        if (videoState == "paused") {
           videoTrackReplace.stop();
         }
-        const audioState = audioProducer.paused ? 'paused' : 'active';
+        const audioState = audioProducer.paused ? "paused" : "active";
         console.log(audioState);
-        if (audioState == 'paused') {
+        if (audioState == "paused") {
           audioTrackReplace.stop();
         }
       } else {
         videoProducer = await producerTransport.produce(videoParams);
-        videoProducer.on('trackended', () => {
-          console.log('track ended');
+        videoProducer.on("trackended", () => {
+          console.log("track ended");
 
           // close video track
         });
-        videoProducer.on('transportclose', () => {
-          console.log('transport ended');
+        videoProducer.on("transportclose", () => {
+          console.log("transport ended");
 
           // close video track
         });
@@ -19066,7 +19142,7 @@ $('#changeSourceButton').on('click', async function () {
         // $("#divVideolocalVideo").removeClass("d-none");
         // $("#divAlterlocalVideo").addClass("d-none");
 
-        toggleButtonWhenProducerNotFound('video', webcamButton, false, 'localVideo');
+        toggleButtonWhenProducerNotFound("video", webcamButton, false, "localVideo");
       }
       let track = videoTrackReplace;
       let videoSettings = track.getSettings();
@@ -19076,8 +19152,8 @@ $('#changeSourceButton').on('click', async function () {
           exact: videoDeviceId
         }
       };
-      localStorage.setItem('videoConstraints', JSON.stringify(videoConstraints));
-      console.log('CHANGE MEDIA SOURCE');
+      localStorage.setItem("videoConstraints", JSON.stringify(videoConstraints));
+      console.log("CHANGE MEDIA SOURCE");
       console.log(videoConstraints);
       videoSrcChange = false;
     }
@@ -19095,14 +19171,14 @@ $('#changeSourceButton').on('click', async function () {
         await audioProducer.replaceTrack({
           track: audioTrackReplace
         });
-        const audioState = audioProducer.paused ? 'paused' : 'active';
+        const audioState = audioProducer.paused ? "paused" : "active";
         console.log(audioState);
-        if (audioState == 'paused') {
+        if (audioState == "paused") {
           audioTrackReplace.stop();
         }
-        const videoState = videoProducer.paused ? 'paused' : 'active';
+        const videoState = videoProducer.paused ? "paused" : "active";
         console.log(videoState);
-        if (videoState == 'paused') {
+        if (videoState == "paused") {
           videoTrackReplace.stop();
         }
         let track = audioTrackReplace;
@@ -19113,10 +19189,10 @@ $('#changeSourceButton').on('click', async function () {
             exact: audioDeviceId
           }
         };
-        localStorage.setItem('audioConstraints', JSON.stringify(audioConstraints));
-        let id = 'localVideo';
+        localStorage.setItem("audioConstraints", JSON.stringify(audioConstraints));
+        let id = "localVideo";
         if (harkInstances[id]) {
-          console.log('EXISTS HARK INSTANCE');
+          console.log("EXISTS HARK INSTANCE");
           harkInstances[id].stop();
           harkInstances[id] = null;
           delete harkInstances[id];
@@ -19128,38 +19204,47 @@ $('#changeSourceButton').on('click', async function () {
           threshold: -70
         };
         harkInstances[id] = (0, _hark.default)(audioStream, options);
-        harkInstances[id].on('speaking', () => {
+        harkInstances[id].on("speaking", () => {
           //console.log(`${id} is speaking on track ${track.id}`);
           (0, _index.showDots)(id);
+          if (id == "localVideo") {
+            (0, _index.showDots)("outputCanvas");
+          }
           (0, _index.moveDivToPositionWhenSpeaking)(id);
         });
-        harkInstances[id].on('stopped_speaking', () => {
+        harkInstances[id].on("stopped_speaking", () => {
           //console.log(`${id} speech stopped on track ${track.id}`);
           (0, _index.stopDots)(id);
+          if (id == "localVideo") {
+            (0, _index.stopDots)("outputCanvas");
+          }
         });
-        harkInstances[id].on('volume_change', (volume, threshold) => {
+        harkInstances[id].on("volume_change", (volume, threshold) => {
           //console.log(`Volume change: ${volume}, Threshold: ${threshold}`);
 
           (0, _index.updateDots)(volume, id);
+          if (id == "localVideo") {
+            (0, _index.updateDots)(volume, "outputCanvas");
+          }
         });
       } else {
-        console.error('No video tracks found in local video stream.');
+        console.error("No video tracks found in local video stream.");
       }
       audioSrcChange = false;
     }
   } catch (error) {
-    console.log('error when change source: ', error);
+    console.log("error when change source: ", error);
   }
   videoPreview.muted = true;
 });
-$('#changeSourceCloseButton').on('click', function () {
+$("#changeSourceCloseButton").on("click", function () {
   stopBothPreviewStream();
 });
-$('#closeSettingModalButton').on('click', function () {
+$("#closeSettingModalButton").on("click", function () {
   stopBothPreviewStream();
 });
 function stopBothPreviewStream() {
-  const videoPreview = document.getElementById('videoPreview');
+  const videoPreview = document.getElementById("videoPreview");
   let stream = videoPreview.srcObject;
   let videoTracks = stream.getVideoTracks();
   videoTracks.forEach(track => track.stop());
@@ -19168,23 +19253,23 @@ function stopBothPreviewStream() {
   audioTracks.forEach(track => track.stop());
   videoPreview.srcObject = null;
 }
-let privateMeetingSwitch = document.getElementById('toggleSwitch');
+let privateMeetingSwitch = document.getElementById("toggleSwitch");
 if (privateMeetingSwitch) {
-  privateMeetingSwitch.addEventListener('change', function () {
+  privateMeetingSwitch.addEventListener("change", function () {
     if (this.checked) {
-      console.log('Toggle switch is ON');
-      $('#meetingAccessDes').text('This meeting is private');
+      console.log("Toggle switch is ON");
+      $("#meetingAccessDes").text("This meeting is private");
       ws.send(JSON.stringify({
-        action: 'settingsUpdate',
+        action: "settingsUpdate",
         private: true,
         roomId: roomId,
         userId: id,
         userEmail: user.userEmail
       }));
     } else {
-      $('#meetingAccessDes').text('This meeting is public');
+      $("#meetingAccessDes").text("This meeting is public");
       ws.send(JSON.stringify({
-        action: 'settingsUpdate',
+        action: "settingsUpdate",
         private: false,
         roomId: roomId,
         userId: id,
@@ -19193,14 +19278,14 @@ if (privateMeetingSwitch) {
     }
   });
 }
-$('#acceptButton').on('click', function () {
-  const requestorId = $('#requestorId').val();
-  console.log('ACCEPT NEW USER');
+$("#acceptButton").on("click", function () {
+  const requestorId = $("#requestorId").val();
+  console.log("ACCEPT NEW USER");
   acceptRequest(requestorId);
 });
-$('#declineButton').on('click', function () {
-  const requestorId = $('#requestorId').val();
-  console.log('ACCEPT NEW USER');
+$("#declineButton").on("click", function () {
+  const requestorId = $("#requestorId").val();
+  console.log("ACCEPT NEW USER");
   declineRequest(requestorId);
 });
 
@@ -19213,43 +19298,43 @@ $('#declineButton').on('click', function () {
 //     }
 // }
 let invitedUsers = [];
-$('#input-invite').on('input', function () {
+$("#input-invite").on("input", function () {
   getUserByContainingEmail();
 });
-$('#inviteButton').on('click', function () {
+$("#inviteButton").on("click", function () {
   sendInvites();
 });
 function sendInvites() {
   $.ajax({
-    url: '/addRoomAttendees',
-    type: 'POST',
-    contentType: 'application/json',
+    url: "/addRoomAttendees",
+    type: "POST",
+    contentType: "application/json",
     data: JSON.stringify({
       newAttendees: invitedUsers,
       roomId: roomId
     }),
     success: function (response) {
-      console.log('add new attendee success:', response);
+      console.log("add new attendee success:", response);
     },
     error: function (xhr, status, error) {
-      console.error('Send error:', xhr.responseText);
+      console.error("Send error:", xhr.responseText);
     }
   });
   invitedUsers.forEach(email => {
     sendInvite(roomId, user.userEmail, email);
   });
-  $('#inviteToast').toast('show');
+  $("#inviteToast").toast("show");
   invitedUsers.forEach(email => {
     removeUser(email);
   });
-  $('#input-invite').val('');
+  $("#input-invite").val("");
 }
 function sendInvite(roomId, from, to) {
   try {
     $.ajax({
-      url: '/sendNotification',
-      type: 'POST',
-      contentType: 'application/json',
+      url: "/sendNotification",
+      type: "POST",
+      contentType: "application/json",
       data: JSON.stringify({
         roomId: roomId,
         from: from,
@@ -19257,47 +19342,47 @@ function sendInvite(roomId, from, to) {
       }),
       success: function (response) {
         ws.send(JSON.stringify({
-          action: 'inviteUser',
+          action: "inviteUser",
           userEmailInvited: to,
           roomId: roomId,
           id: user.id,
           userEmail: user.userEmail
         }));
-        console.log('Send notification success:', response);
+        console.log("Send notification success:", response);
       },
       error: function (xhr, status, error) {
-        console.error('Send error:', xhr.responseText);
+        console.error("Send error:", xhr.responseText);
       }
     });
     $.ajax({
-      url: '/sendInviteEmail',
-      type: 'POST',
-      contentType: 'application/json',
+      url: "/sendInviteEmail",
+      type: "POST",
+      contentType: "application/json",
       data: JSON.stringify({
         roomId: roomId,
         to: to
       }),
       success: function (response) {
-        console.log('Send Email Invitation success:', response);
+        console.log("Send Email Invitation success:", response);
       },
       error: function (xhr, status, error) {
-        console.error('Send error:', xhr.responseText);
+        console.error("Send error:", xhr.responseText);
       }
     });
   } catch (error) {
-    console.log('Error when sending invitation: ', error);
+    console.log("Error when sending invitation: ", error);
   }
 }
 function getUserByContainingEmail() {
-  let email = $('#input-invite').val();
+  let email = $("#input-invite").val();
   if (email.trim().length < 5) {
     return;
   }
   setTimeout(function () {
     $.ajax({
-      url: '/getUserByContainingEmail',
-      type: 'POST',
-      contentType: 'application/json',
+      url: "/getUserByContainingEmail",
+      type: "POST",
+      contentType: "application/json",
       data: JSON.stringify({
         email: email.trim()
       }),
@@ -19305,26 +19390,26 @@ function getUserByContainingEmail() {
         const users = response;
         console.log(users);
         if (users.length == 0) {
-          $('#noUserDiv').removeClass('d-none');
+          $("#noUserDiv").removeClass("d-none");
         } else {
-          $('#noUserDiv').addClass('d-none');
-          const foundUser = $('#foundUser');
-          const foundUserDiv = $('#foundUser div');
+          $("#noUserDiv").addClass("d-none");
+          const foundUser = $("#foundUser");
+          const foundUserDiv = $("#foundUser div");
           foundUserDiv.remove();
           users.forEach(iUser => {
             if (iUser.email == user.userEmail && users.length == 1) {
-              $('#noUserDiv').removeClass('d-none');
+              $("#noUserDiv").removeClass("d-none");
               return;
             }
             const newUserFound = $(` 
                             <div class="list-group">
                                 <label class="list-group-item d-flex align-items-center">
                                     <div class="w-100"> 
-                                        <img src="${iUser.avatar ? iUser.avatar : '/images/GoLogoNBg.png'}" alt="" srcset="" class="user-avatar rounded-circle" style="height: 28px; width: 28px; object-fit: contain;"> 
+                                        <img src="${iUser.avatar ? iUser.avatar : "/images/GoLogoNBg.png"}" alt="" srcset="" class="user-avatar rounded-circle" style="height: 28px; width: 28px; object-fit: contain;"> 
                                         ${iUser.email}
                                     </div>
                                     <input id="input${iUser.email}" class="invite-user-button form-check-input me-1 flex-shrink-1" type="checkbox" value="" 
-                                    data-avatar='${iUser.avatar}' data-email='${iUser.email}'" ${invitedUsers.includes(iUser.email) ? 'checked' : ''}>
+                                    data-avatar='${iUser.avatar}' data-email='${iUser.email}'" ${invitedUsers.includes(iUser.email) ? "checked" : ""}>
                                 </label>
                             </div>
                         `);
@@ -19333,25 +19418,25 @@ function getUserByContainingEmail() {
           // $(document).on('change', '.invite-user-button', function() {
 
           // });
-          $('.invite-user-button').on('change', function () {
-            const userEmail = $(this).data('email');
-            const userAvatar = $(this).data('avatar');
+          $(".invite-user-button").on("change", function () {
+            const userEmail = $(this).data("email");
+            const userAvatar = $(this).data("avatar");
             console.log(userEmail, userAvatar);
             inviteUser(userEmail, this, userAvatar);
           });
         }
       },
       error: function (xhr, status, error) {
-        console.error('Send error:', xhr.responseText);
+        console.error("Send error:", xhr.responseText);
       }
     });
   }, 2000);
 }
 function removeUser(email) {
   invitedUsers = invitedUsers.filter(userEmail => userEmail != email);
-  const listOfUsersDiv = document.querySelectorAll('#listOfUsers div');
+  const listOfUsersDiv = document.querySelectorAll("#listOfUsers div");
   listOfUsersDiv.forEach(user => {
-    if (user.getAttribute('data-id') === email) {
+    if (user.getAttribute("data-id") === email) {
       user.remove();
       const listItem = document.getElementById(`input${email}`);
       if (listItem) {
@@ -19361,23 +19446,23 @@ function removeUser(email) {
   });
 }
 function inviteUser(email, checkbox, avatar) {
-  const listOfUsersDiv = document.querySelectorAll('#listOfUsers div');
-  const listOfUsers = $('#listOfUsers');
+  const listOfUsersDiv = document.querySelectorAll("#listOfUsers div");
+  const listOfUsers = $("#listOfUsers");
   if (checkbox.checked) {
     const newUserInvited = $(`
             <div data-id="${email}" class="invited-user col rounded-pill border border-secondary d-flex align-items-center p-0">
                 <div class="text-start user-invited-content">
-                    <img src="${avatar ? avatar : '/images/GoLogoNBg.png'}" alt="" class="user-invited-avatar rounded-circle">
+                    <img src="${avatar ? avatar : "/images/GoLogoNBg.png"}" alt="" class="user-invited-avatar rounded-circle">
                     <span>${email}</span>
                 </div>
                 <i class="bi bi-x text-dark delete-invite-user" data-email='${email}'"></i>
             </div>
         `);
-    const input = $('#input-invite');
+    const input = $("#input-invite");
     input.before(newUserInvited);
     invitedUsers.push(email);
-    $('.delete-invite-user').on('click', function () {
-      const userEmail = $(this).data('email');
+    $(".delete-invite-user").on("click", function () {
+      const userEmail = $(this).data("email");
       console.log(userEmail);
       removeUser(userEmail);
     });
@@ -19386,7 +19471,7 @@ function inviteUser(email, checkbox, avatar) {
   } else {
     invitedUsers = invitedUsers.filter(userEmail => userEmail != email);
     listOfUsersDiv.forEach(user => {
-      if (user.getAttribute('data-id') === email) {
+      if (user.getAttribute("data-id") === email) {
         user.remove();
       }
     });
@@ -19394,34 +19479,228 @@ function inviteUser(email, checkbox, avatar) {
 }
 function showRecordingUsers(recordingUsers) {
   if (recordingUsers.length > 0) {
-    let users = '';
+    let users = "";
     const specialUserIndex = recordingUsers.findIndex(user => user.userId === id);
     if (specialUserIndex !== -1) {
       const [specialUser] = recordingUsers.splice(specialUserIndex, 1);
-      specialUser.name = 'You';
+      specialUser.name = "You";
       recordingUsers.unshift(specialUser);
     }
     if (recordingUsers.length > 5) {
       const firstFiveUsers = recordingUsers.slice(0, 5);
-      users = firstFiveUsers.map(user => user.name).join(', ') + ` and ${recordingUsers.length - 5} other users`;
+      users = firstFiveUsers.map(user => user.name).join(", ") + ` and ${recordingUsers.length - 5} other users`;
     } else {
-      users = recordingUsers.map(user => user.name).join(', ');
+      users = recordingUsers.map(user => user.name).join(", ");
     }
-    $('#recording-users').text(users.trim().replace(/,\s*$/, ''));
-    $('#recordings-container').removeClass('d-sm-none');
-    $('#recordings-container').addClass('d-sm-inline');
+    $("#recording-users").text(users.trim().replace(/,\s*$/, ""));
+    $("#recordings-container").removeClass("d-sm-none");
+    $("#recordings-container").addClass("d-sm-inline");
   } else {
-    $('#recordings-container').removeClass('d-sm-inline');
-    $('#recordings-container').addClass('d-sm-none');
+    $("#recordings-container").removeClass("d-sm-inline");
+    $("#recordings-container").addClass("d-sm-none");
+  }
+}
+let timeOutAnimation;
+let frameCount = 0;
+let isVideoMetaLoaded = false;
+async function setupWebRTCAndCanvas() {
+  const video = document.getElementById("localVideo");
+  const canvas = document.getElementById("outputCanvas");
+  const ctx = canvas.getContext("2d", {
+    willReadFrequently: true
+  });
+
+  // Create canvas for background and video
+  const backgroundCanvas = document.createElement("canvas");
+  const backgroundCtx = backgroundCanvas.getContext("2d", {
+    willReadFrequently: true
+  });
+  const videoCanvas = document.createElement("canvas");
+  const videoCtx = videoCanvas.getContext("2d", {
+    willReadFrequently: true
+  });
+  const blurCanvas = document.createElement("canvas");
+  const blurCtx = blurCanvas.getContext("2d", {
+    willReadFrequently: true
+  });
+
+  // Load the BodyPix model
+  const net = await bodyPix.load({
+    architecture: "MobileNetV1",
+    outputStride: 16,
+    multiplier: 0.5
+  });
+
+  // Set canvas sizes
+  video.onloadedmetadata = () => {
+    setCanvasSize();
+    renderFrame();
+    isVideoMetaLoaded = true;
+  };
+  const setCanvasSize = () => {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    backgroundCanvas.width = video.videoWidth;
+    backgroundCanvas.height = video.videoHeight;
+    videoCanvas.width = video.videoWidth;
+    videoCanvas.height = video.videoHeight;
+    blurCanvas.width = video.videoWidth;
+    blurCanvas.height = video.videoHeight;
+    console.log("set width and height to " + video.videoWidth + ", " + video.videoHeight);
+  };
+
+  // Get video stream from WebRTC
+  // const stream = await navigator.mediaDevices.getUserMedia({
+  //   video: true,
+  // });
+  // video.srcObject = stream;
+
+  //setCanvasSize();
+  //window.onresize = setCanvasSize;
+
+  // Load background image
+  const backgroundImage = new Image();
+  async function renderFrame() {
+    try {
+      const selectedRadio = document.querySelector(`input[name="mode"]:checked`);
+      const video = document.getElementById("localVideo");
+      if (!video.srcObject.getVideoTracks()[0]) {
+        clearTimeout(timeOutAnimation);
+        renderFrame();
+        return;
+      }
+      video.play();
+      if (frameCount % 1 === 0) {
+        const segmentation = await net.segmentPerson(video);
+        if (selectedRadio.value == "defaultMode") {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        } else if (selectedRadio.value == "blurMode") {
+          videoCtx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          blurCtx.filter = "blur(3px)";
+          blurCtx.drawImage(videoCanvas, 0, 0);
+          const blurredImageData = blurCtx.getImageData(0, 0, canvas.width, canvas.height);
+          const videoImageData = videoCtx.getImageData(0, 0, canvas.width, canvas.height);
+          const blurredPixels = blurredImageData.data;
+          const videoPixels = videoImageData.data;
+          const resultImageData = ctx.createImageData(canvas.width, canvas.height);
+          const resultPixels = resultImageData.data;
+          for (let i = 0; i < videoPixels.length; i += 4) {
+            const isPerson = segmentation.data[i / 4] === 1;
+            const alpha = isPerson ? 0.9 : 0.3;
+            resultPixels[i] = isPerson ? videoPixels[i] * alpha + blurredPixels[i] * (1 - alpha) : blurredPixels[i];
+            resultPixels[i + 1] = isPerson ? videoPixels[i + 1] * alpha + blurredPixels[i + 1] * (1 - alpha) : blurredPixels[i + 1];
+            resultPixels[i + 2] = isPerson ? videoPixels[i + 2] * alpha + blurredPixels[i + 2] * (1 - alpha) : blurredPixels[i + 2];
+            resultPixels[i + 3] = 255;
+          }
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.putImageData(resultImageData, 0, 0);
+        } else {
+          const value = selectedRadio.value;
+          const isBase64 = value.startsWith("data:image/");
+          if (backgroundImage.src.split("/")[backgroundImage.src.split("/").length - 1] != selectedRadio.value) {
+            if (isBase64) {
+              backgroundImage.src = value;
+            } else {
+              backgroundImage.src = `../images/bg/${value}`;
+            }
+          }
+          backgroundCtx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+          blurCtx.filter = "blur(10px)";
+          blurCtx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+          const blurImageData = blurCtx.getImageData(0, 0, canvas.width, canvas.height);
+          const blurredPixels = blurImageData.data;
+
+          // Draw the video frame on the video canvas
+
+          videoCtx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          // Get image data from video canvas
+          const videoImageData = videoCtx.getImageData(0, 0, canvas.width, canvas.height);
+          const videoPixels = videoImageData.data;
+
+          // Get image data from background canvas
+          const backgroundImageData = backgroundCtx.getImageData(0, 0, canvas.width, canvas.height);
+          const backgroundPixels = backgroundImageData.data;
+
+          // Create a new ImageData object for the result
+          const resultImageData = ctx.createImageData(canvas.width, canvas.height);
+          const resultPixels = resultImageData.data;
+          for (let i = 0; i < videoPixels.length; i += 4) {
+            const currentIndex = i / 4;
+            const rightNeighbor = currentIndex + 1;
+            const bottomNeighbor = currentIndex + canvas.width;
+            const isEdge = segmentation.data[currentIndex] !== segmentation.data[rightNeighbor] || segmentation.data[currentIndex] !== segmentation.data[bottomNeighbor];
+            if (segmentation.data[i / 4] === 0) {
+              resultPixels[i] = backgroundPixels[i];
+              resultPixels[i + 1] = backgroundPixels[i + 1];
+              resultPixels[i + 2] = backgroundPixels[i + 2];
+              resultPixels[i + 3] = backgroundPixels[i + 3];
+            } else {
+              // Use the video frame data for the person
+              resultPixels[i] = videoPixels[i];
+              resultPixels[i + 1] = videoPixels[i + 1];
+              resultPixels[i + 2] = videoPixels[i + 2];
+              resultPixels[i + 3] = videoPixels[i + 3];
+            }
+          }
+
+          // Clear the canvas and draw the combined result
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.putImageData(resultImageData, 0, 0);
+        }
+        frameCount++;
+        if (timeOutAnimation) {
+          clearTimeout(timeOutAnimation);
+        }
+        timeOutAnimation = setTimeout(renderFrame, 100 / 60);
+      }
+    } catch (error) {
+      console.log(error);
+      clearTimeout(timeOutAnimation);
+      //renderFrame();
+    }
+  }
+  if (isVideoMetaLoaded != true) {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    backgroundCanvas.width = video.videoWidth;
+    backgroundCanvas.height = video.videoHeight;
+    videoCanvas.width = video.videoWidth;
+    videoCanvas.height = video.videoHeight;
+    blurCanvas.width = video.videoWidth;
+    blurCanvas.height = video.videoHeight;
+    renderFrame();
+  }
+  const streamFromCanvas = canvas.captureStream();
+  if (!streamFromCanvas || !streamFromCanvas.getVideoTracks().length) {
+    console.error("Failed to capture stream from canvas.");
+    return;
+  }
+  const videoTracks = streamFromCanvas.getVideoTracks();
+  if (videoTracks.length > 0) {
+    const videoTrack = streamFromCanvas.getVideoTracks()[0];
+    if (videoProducer) {
+      try {
+        await videoProducer.replaceTrack({
+          track: videoTrack
+        });
+      } catch (error) {
+        console.log("Error when trying to replace video track: " + error);
+      }
+      console.log("Replace track successfully");
+    }
+  } else {
+    console.error("No video tracks found in stream.");
   }
 }
 let offlineStartTime = null;
 const RECONNECT_DELAY = 7000;
-window.addEventListener('online', function () {
-  console.log('Đã kết nối lại mạng.');
-  $('.reconnecting-layout').addClass('d-none');
+window.addEventListener("online", function () {
+  console.log("Đã kết nối lại mạng.");
+  $(".reconnecting-layout").addClass("d-none");
   if (offlineStartTime && Date.now() - offlineStartTime > RECONNECT_DELAY) {
-    console.log('Mất kết nối lâu hơn 7 giây. Khởi động lại cuộc gọi...');
+    console.log("Mất kết nối lâu hơn 7 giây. Khởi động lại cuộc gọi...");
     startCall();
     isReconnect = true;
     consumerTransports = {};
@@ -19429,10 +19708,10 @@ window.addEventListener('online', function () {
   }
   offlineStartTime = null;
 });
-window.addEventListener('offline', function () {
-  console.log('Mất kết nối mạng.');
-  $('.reconnecting-layout').removeClass('d-none');
-  console.log('Reconnecting...');
+window.addEventListener("offline", function () {
+  console.log("Mất kết nối mạng.");
+  $(".reconnecting-layout").removeClass("d-none");
+  console.log("Reconnecting...");
   offlineStartTime = Date.now();
 });
 
@@ -19462,14 +19741,14 @@ exports.updateRequestorListUI = updateRequestorListUI;
 async function toggleContainer(containerToShow, isActionContainerOpenGlobal) {
   isActionContainerOpenGlobal = !isActionContainerOpenGlobal;
   let isActionContainerOpen = false;
-  const actionContainers = document.querySelectorAll('.action-container > div');
-  if (actionContainer.classList.contains('open')) {
+  const actionContainers = document.querySelectorAll(".action-container > div");
+  if (actionContainer.classList.contains("open")) {
     isActionContainerOpen = true;
   }
   if (isActionContainerOpen) {
     let isThisContainerOpen = false;
     for (const container of actionContainers) {
-      if (container.style.display === 'flex') {
+      if (container.style.display === "flex") {
         if (container === containerToShow) {
           isThisContainerOpen = true;
           break;
@@ -19477,77 +19756,84 @@ async function toggleContainer(containerToShow, isActionContainerOpenGlobal) {
       }
     }
     if (isThisContainerOpen) {
-      actionContainer.classList.remove('open');
-      $('.main-container').removeClass('expanded');
+      actionContainer.classList.remove("open");
+      $(".main-container").removeClass("expanded");
     } else {
       actionContainers.forEach(container => {
-        container.style.display = 'none';
+        container.style.display = "none";
       });
-      containerToShow.style.display = 'flex';
+      containerToShow.style.display = "flex";
     }
   } else {
-    $('.main-container').addClass('expanded');
+    $(".main-container").addClass("expanded");
     actionContainers.forEach(container => {
-      container.style.display = 'none';
+      container.style.display = "none";
     });
-    containerToShow.style.display = 'flex';
+    containerToShow.style.display = "flex";
     // actionContainer.style.display = 'block';
     setTimeout(() => {
-      actionContainer.classList.toggle('open');
+      actionContainer.classList.toggle("open");
       // document.querySelector('.grid-container').classList.toggle('reduced');
     }, 10);
   }
 }
 function closeActionContainer() {
   isActionContainerOpenGlobal = false;
-  actionContainer.classList.remove('open');
-  $('.main-container').removeClass('expanded');
+  actionContainer.classList.remove("open");
+  $(".main-container").removeClass("expanded");
 }
 function getCurrentTime() {
   const now = new Date();
-  const hours = now.getHours().toString().padStart(2, '0');
-  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const hours = now.getHours().toString().padStart(2, "0");
+  const minutes = now.getMinutes().toString().padStart(2, "0");
   return `${hours}:${minutes}`;
 }
-$('#time').text(getCurrentTime());
+$("#time").text(getCurrentTime());
 setInterval(() => {
-  $('#time').text(getCurrentTime());
+  $("#time").text(getCurrentTime());
 }, 30000);
 async function addItem(id, name, avatar) {
   const itemIdExists = document.getElementById(id);
   if (itemIdExists) {
     return;
   }
-  const container = document.querySelector('.grid-container');
-  const item = document.createElement('div');
-  item.id = 'divVideo' + id;
-  item.classList.add('video-container');
-  item.classList.add('grid-item');
+  const container = document.querySelector(".grid-container");
+  const item = document.createElement("div");
+  item.id = "divVideo" + id;
+  item.classList.add("video-container");
+  item.classList.add("grid-item");
   container.appendChild(item);
-  const video = document.createElement('video');
-  video.classList.add('default-border-class-video');
+  const video = document.createElement("video");
+  video.classList.add("default-border-class-video");
   video.id = id;
   video.autoplay = true;
-  if (id == 'localVideo') {
+  if (id == "localVideo") {
     video.muted = true;
+    video.classList.add("d-none");
   }
   video.playsInline = true;
   item.appendChild(video);
-  const nameDisplay = document.createElement('div');
-  nameDisplay.classList.add('name-display');
-  nameDisplay.classList.add('me-1');
+  if (id == "localVideo") {
+    const canvas = document.createElement("canvas");
+    canvas.id = "outputCanvas";
+    canvas.classList.add("default-border-class-video");
+    item.appendChild(canvas);
+  }
+  const nameDisplay = document.createElement("div");
+  nameDisplay.classList.add("name-display");
+  nameDisplay.classList.add("me-1");
   nameDisplay.innerText = name;
   item.appendChild(nameDisplay);
-  const transcriptContainer = document.createElement('div');
+  const transcriptContainer = document.createElement("div");
   transcriptContainer.className = `transcripts transcripts-${id}`;
   item.appendChild(transcriptContainer);
-  const mutedMic = document.createElement('div');
+  const mutedMic = document.createElement("div");
   mutedMic.className = `mutedMic${id} d-none position-absolute top-0 end-0 muted-mic mt-2 me-2 text-white fs-5 bg-dark rounded-circle d-flex align-items-center justify-content-center`;
-  const icon = document.createElement('i');
-  icon.className = 'bi bi-mic-mute p-0';
+  const icon = document.createElement("i");
+  icon.className = "bi bi-mic-mute p-0";
   mutedMic.appendChild(icon);
   item.append(mutedMic);
-  const micActive = document.createElement('div');
+  const micActive = document.createElement("div");
   micActive.className = `micActive${id} d-none mic-container position-absolute top-0 end-0 muted-mic mt-2 me-2 text-white fs-5 rounded-circle d-flex align-items-center justify-content-center`;
   micActive.innerHTML = `
         <div class="dot rounded-pill"></div>
@@ -19555,33 +19841,33 @@ async function addItem(id, name, avatar) {
         <div class="dot rounded-pill"></div>
     `;
   item.append(micActive);
-  const divAlternative = document.createElement('div');
-  divAlternative.classList.add('d-none');
-  divAlternative.classList.add('bg-secondary');
-  divAlternative.classList.add('grid-item');
-  divAlternative.id = 'divAlter' + id;
+  const divAlternative = document.createElement("div");
+  divAlternative.classList.add("d-none");
+  divAlternative.classList.add("bg-secondary");
+  divAlternative.classList.add("grid-item");
+  divAlternative.id = "divAlter" + id;
   container.appendChild(divAlternative);
-  divAlternative.classList.add('video-container-altenative');
-  divAlternative.classList.add('position-relative');
+  divAlternative.classList.add("video-container-altenative");
+  divAlternative.classList.add("position-relative");
   // divAlternative.classList.add('d-none');
-  const image = document.createElement('img');
-  image.classList.add('user-avatar-display');
-  image.classList.add('position-absolute');
-  image.classList.add('top-50');
-  image.classList.add('start-50');
-  image.classList.add('translate-middle');
+  const image = document.createElement("img");
+  image.classList.add("user-avatar-display");
+  image.classList.add("position-absolute");
+  image.classList.add("top-50");
+  image.classList.add("start-50");
+  image.classList.add("translate-middle");
   // image.classList.add("d-flex");
   // image.classList.add("justify-content-center");
   // image.classList.add("align-items-center");
   if (avatar) {
     image.src = avatar;
   } else {
-    image.src = '/images/GoLogoNBg.png';
+    image.src = "/images/GoLogoNBg.png";
   }
   divAlternative.appendChild(image);
-  const nameDisplay2 = document.createElement('div');
-  nameDisplay2.classList.add('name-display');
-  nameDisplay2.classList.add('me-1');
+  const nameDisplay2 = document.createElement("div");
+  nameDisplay2.classList.add("name-display");
+  nameDisplay2.classList.add("me-1");
   nameDisplay2.innerText = name;
   divAlternative.appendChild(nameDisplay2);
   const transcriptContainerClone = transcriptContainer.cloneNode(true);
@@ -19605,54 +19891,54 @@ async function addItem(id, name, avatar) {
   resizeVideo();
 }
 function addOtherUsersUIDiv() {
-  const itemIdExists = document.getElementById('divOtherUsers');
+  const itemIdExists = document.getElementById("divOtherUsers");
   if (itemIdExists) {
     return;
   }
-  const container = document.querySelector('.grid-container');
-  const divAlternative = document.createElement('div');
-  divAlternative.classList.add('bg-secondary');
-  divAlternative.classList.add('grid-item');
-  divAlternative.id = 'divOtherUsers';
+  const container = document.querySelector(".grid-container");
+  const divAlternative = document.createElement("div");
+  divAlternative.classList.add("bg-secondary");
+  divAlternative.classList.add("grid-item");
+  divAlternative.id = "divOtherUsers";
   container.appendChild(divAlternative);
-  divAlternative.classList.add('video-container');
-  divAlternative.classList.add('position-relative');
+  divAlternative.classList.add("video-container");
+  divAlternative.classList.add("position-relative");
   // divAlternative.classList.add('d-none');
-  const image = document.createElement('img');
-  image.classList.add('user-avatar-display');
-  image.classList.add('position-absolute');
-  image.classList.add('top-50');
-  image.classList.add('start-50');
-  image.classList.add('translate-middle');
+  const image = document.createElement("img");
+  image.classList.add("user-avatar-display");
+  image.classList.add("position-absolute");
+  image.classList.add("top-50");
+  image.classList.add("start-50");
+  image.classList.add("translate-middle");
   // image.classList.add("d-flex");
   // image.classList.add("justify-content-center");
   // image.classList.add("align-items-center");
-  image.src = './images/GoLogoNBg.png';
+  image.src = "./images/GoLogoNBg.png";
   divAlternative.appendChild(image);
-  const nameDisplay2 = document.createElement('div');
-  nameDisplay2.classList.add('name-display');
-  nameDisplay2.classList.add('me-1');
-  nameDisplay2.innerText = 'Other users';
+  const nameDisplay2 = document.createElement("div");
+  nameDisplay2.classList.add("name-display");
+  nameDisplay2.classList.add("me-1");
+  nameDisplay2.innerText = "Other users";
   divAlternative.appendChild(nameDisplay2);
   resizeVideo();
 
   // moveDivToPosition("divOtherUsers", 3);
 
-  divAlternative.addEventListener('click', function () {
+  divAlternative.addEventListener("click", function () {
     toggleContainer(peopleContainer, isActionContainerOpenGlobal);
   });
 }
 function removeOtherUsersDiv() {
-  const itemIdExists = document.getElementById('divOtherUsers');
+  const itemIdExists = document.getElementById("divOtherUsers");
   if (itemIdExists) {
     itemIdExists.remove();
   }
 }
 function updateDots(volume, userId) {
   // console.log(userId);
-  const dotsContainers = document.getElementsByClassName('micActive' + userId);
+  const dotsContainers = document.getElementsByClassName("micActive" + userId);
   for (const container of dotsContainers) {
-    const dots = container.querySelectorAll('.dot');
+    const dots = container.querySelectorAll(".dot");
     const normalizedVolume = Math.max(0, Math.min((volume + 100) / 1, 100));
     const height = normalizedVolume / 10 + 5;
     dots[0].style.height = `${height}px`;
@@ -19661,63 +19947,63 @@ function updateDots(volume, userId) {
   }
 }
 function stopDots(userId) {
-  const dotsContainers = document.getElementsByClassName('micActive' + userId);
+  const dotsContainers = document.getElementsByClassName("micActive" + userId);
   for (const container of dotsContainers) {
-    container.classList.add('d-none');
+    container.classList.add("d-none");
   }
   const videoItem = document.getElementById(userId);
-  const divAlter = document.getElementById('divAlter' + userId);
+  const divAlter = document.getElementById("divAlter" + userId);
   if (videoItem) {
-    videoItem.classList.remove('custom-border-class');
-    videoItem.classList.add('default-border-class-video');
+    videoItem.classList.remove("custom-border-class");
+    videoItem.classList.add("default-border-class-video");
   }
   if (divAlter) {
-    divAlter.classList.remove('custom-border-class');
-    divAlter.classList.add('default-border-class-video');
+    divAlter.classList.remove("custom-border-class");
+    divAlter.classList.add("default-border-class-video");
   }
 }
 function showDots(userId) {
-  const dotsContainers = document.getElementsByClassName('micActive' + userId);
+  const dotsContainers = document.getElementsByClassName("micActive" + userId);
   for (const container of dotsContainers) {
-    container.classList.remove('d-none');
+    container.classList.remove("d-none");
   }
   const videoItem = document.getElementById(userId);
   if (videoItem) {
-    videoItem.classList.remove('default-border-class-video');
-    videoItem.classList.add('custom-border-class');
+    videoItem.classList.remove("default-border-class-video");
+    videoItem.classList.add("custom-border-class");
   }
-  const divAlter = document.getElementById('divAlter' + userId);
+  const divAlter = document.getElementById("divAlter" + userId);
   if (divAlter) {
-    divAlter.classList.remove('default-border-class-video');
-    divAlter.classList.add('custom-border-class');
+    divAlter.classList.remove("default-border-class-video");
+    divAlter.classList.add("custom-border-class");
   }
 }
 function filterUsersByName(nameFilter) {
   if (nameFilter.length == 0) {
-    const users = document.querySelectorAll('.contributor-showing');
+    const users = document.querySelectorAll(".contributor-showing");
     users.forEach(user => {
-      user.classList.remove('d-none');
+      user.classList.remove("d-none");
     });
     return;
   }
-  const users = document.querySelectorAll('.contributor-showing');
+  const users = document.querySelectorAll(".contributor-showing");
   users.forEach(user => {
-    const userName = user.getAttribute('data-name').toLowerCase();
+    const userName = user.getAttribute("data-name").toLowerCase();
     if (userName.includes(nameFilter.toLowerCase())) {
-      user.classList.remove('d-none');
+      user.classList.remove("d-none");
     } else {
-      user.classList.add('d-none');
+      user.classList.add("d-none");
     }
   });
 }
 function resizeSharing() {
-  const container = document.querySelector('.sharing-container');
-  const sharingVideoContainer = document.querySelectorAll('.sharing-video-container');
+  const container = document.querySelector(".sharing-container");
+  const sharingVideoContainer = document.querySelectorAll(".sharing-video-container");
   const num = sharingVideoContainer.length;
   if (num > 0) {
-    container.classList.add('col-9');
+    container.classList.add("col-9");
   } else {
-    container.classList.remove('col-9');
+    container.classList.remove("col-9");
   }
   const width = window.innerWidth;
 
@@ -19803,20 +20089,20 @@ function resizeSharing() {
   container.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
 }
 function resizeVideo() {
-  const container = document.querySelector('.grid-container');
-  const videoContainer = document.querySelectorAll('.video-container');
+  const container = document.querySelector(".grid-container");
+  const videoContainer = document.querySelectorAll(".video-container");
   const num = videoContainer.length;
   const width = window.innerWidth;
 
   // console.log(width);
 
-  const sharingContainer = document.querySelector('.sharing-container');
-  if (!sharingContainer.classList.contains('d-none')) {
-    container.classList.add('col-3');
+  const sharingContainer = document.querySelector(".sharing-container");
+  if (!sharingContainer.classList.contains("d-none")) {
+    container.classList.add("col-3");
     let columns = 1;
     let rows = 1;
     if (num > 4) {
-      $('.grid-container').addClass('hide-extra');
+      $(".grid-container").addClass("hide-extra");
       // addOtherUsersUIDiv();
       // moveDivToPosition("divOtherUsers", 7);
       rows = Math.ceil(4);
@@ -19844,9 +20130,9 @@ function resizeVideo() {
     container.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
     return;
   } else {
-    container.classList.remove('col-3');
+    container.classList.remove("col-3");
   }
-  $('.grid-container').removeClass('hide-extra');
+  $(".grid-container").removeClass("hide-extra");
   let columns = 1;
   let rows = 1;
   removeOtherUsersDiv();
@@ -19868,7 +20154,7 @@ function resizeVideo() {
       rows = Math.ceil(num / 5);
     } else {
       addOtherUsersUIDiv();
-      moveDivToPosition('divOtherUsers', 25);
+      moveDivToPosition("divOtherUsers", 25);
       rows = Math.ceil(5);
     }
   } else if (width > 800) {
@@ -19892,7 +20178,7 @@ function resizeVideo() {
       rows = Math.ceil(4);
     } else {
       addOtherUsersUIDiv();
-      moveDivToPosition('divOtherUsers', 16);
+      moveDivToPosition("divOtherUsers", 16);
       rows = Math.ceil(4);
     }
   } else {
@@ -19916,59 +20202,74 @@ function resizeVideo() {
       rows = Math.ceil(num / 3);
     } else {
       addOtherUsersUIDiv();
-      moveDivToPosition('divOtherUsers', 12);
+      moveDivToPosition("divOtherUsers", 12);
       rows = Math.ceil(3);
     }
   }
   container.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
   container.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
 }
-const actionContainer = document.getElementById('actionContainer');
-const chatContainer = document.getElementById('chatContainer');
-const chatButton = document.getElementById('chatButton');
-const chatButtonOnMobile = document.getElementById('chatButtonOnMobile');
-const closeChatButton = document.getElementById('closeChatButton');
-const closePeopleButton = document.getElementById('closePeopleButton');
-const closeControlButton = document.getElementById('closeControlButton');
-const peopleContainer = document.getElementById('peopleContainer');
-const peopleButton = document.getElementById('peopleButton');
-const peopleButtonOnMobile = document.getElementById('peopleButtonOnMobile');
-const controlContainer = document.getElementById('controlContainer');
-const controlButton = document.getElementById('controlButton');
-const controlButtonOnMobile = document.getElementById('controlButtonOnMobile');
+const actionContainer = document.getElementById("actionContainer");
+const chatContainer = document.getElementById("chatContainer");
+const chatButton = document.getElementById("chatButton");
+const chatButtonOnMobile = document.getElementById("chatButtonOnMobile");
+const closeChatButton = document.getElementById("closeChatButton");
+const closePeopleButton = document.getElementById("closePeopleButton");
+const closeControlButton = document.getElementById("closeControlButton");
+const closeEffectButton = document.getElementById("closeEffectButton");
+const peopleContainer = document.getElementById("peopleContainer");
+const peopleButton = document.getElementById("peopleButton");
+const peopleButtonOnMobile = document.getElementById("peopleButtonOnMobile");
+const controlContainer = document.getElementById("controlContainer");
+const controlButton = document.getElementById("controlButton");
+const controlButtonOnMobile = document.getElementById("controlButtonOnMobile");
+const effectContainer = document.getElementById("effectContainer");
+const effectButton = document.getElementById("effectButton");
+const effectButtonOnMobile = document.getElementById("effectButtonOnMobile");
 let isActionContainerOpenGlobal = false;
-peopleButton.addEventListener('click', function () {
+peopleButton.addEventListener("click", function () {
   toggleContainer(peopleContainer, isActionContainerOpenGlobal);
 });
-peopleButtonOnMobile.addEventListener('click', function () {
+peopleButtonOnMobile.addEventListener("click", function () {
   toggleContainer(peopleContainer, isActionContainerOpenGlobal);
 });
-chatButton.addEventListener('click', function () {
-  $('#new-message').addClass('d-none');
+chatButton.addEventListener("click", function () {
+  $("#new-message").addClass("d-none");
   toggleContainer(chatContainer, isActionContainerOpenGlobal);
 });
-chatButtonOnMobile.addEventListener('click', function () {
-  $('#new-message').addClass('d-none');
+chatButtonOnMobile.addEventListener("click", function () {
+  $("#new-message").addClass("d-none");
   toggleContainer(chatContainer, isActionContainerOpenGlobal);
 });
+effectButton.addEventListener("click", function () {
+  toggleContainer(effectContainer, isActionContainerOpenGlobal);
+});
+
+// effectButtonOnMobile.addEventListener("click", function () {
+//   toggleContainer(effectContainer, isActionContainerOpenGlobal);
+// });
+
 if (controlButton) {
-  controlButton.addEventListener('click', function () {
+  controlButton.addEventListener("click", function () {
     toggleContainer(controlContainer, isActionContainerOpenGlobal);
   });
 }
 if (controlButtonOnMobile) {
-  controlButtonOnMobile.addEventListener('click', function () {
+  controlButtonOnMobile.addEventListener("click", function () {
     toggleContainer(controlContainer, isActionContainerOpenGlobal);
   });
 }
-closeChatButton.addEventListener('click', function () {
+closeChatButton.addEventListener("click", function () {
   closeActionContainer();
 });
-closePeopleButton.addEventListener('click', function () {
+closePeopleButton.addEventListener("click", function () {
+  closeActionContainer();
+});
+closeEffectButton.addEventListener("click", function () {
   closeActionContainer();
 });
 if (closeControlButton) {
-  closeControlButton.addEventListener('click', function () {
+  closeControlButton.addEventListener("click", function () {
     closeActionContainer();
   });
 }
@@ -19977,19 +20278,19 @@ if (closeControlButton) {
 
 // });
 
-document.querySelector('.contributor').addEventListener('click', function () {
-  const peopleInMeeting = document.querySelector('.people-in-meeting');
-  if (peopleInMeeting.classList.contains('d-none')) {
-    peopleInMeeting.classList.remove('d-none');
-    document.querySelector('.contributor').classList.remove('rounded-bottom-2');
+document.querySelector(".contributor").addEventListener("click", function () {
+  const peopleInMeeting = document.querySelector(".people-in-meeting");
+  if (peopleInMeeting.classList.contains("d-none")) {
+    peopleInMeeting.classList.remove("d-none");
+    document.querySelector(".contributor").classList.remove("rounded-bottom-2");
   } else {
-    peopleInMeeting.classList.toggle('d-none');
-    document.querySelector('.contributor').classList.add('rounded-bottom-2');
+    peopleInMeeting.classList.toggle("d-none");
+    document.querySelector(".contributor").classList.add("rounded-bottom-2");
   }
 });
 function moveDivToPosition(divId, position) {
-  var div = document.getElementById('divVideo' + divId);
-  var alterDiv = document.getElementById('divAlter' + divId);
+  var div = document.getElementById("divVideo" + divId);
+  var alterDiv = document.getElementById("divAlter" + divId);
   var parent = div.parentNode;
   let targetIndex = Math.min(position, parent.children.length - 1);
   if (parent.children[targetIndex] === div && parent.children[targetIndex + 1] === alterDiv) {
@@ -20009,14 +20310,14 @@ function moveDivToPositionGlobal(divId, position) {
 }
 function moveDivToPositionWhenSpeaking(divId) {
   let position = 0;
-  if (divId == 'localVideo') {
+  if (divId == "localVideo") {
     return;
   }
   // Sharing => day len vi tri thu 3
-  if ($('.grid-container').hasClass('hide-extra')) {
+  if ($(".grid-container").hasClass("hide-extra")) {
     position = 3 * 2 - 2;
-    var div = document.getElementById('divVideo' + divId);
-    var alterDiv = document.getElementById('divAlter' + divId);
+    var div = document.getElementById("divVideo" + divId);
+    var alterDiv = document.getElementById("divAlter" + divId);
     var parent = div.parentNode;
     let targetIndex = Math.min(position, parent.children.length - 1);
     console.log(targetIndex);
@@ -20029,10 +20330,10 @@ function moveDivToPositionWhenSpeaking(divId) {
     parent.insertBefore(alterDiv, parent.children[targetIndex + 1]);
   } else {
     position = 2 * 2 - 2;
-    var div = document.getElementById('divVideo' + divId);
-    var alterDiv = document.getElementById('divAlter' + divId);
+    var div = document.getElementById("divVideo" + divId);
+    var alterDiv = document.getElementById("divAlter" + divId);
     var parent = div.parentNode;
-    if (parent.children.length < 8) {
+    if (parent.children.length < 4) {
       return;
     }
     let targetIndex = Math.min(position, parent.children.length - 1);
@@ -20048,54 +20349,88 @@ function moveDivToPositionWhenSpeaking(divId) {
   // Không sharing => day len vi tri thu 2
 }
 function removeRequestorUi(id) {
-  const requestDIV = document.getElementById('requestor-' + id);
+  const requestDIV = document.getElementById("requestor-" + id);
   if (requestDIV) {
     requestDIV.remove();
     updateRequestorListUI();
   }
 }
 function updateRequestorListUI() {
-  const requestorsList = document.querySelectorAll('.requestorsContainer');
-  const videoContainer = document.querySelectorAll('.requestor-container');
+  const requestorsList = document.querySelectorAll(".requestorsContainer");
+  const videoContainer = document.querySelectorAll(".requestor-container");
   const num = videoContainer.length;
   if (num > 0) {
     requestorsList.forEach(div => {
-      div.classList.remove('d-none');
+      div.classList.remove("d-none");
     });
   } else {
     requestorsList.forEach(div => {
-      div.classList.add('d-none');
+      div.classList.add("d-none");
     });
   }
 }
-window.addEventListener('resize', resizeVideo);
-$('#copyButton').on('click', async function () {
-  const textToCopy = document.getElementById('meetingLink').innerText.trim();
+window.addEventListener("resize", resizeVideo);
+$("#copyButton").on("click", async function () {
+  const textToCopy = document.getElementById("meetingLink").innerText.trim();
   try {
     await navigator.clipboard.writeText(textToCopy);
-    const tooltip = new bootstrap.Tooltip(document.getElementById('copyButton'), {
-      trigger: 'manual',
-      title: 'Copied!',
-      placement: 'top'
+    const tooltip = new bootstrap.Tooltip(document.getElementById("copyButton"), {
+      trigger: "manual",
+      title: "Copied!",
+      placement: "top"
     });
     tooltip.show();
     setTimeout(() => tooltip.hide(), 1000);
   } catch (err) {
-    console.error('Failed to copy text: ', err);
-    const tooltip = new bootstrap.Tooltip(document.getElementById('copyButton'), {
-      trigger: 'manual',
-      title: 'Failed to copy!',
-      placement: 'top'
+    console.error("Failed to copy text: ", err);
+    const tooltip = new bootstrap.Tooltip(document.getElementById("copyButton"), {
+      trigger: "manual",
+      title: "Failed to copy!",
+      placement: "top"
     });
     tooltip.show();
     setTimeout(() => tooltip.hide(), 1000);
   }
 });
-$('#closeMeetingInfo').on('click', function () {
-  $('#meetingInfoContainer').removeClass('visible');
+$("#closeMeetingInfo").on("click", function () {
+  $("#meetingInfoContainer").removeClass("visible");
   setTimeout(() => {
-    $('#meetingInfoContainer').remove();
+    $("#meetingInfoContainer").remove();
   }, 500);
+});
+const fileInput = document.getElementById("fileInput");
+const backgroundOptions = document.getElementById("backgroundOptions");
+fileInput.addEventListener("change", function () {
+  const file = this.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const imageUrl = e.target.result;
+      const newOptionId = `backgroundImage${backgroundOptions.children.length}`;
+      const label = document.createElement("label");
+      label.setAttribute("for", newOptionId);
+      label.setAttribute("class", "mb-2");
+      const input = document.createElement("input");
+      input.setAttribute("type", "radio");
+      input.setAttribute("name", "mode");
+      input.setAttribute("id", newOptionId);
+      input.setAttribute("value", imageUrl);
+      const img = document.createElement("img");
+      img.setAttribute("src", imageUrl);
+      img.setAttribute("alt", "New Background");
+      img.setAttribute("class", "img-thumbnail ms-1");
+      img.setAttribute("width", "100");
+      img.setAttribute("height", "70");
+      label.appendChild(input);
+      label.appendChild(img);
+      if (backgroundOptions.children.length > 0) {
+        backgroundOptions.insertBefore(label, backgroundOptions.children[1] || null);
+      } else {
+        backgroundOptions.appendChild(label);
+      }
+    };
+    reader.readAsDataURL(file);
+  }
 });
 
 },{}]},{},[59,58]);
