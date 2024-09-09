@@ -30,6 +30,8 @@ const micButton = $("#micButton");
 const hangupButton = $("#hangupButton");
 const shareButton = $("#shareButton");
 
+const shareButtonOnMobile = $("#shareButtonOnMobile");
+
 const recordButton = $("#recordButton");
 const pauseButton = $("#pauseButton");
 const stopButton = $("#stopButton");
@@ -1598,7 +1600,7 @@ function stopSharing(id) {
   }
 }
 
-shareButton.on("click", async () => {
+async function sharingVideo() {
   if (myShareStream != null) {
     stopSharing(id + "-Sharing");
 
@@ -1666,12 +1668,14 @@ shareButton.on("click", async () => {
   const sharingContainer = document.querySelector(".sharing-container");
 
   sharingContainer.classList.remove("d-none");
+}
 
-  // await addItem("123","Hao 2");
-  // await addItem("1234","Hao 3");
-  // await addItem("12345","Hao 3");
-  // await addItem("12346","Hao 3");
-  // await addItem("12347","Hao 3");
+shareButton.on("click", async () => {
+  await sharingVideo();
+});
+
+shareButtonOnMobile.on("click", async () => {
+  await sharingVideo();
 });
 async function addSharingContainer(id, name) {
   const itemIdExists = document.getElementById(id);

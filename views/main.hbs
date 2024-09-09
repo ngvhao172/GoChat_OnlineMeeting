@@ -267,6 +267,12 @@
                             <span class="new-noti d-none" id="new-noti-green"></span>
                         </div>
                     </button>
+                     <button class="pe-3 btn btn-light d-lg-none d-sm-block" href="#" role="button" role="button" data-bs-toggle="modal"
+                        data-bs-target="#listScheModal">
+                        <div class="icon-container">
+                            <i class="bi bi-list-check h5"></i>
+                        </div>
+                    </button>
                     <ul class="dropdown-menu" aria-labelledby="noticDropdown" onclick="getPermission()"
                         id="ulInvitations" style="overflow-y: auto; max-height: 300px">
                         <li class="px-3 py-2" id="emptyNotiLi">
@@ -440,7 +446,7 @@
                 </div>
                 <div class="card-meet" style="display: flex; flex-direction: column; height: calc(100vh - 300px);">
                     <div class="meeting-schedule" id="meeting-schedule" style="overflow-y: auto; flex: 1">
-                        <div class="m-2" id="spinnerLoading">
+                        <div class="m-2 spinnerLoading">
                             <div class="p-2">
                                 <div class="d-flex justify-content-center">
                                     <div class="spinner-border text-center" role="status">
@@ -449,7 +455,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card m-2 d-none" id="freeDiv">
+                        <div class="card m-2 d-none freeDiv">
                             <div class="card-body p-2">
                                 <div class="d-flex justify-content-between">
                                     <small class="card-text text-black align-self-center">You are free today. Yahoooo!!!!</small>
@@ -774,6 +780,82 @@
             </div>
         </div>
     </div>
+    <!-- listScheModal -->
+    <div class="modal fade" id="listScheModal" tabindex="-1" aria-labelledby="listScheModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="settingModalLabel">Schedule</h5>
+                    <button type="button" class="btn-close btn-light" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card-meet" id="meeting-schedule-modal" style="max-height: 500px; overflow-y: auto">
+                        <div class="m-2 spinnerLoading">
+                            <div class="p-2">
+                                <div class="d-flex justify-content-center">
+                                    <div class="spinner-border text-center" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card m-2 d-none freeDiv">
+                            <div class="card-body p-2">
+                                <div class="d-flex justify-content-between">
+                                    <small class="card-text text-black align-self-center">You are free today. Yahoooo!!!!</small>
+                                </div>
+                            </div>
+                        </div>
+                        {{!-- <div class="card m-2">
+                            <div class="card-body p-2">
+                                <div class="d-flex justify-content-between">
+                                    <small class="card-text text-danger">Now
+                                    </small>
+                                    <div class="dropdown">
+                                        <i class="bi bi-three-dots-vertical" id="dropdownMenuButton"
+                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <a class="dropdown-item" href="#">Edit</a>
+                                            <a class="dropdown-item" href="#">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h6 class="card-title">Nhat Quynh Pham's meeting</h6>
+                                <a href="#" class="btn btn-primary btn-sm">Join</a>
+                                <small class="card-text text-secondary">Jun 26 11h:30PM - Jun 27 12h:00AM
+                                </small>
+
+                            </div>
+                        </div>
+                        <div class="card m-2">
+                            <div class="card-body p-2">
+                                <div class="d-flex justify-content-between">
+                                    <small class="card-text text-danger">1 minutes
+                                    </small>
+                                    <div class="dropdown">
+                                        <i class="bi bi-three-dots-vertical" id="dropdownMenuButton"
+                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <a class="dropdown-item" href="#">Edit</a>
+                                            <a class="dropdown-item" href="#">Delete</a>
+                                        </div>
+                                    </div>
+                                    </div>
+
+                                <h6 class="card-title">Nhat Quynh Pham's meeting</h6>
+                                <a href="#" class="btn btn-primary btn-sm">Start</a>
+                                <small class="card-text text-secondary">Jun 26 11h:30PM - Jun 27 12h:00AM
+                                </small>
+
+                            </div>
+                        </div> --}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- shareScreen -->
     <div class="modal fade" id="meetingLater" tabindex="-1" aria-labelledby="shareScreenLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -1056,9 +1138,10 @@
         });
     }
     function getSchedule(date){
-        $("#spinnerLoading").removeClass("d-none");
+        $(".spinnerLoading").removeClass("d-none");
         $('#meeting-schedule > div').slice(2).remove();
-        $('#freeDiv').addClass("d-none");
+        $('#meeting-schedule-modal > div').slice(2).remove();
+        $('.freeDiv').addClass("d-none");
         let day = date;
         $.ajax({
             url: '/getRoomsByDay',
@@ -1070,24 +1153,29 @@
             success: function (response) {
                 let data = response;
                 if(data.length == 0){
-                    $('#freeDiv').removeClass("d-none");
-                    $("#spinnerLoading").addClass("d-none");
+                    $('.freeDiv').removeClass("d-none");
+                    $(".spinnerLoading").addClass("d-none");
                     return;
                 }
-                $("#spinnerLoading").addClass("d-none");
-                $('#freeDiv').addClass("d-none");
+                $(".spinnerLoading").addClass("d-none");
+                $('.freeDiv').addClass("d-none");
+                if(intervalIds && intervalIds.length > 0){
+                    intervalIds.forEach((id) => {
+                        clearInterval(id);
+                    })
+                }
                data.forEach(room => { 
                     const newSchedule = `
                         <div class="card m-2" id=${room.id}>
                             <div class="card-body p-2">
                                 <div class="d-flex justify-content-between">
-                                    <small class="card-text text-danger" id="${room.roomId}">${(room.endAt && room.startAt) ? (room.endAt) : 'Now' }
+                                    <small class="card-text text-danger ${room.roomId}" id="${room.roomId}">${(room.endAt && room.startAt) ? (room.endAt) : 'Now' }
                                     </small>
                                     ${room.owner ? `<div class="dropdown">
                                         <i class="bi bi-three-dots-vertical" id="dropdownMenuButton"
                                             data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
                                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                            <a class="dropdown-item edit-button" data-id=${room.id} data-bs-toggle="modal" data-bs-target="#updateRoomModal">Edit</a>
+                                            <a class="dropdown-item edit-button" data-id=${room.id} data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#updateRoomModal">Edit</a>
                                             <a class="dropdown-item delete-button" data-id=${room.id} data-roomname="${room.roomName}" data-bs-toggle="modal" data-bs-target="#deleteRoomModal">Delete</a>
                                         </div>
                                     </div>` : '' }
@@ -1101,6 +1189,8 @@
                         </div>
                     `
                     $('#meeting-schedule').append(newSchedule);
+
+                    $('#meeting-schedule-modal').append(newSchedule);
 
                     const roomId = room.roomId;
                     updateTimeInterval(room.startAt, room.endAt, roomId);
@@ -1198,6 +1288,7 @@
             alertElement.innerHTML = `${message} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
 
             document.getElementById(container).appendChild(alertElement);
+            console.log("alert showed")
 
             setTimeout(() => {
                 const alert = document.querySelector('.alert');
@@ -1217,13 +1308,18 @@
         const startAt = document.getElementById('startAt');
         const endAt = document.getElementById('endAt');
         function validateDates() {
-                const now = new Date().toISOString().slice(0, 16);
-                datetime1.setAttribute('min', now);
+            try{
+const now = new Date().toISOString().slice(0, 16);
+            datetime1.setAttribute('min', now);
 
-                if (datetime1.value) {
-                    datetime2.setAttribute('min', datetime1.value);
-                }
+            if (datetime1.value) {
+                datetime2.setAttribute('min', datetime1.value);
             }
+            }
+            catch (e) {
+                showAlert("Error: " + e.message, 'alert-container2')
+            }
+        }
 
         datetime1.addEventListener('change', validateDates);
         datetime2.addEventListener('change', validateDates);
@@ -1236,6 +1332,7 @@
             return isoString + timezoneOffset;;
         }
         $("#updateScheduleButton").on("click", function (){
+            console.log("updateScheduleButton clicked")
             const checkboxes = document.querySelectorAll('.list-group-item .form-check-input-update');
             let weekly = [];
             checkboxes.forEach(checkbox => {
@@ -1248,13 +1345,15 @@
             if (startAt.value && endAt.value) {
                 const date1 = new Date(startAt.value);
                 const date2 = new Date(endAt.value);
-
+          
                 if ( date2 <= date1) {
+                            console.log("updateScheduleButton clicked4")
                     event.preventDefault();
 
                     showAlert('Please ensure that the second date is later than the first.', 'alert-container2')
                 }
                 else{
+                      console.log("updateScheduleButton clicked5")
                     let roomName = $("#meetingNameValue").val();
                     if(roomName.trim().length == 0){
                         showAlert('Room name is required', 'alert-container2');
@@ -1277,6 +1376,9 @@
 
                     $('#closeUpdateScheduleModal').click();
                 }
+            }
+            else{
+                showAlert('Please enter valid date', 'alert-container2')
             }
         });
 
@@ -1703,9 +1805,9 @@
         if (end) {
             end = new Date(end);
         }
-        const element = document.getElementById(id);
+        const elements = document.getElementsByClassName(id);
 
-        if (element) {
+        if (elements) {
             if(!start){
                 element.textContent = '---';
                 clearInterval(intervalIds[id]); 
@@ -1714,20 +1816,24 @@
                 if(end){
                     if(now < end){
                         const minutes = formatTimeDifference(now - start);
-                        element.textContent = `Now`;
+                        elements[0].textContent = `Now`;
+                        elements[1].textContent = `Now`;
                     }
                     else{
-                        element.textContent = 'End';
+                        elements[0].textContent = 'End';
+                        elements[1].textContent = 'End';
                         clearInterval(intervalIds[id+startDay]);
                     }
                 }
                 else{
-                    element.textContent = 'Now';
+                    elements[0].textContent = 'Now';
+                    elements[1].textContent = 'Now';
                     clearInterval(intervalIds[id+startDay]);; 
                 }
             } else if (now < start) {
                 const minutes = formatTimeDifference(start - now);
-                element.textContent = `Start in ${minutes}`;
+                elements[0].textContent = `Start in ${minutes}`;
+                elements[1].textContent = `Start in ${minutes}`;
             }
         } else {
             console.error(`Không tìm thấy thẻ với id ${id}`);
